@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <radialGradient id="w" cx="38%" cy="30%" r="85%">
+    <stop offset="0%" stop-color="#A32B38"/>
+    <stop offset="45%" stop-color="#8D1E2B"/>
+    <stop offset="78%" stop-color="#651B27"/>
+    <stop offset="100%" stop-color="#4E1620"/>
+  </radialGradient>
+  <path d="M32 3 C41 2, 49 6, 54 13 C59 20, 61 27, 59 35 C57 43, 51 50, 43 54 C35 58, 26 58, 19 53 C12 48, 6 41, 5 33 C4 25, 7 16, 13 10 C19 5, 24 4, 32 3 Z" fill="url(#w)"/>
+  <circle cx="32" cy="32" r="21" fill="none" stroke="#F3DCC4" stroke-width="1" opacity=".25"/>
+  <circle cx="32" cy="32" r="17" fill="none" stroke="#F3DCC4" stroke-width="1.4" opacity=".35"/>
+  <text x="32" y="38" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="21" fill="#F3DCC4">A·J</text>
+</svg>

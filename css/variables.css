@@ -1,0 +1,83 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE HEIRLOOM FILM · variables.css
+   Design tokens — the whole visual identity in one place.
+   Palette, typography, spacing, shadows and motion.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Palette ──────────────────────────────────────────────────
+     Burgundy heirloom stationery: aged papers, oxblood wax,
+     antique champagne linework, muted olive botanicals.        */
+  --burgundy:      #5D2029;
+  --burgundy-deep: #4B1A22;
+  --wine:          #35181D;
+  --crimson:       #8D1E2B;
+  --ivory:         #F7F4EE;
+  --paper-raised:  #FBF9F4;
+  --parchment:     #EEE8DD;
+  --champagne:     #CDBB9A;
+  --champagne-soft:#B9A47E;
+  --olive:         #777957;
+  --olive-deep:    #66684A;
+  --sage:          #A1A18A;
+  --rose:          #C5A0A0;
+  --ink:           #292622;
+  --ink-soft:      #4E4942;
+  --charcoal:      #70695F;
+  /* dark editorial atmosphere — the cinematic interludes */
+  --night:         #24090D;
+  --night-deep:    #1A060A;
+  --gold:          #B7A078;
+  --site-background:
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)),
+    var(--night);
+
+  /* ── Typography — four voices, four jobs ─────────────────────
+     Editorial     : Bodoni Moda        — dates, section headings,
+                                          venue name, countdown;
+                                          the fashion-magazine voice
+     Romantic serif: Cormorant Garamond — prose, leads, values
+     Expressive    : Pinyon Script      — ONLY the couple's names
+                                          and signature moments
+     Handwritten   : La Belle Aurore    — scrapbook annotations,
+                                          photo captions, notes
+     Functional    : Jost               — labels, nav, forms        */
+  --font-editorial: 'Bodoni Moda', 'Bodoni MT', 'Didot', 'Times New Roman', serif;
+  --font-display: 'Cormorant Garamond', 'Cormorant', 'Times New Roman', Georgia, serif;
+  --font-script:  'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive;
+  --font-hand:    'La Belle Aurore', 'Bradley Hand', 'Segoe Script', cursive;
+  --font-body:    'Jost', 'Century Gothic', 'Futura', 'Helvetica Neue', Arial, sans-serif;
+
+  /* fluid scale */
+  --fs-eyebrow:   clamp(.6rem, 1.6vw, .72rem);
+  --fs-small:     clamp(.74rem, 1.8vw, .84rem);
+  --fs-body:      clamp(1.02rem, 2.2vw, 1.1rem);
+  --fs-lead:      clamp(1.12rem, 2.5vw, 1.24rem);
+  --fs-h3:        clamp(1.3rem, 3.6vw, 1.6rem);
+  --fs-h2:        clamp(2rem, 6.5vw, 3.4rem);
+  --fs-h1:        clamp(2.6rem, 9.5vw, 5.4rem);
+  --fs-script:    clamp(2.4rem, 9vw, 5.6rem);
+  --fs-script-xl: clamp(3.4rem, 14vw, 9.5rem);
+  --fs-date-hero: clamp(3.4rem, 13vw, 9rem);
+
+  /* ── Layout ─────────────────────────────────────────────────── */
+  --w-content: 78rem;
+  --w-narrow:  52rem;
+  --w-text:     38rem;
+  --pad-section: clamp(4.2rem, 12vh, 8.5rem);
+  --pad-gutter: clamp(1.25rem, 5vw, 3rem);
+
+  /* ── Shadows — soft, natural, paper-like ─────────────────────── */
+  --shadow-paper: 0 1px 2px rgba(41, 35, 34, .07), 0 8px 22px rgba(41, 35, 34, .08);
+  --shadow-lift:   0 2px 5px rgba(41, 35, 34, .08), 0 22px 48px rgba(41, 35, 34, .14);
+  --shadow-flat:   0 1px 3px rgba(41, 35, 34, .08), 0 10px 26px rgba(41, 35, 34, .09);
+  --shadow-seal:   0 4px 10px rgba(66, 24, 32, .45), 0 14px 30px rgba(66, 24, 32, .28);
+
+  /* ── Motion ──────────────────────────────────────────────────── */
+  --ease-soft: cubic-bezier(.22, .61, .21, 1);
+  --ease-paper: cubic-bezier(.34, .9, .28, 1);
+  --t-fast: .28s;
+  --t-med:  .55s;
+  --t-slow: .72s;
+
+}

@@ -1,0 +1,325 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE HEIRLOOM FILM · responsive.css
+   Mobile-first adaptations for tablet, phone, short viewports and
+   large screens — plus reduced-motion and print courtesy.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Large screens: keep the compositions composed ─────────────── */
+@media (min-width: 1600px) {
+  :root { --pad-section: 10rem; }
+  .container { width: min(80rem, 88%); }
+}
+
+/* ── ≤ 1024px — the two-column editorials stack ────────────────── */
+@media (max-width: 1024px) {
+  .story-grid,
+  .details-grid,
+  .venue-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(2.4rem, 6vw, 3.6rem);
+  }
+  .story-collage { padding-top: 3.5rem; }
+  .details-portrait { width: min(100%, 38rem); margin-inline: auto; }
+  .venue-head { margin-top: -2.6rem; }
+  .venue-feature { aspect-ratio: 16 / 10; }
+}
+
+/* ── ≤ 880px — navigation condenses to its menu ─────────────────── */
+@media (max-width: 880px) {
+  .nav__links { display: none; }
+}
+@media (min-width: 881px) {
+  .menu-toggle { display: none; }
+}
+
+/* ── ≤ 760px — collage re-composed for one hand ─────────────────── */
+@media (max-width: 760px) {
+  :root {
+    --pad-section: clamp(3.25rem, 9vh, 5rem);
+    --pad-gutter: clamp(1.1rem, 5vw, 1.65rem);
+  }
+
+  /* opening: everything still fits, nothing squashed */
+  .opening__names { font-size: clamp(2.6rem, 12vw, 3.6rem); }
+  .envelope-stage { width: min(88vw, 27rem); }
+  .opening__inner { gap: clamp(.85rem, 2.6vh, 1.5rem); }
+  .opening { padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)); }
+
+  .nav { padding-top: env(safe-area-inset-top); }
+  .nav__inner { gap: .75rem; }
+  .nav__brand { min-width: 0; gap: .5rem; }
+  .nav__wordmark {
+    max-width: min(52vw, 13rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: .2em;
+  }
+  .nav__mono { flex: none; }
+
+  .kicker {
+    max-width: 100%;
+    gap: .55rem;
+    white-space: normal;
+    letter-spacing: .23em;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .kicker::before,
+  .kicker::after {
+    flex: 1 1 1.25rem;
+    width: auto;
+    min-width: 1rem;
+  }
+
+  /* story: cluster becomes a staggered stack, keeps its tilts */
+  .story-collage {
+    grid-template-columns: repeat(6, 1fr);
+    padding-block: 2.5rem 2rem;
+  }
+  .story-photo { grid-row: auto; align-self: auto; }
+  .sp-a { grid-column: 1 / 6; }
+  .sp-b { grid-column: 3 / 7; margin: -1.1rem 0 0 -0.6rem; }
+  .sp-c { grid-column: 1 / 4; margin: -0.8rem 0 0 .4rem; }
+  .sp-d { grid-column: 2 / 7; margin: .4rem 0 0; margin-right: 0; }
+  .story-caption {
+    left: auto; right: .8rem;
+    bottom: .9rem;
+    font-size: clamp(1.4rem, 6vw, 1.9rem);
+  }
+  .story-garland { width: 8.5rem; right: -2.4rem; top: 1.2rem; }
+  .story-garland--bottom { display: none; }
+  .story-note { margin-top: 1.6rem; }
+
+  /* save the date: the cluster simplifies to two overlapping prints */
+  .std-photos { margin-bottom: clamp(2.2rem, 7vw, 3rem); }
+  .std-photo--tall { grid-column: 2 / 8; }
+  .std-photo--wide { grid-column: 5 / 13; margin-top: -2.2rem; }
+  .std-photo--arch { display: none; }
+  .std-crossing {
+    width: 100%;
+    margin-left: 0;
+    margin-top: -.42em;
+    text-align: center;
+    font-size: clamp(1.7rem, 6.5vw, 2.8rem);
+  }
+  .std-date {
+    font-size: clamp(2.5rem, 11vw, 5rem);
+    letter-spacing: .025em;
+  }
+  .std-date-eyebrow { letter-spacing: .24em; line-height: 1.8; }
+  .std-actions { gap: .75rem; }
+  .std-actions > * { width: min(100%, 22rem); }
+  .std-note { max-width: 34ch; margin-inline: auto; }
+  .std-seal { width: clamp(3.5rem, 12vw, 5rem); }
+
+  .itinerary-head { margin-bottom: 2rem; }
+  .itinerary-head .display { font-size: clamp(2.5rem, 10vw, 4.4rem); }
+  .day-words {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1.35rem;
+  }
+  .day-word {
+    min-height: 6.4rem;
+    border-right: 1px solid rgba(205, 187, 154, .22);
+  }
+  .day-word:nth-child(3n) { border-right: 1px solid rgba(205, 187, 154, .22); }
+  .day-word:nth-child(2n) { border-right: 0; }
+  .day-word:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+  .day-word__icon { width: 1.25rem; }
+  .day-word__text { font-size: clamp(1.5rem, 5vw, 2.05rem); }
+
+  .details-copy > .display br,
+  .palette-heading > .display br { display: none; }
+  .details-portrait picture { aspect-ratio: 4 / 3; }
+  .palette-layout { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
+  .palette-swatches { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .venue-grid { gap: 2rem; }
+  .venue-actions > * { min-height: 44px; }
+  .rsvp-card { padding: 2rem clamp(1.1rem, 5vw, 2rem); }
+  .rsvp-form { gap: 1.35rem; }
+  .hg-inner { padding-inline: var(--pad-gutter); }
+  .hg-intro { margin-bottom: 2.4rem; }
+  .hg-mode-deck .hg-stage { width: min(76vw, 352px); }
+  .hg-controls { gap: 1rem; }
+
+  /* venue: the feature photograph holds the frame */
+  .venue-feature { aspect-ratio: 4 / 3.4; min-height: 15rem; }
+  .venue-head { margin-top: -2.2rem; }
+  .venue-name { font-size: clamp(2.2rem, 10vw, 3.2rem); }
+}
+
+/* ── ≤ 560px — the smallest phones stay elegant ────────────────── */
+@media (max-width: 560px) {
+  :root { --pad-section: clamp(3rem, 8vh, 4.25rem); }
+  .container { width: calc(100% - var(--pad-gutter) - var(--pad-gutter)); }
+  .nav__inner { padding-block: .45rem; }
+  .icon-btn { width: 2.75rem; height: 2.75rem; }
+  .menu ul {
+    width: 100%;
+    min-height: 0;
+    max-height: calc(100vh - 1rem);
+    max-height: calc(100dvh - 1rem);
+    overflow-y: auto;
+    gap: .7rem;
+    padding: 4rem 1.2rem 1.5rem;
+  }
+  .menu a {
+    gap: .65rem;
+    font-size: clamp(1.35rem, 6vw, 1.8rem);
+  }
+  .menu a span { font-size: .56rem; letter-spacing: .2em; }
+  .menu__close { top: max(.75rem, env(safe-area-inset-top)); right: 1rem; }
+  .invite-card { padding: 2.6rem 1.2rem 2.3rem; }
+  .invite-card .flourish { width: 2.3rem; }
+  .invite-card__names { font-size: clamp(2.45rem, 11vw, 3.4rem); }
+  .invite-card__datewords { letter-spacing: .2em; line-height: 1.8; }
+  .invite-card__lead { font-size: 1.05rem; }
+  .invite-card__timezone { font-size: .58rem; letter-spacing: .13em; }
+  .invite-actions { display: grid; grid-template-columns: 1fr; }
+  .invite-actions > * { width: min(100%, 22rem); margin-inline: auto; }
+  .story-grid { gap: 1.8rem; }
+  .story-title { font-size: clamp(2.1rem, 10vw, 3.5rem); }
+  .story-copy .prose { max-width: none; }
+  .story-collage { margin-inline: -.15rem; }
+  .story-caption {
+    right: .35rem;
+    bottom: .4rem;
+    max-width: calc(100% - .7rem);
+    white-space: normal;
+    text-align: right;
+    font-size: clamp(1.1rem, 5vw, 1.55rem);
+  }
+  .story-keepsake { top: .4rem; right: .15rem; }
+  .story-keepsake .stamp { width: 2.8rem; }
+  .std-kicker-line { gap: .5rem; }
+  .std-kicker-line::before,
+  .std-kicker-line::after { width: clamp(1rem, 8vw, 2.2rem); }
+  .std-kicker-line span {
+    font-size: .57rem;
+    letter-spacing: .22em;
+    padding-left: .2em;
+  }
+  .std-date { font-size: clamp(2.15rem, 10.2vw, 3.6rem); }
+  .std-crossing { font-size: clamp(1.55rem, 7vw, 2.25rem); }
+  .std-venue { margin-top: 1rem; }
+  .detail-item { grid-template-columns: 1.8rem minmax(0, 1fr); column-gap: .7rem; }
+  .palette-swatches { gap: .6rem; }
+  .palette-value { font-size: .5rem; letter-spacing: .06em; }
+  .venue-name { overflow-wrap: anywhere; }
+  .venue-address { gap: .65rem; }
+  .venue-sublines .sub { flex-wrap: wrap; row-gap: .15rem; }
+  .venue-actions > * { width: 100%; }
+  .count-row { gap: clamp(.55rem, 3vw, 1rem); }
+  .count-unit { min-width: 0; flex: 1 1 0; }
+  .count-num { font-size: clamp(1.85rem, 9vw, 2.7rem); }
+  .count-label { font-size: .55rem; letter-spacing: .16em; }
+  .count-summary { letter-spacing: .18em; line-height: 1.7; }
+  .closing-names { font-size: clamp(2.5rem, 11vw, 4rem); }
+  .closing-date { font-size: .62rem; letter-spacing: .2em; line-height: 1.8; }
+  .closing-actions > * { min-height: 44px; }
+
+  .field--half-row { grid-template-columns: 1fr; }
+  .choices { grid-template-columns: 1fr; }
+  .kicker { letter-spacing: .26em; gap: .7rem; }
+  .std-kicker-line .std-kicker-num { display: none; }
+  .btn { min-height: 44px; padding: .9em 1.25em; letter-spacing: .18em; }
+  .palette-swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 1.35rem; }
+  .palette-color { aspect-ratio: .9 / 1; }
+  .details-caption-meta { align-items: flex-start; flex-direction: column; gap: .25rem; }
+  .details-caption-meta i { display: none; }
+  .details-caption-meta { text-align: left; }
+  .rsvp-card { padding-inline: 1.1rem; }
+  .rsvp-title { font-size: clamp(1.85rem, 8vw, 2.6rem); }
+  .rsvp-summary > div { grid-template-columns: minmax(5rem, auto) minmax(0, 1fr); gap: .65rem; }
+  .rsvp-summary dt { letter-spacing: .14em; }
+  .rsvp-summary dd { overflow-wrap: anywhere; }
+  .hg-mode-deck .hg-stage { width: min(78vw, 352px); }
+  .hg-plate { padding: 8px; }
+  .hg-controls { gap: .75rem; }
+  .hg-btn { width: 44px; height: 44px; }
+  .footer { padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom)); }
+  .footer .small { font-size: .56rem; letter-spacing: .18em; line-height: 1.7; }
+}
+
+/* ── ≤ 440px — narrow phones: no squished prints ────────────────── */
+@media (max-width: 440px) {
+  .std-photo--tall { grid-column: 1 / 8; }
+  .std-photo--wide { grid-column: 4 / 13; margin-top: -1.25rem; }
+  .story-keepsake .postmark { display: none; }
+  .details-copy > .display { font-size: clamp(2.45rem, 11vw, 3.3rem); }
+  .palette-heading .display { font-size: clamp(2rem, 9vw, 2.75rem); }
+  .itinerary-head .display { font-size: clamp(2.35rem, 10vw, 3.2rem); }
+  .day-words { padding: 1rem; }
+  .day-words::before { inset: .45rem; }
+  .day-word { min-height: 5.6rem; gap: .45rem; padding-inline: .35rem; }
+  .day-word__icon { width: 1.05rem; }
+  .day-word__text { font-size: clamp(1.35rem, 5.8vw, 1.8rem); }
+  .venue-feature { min-height: 13rem; }
+  .closing-script { margin-top: 2.2rem; }
+  .menu ul { gap: .58rem; }
+}
+
+@media (max-width: 360px) {
+  :root { --pad-gutter: 1rem; }
+  .opening__inner { gap: .7rem; }
+  .envelope-stage { width: min(86vw, 19rem); }
+  .invite-card { padding-inline: 1rem; }
+  .invite-card__names { font-size: 2.3rem; }
+  .invite-card .flourish { width: 2rem; }
+  .std-date { font-size: clamp(2rem, 9.5vw, 2.65rem); }
+  .std-actions > * { width: 100%; }
+  .palette-swatches { column-gap: .45rem; }
+  .count-row { gap: .45rem; }
+  .count-num { font-size: 1.8rem; }
+  .count-label { letter-spacing: .1em; }
+  .closing-names { font-size: 2.35rem; }
+  .rsvp-summary > div { grid-template-columns: 1fr; gap: .25rem; }
+}
+
+/* ── Short viewports (landscape phones) — the cover still fits ──── */
+@media (max-height: 620px) and (max-width: 1024px) {
+  .opening__watermark { display: none; }
+  .opening { padding-block: max(.45rem, env(safe-area-inset-top)) max(.45rem, env(safe-area-inset-bottom)); }
+  .opening__inner { gap: .4rem; }
+  .opening__eyebrow { margin-bottom: .15rem; }
+  .opening__names { font-size: clamp(1.7rem, 7vh, 2.4rem); }
+  .envelope-stage { width: min(45vw, 14rem); }
+  .envelope-lace { display: none; }
+  .opening__hint { margin-block: .1rem; font-size: .95rem; }
+  .opening__open { min-height: 44px; padding: .65em 1.4em; }
+  .opening__skip {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: .25rem .4rem;
+    font-size: .58rem;
+  }
+}
+
+/* ── Reduced motion: everything readable, nothing required ───────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  html.js .reveal { opacity: 1; transform: none; }
+  .opening.is-leaving { transition: opacity .01ms; }
+}
+
+/* ── Print: the invitation, on real paper ───────────────────────── */
+@media print {
+  .opening, .nav, .menu, .skip-link, .btn, .std-actions,
+  .venue-actions, .rsvp-actions, .count-row, .closing-actions { display: none !important; }
+  .opening::after, .invite-card::before { display: none; }
+  .scene { padding-block: 1.8rem; background: #fff !important; }
+  .scene--burgundy, .scene--night, .scene--closing { color: #292322; background: #fff !important; }
+  .invite-card { box-shadow: none; border: 1px solid #999; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+}

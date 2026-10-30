@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- ============================================================
+       THE HEIRLOOM FILM — a burgundy-heirloom wedding invitation
+       ------------------------------------------------------------
+       EDIT BEFORE PUBLICATION — values marked "EDIT" throughout:
+       · Couple names & monogram   · Wedding date & time
+       · Venue, address, map link  · Story & closing copy (sample)
+       · Itinerary (js/config.js)  · Canonical / OG URLs
+       Dynamic values load from js/config.js or a published invitation.
+       Full guide: README.md
+       ============================================================ -->
+
+  <!-- EDIT: page title -->
+  <title>Amelia &amp; Julien · 18 September 2027 — A Love Letter</title>
+  <!-- EDIT: meta description -->
+  <meta name="description"
+    content="Amelia and Julien request the pleasure of your company at The Linden Estate, Willowbrook, on Saturday the eighteenth of September 2027. Open your invitation.">
+  <!-- Keep the sample invite out of search until its details and URLs are personalised. -->
+  <meta name="robots" content="noindex, nofollow">
+  <!-- Add canonical and social URLs when publishing the personalised invitation. -->
+
+  <!-- Open Graph / social sharing — EDIT: use absolute URLs when published -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Heirloom Film">
+  <meta property="og:title" content="Amelia &amp; Julien — An Invitation · 18.09.2027" data-meta-property="og:title" data-meta-content="content.socialTitle">
+  <meta property="og:description" data-meta-property="og:description" data-meta-content="content.socialDescription"
+    content="An heirloom envelope, a wax seal, and a love story — you are cordially invited.">
+  <meta property="og:image" content="assets/images/og-image.jpg" data-meta-property="og:image" data-meta-content="images.social">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Amelia &amp; Julien — An Invitation" data-meta-name="twitter:title" data-meta-content="content.socialTitle">
+  <meta name="twitter:description" content="Open your invitation — Saturday, 18 September 2027, The Linden Estate." data-meta-name="twitter:description" data-meta-content="content.socialDescription">
+  <meta name="twitter:image" content="assets/images/og-image.jpg" data-meta-name="twitter:image" data-meta-content="images.social">
+  <meta name="theme-color" content="#18070B">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/images/og-image.jpg">
+
+  <!-- Typography: Bodoni Moda (editorial) · Cormorant Garamond (romantic serif) · Pinyon Script (names only) · La Belle Aurore (handwriting) · Jost (functional) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..600&family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cedarville+Cursive&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&family=Jost:wght@300;400;500&family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Pinyon+Script&family=La+Belle+Aurore&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/envelope.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/rsvp.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/gallery.css">
+
+
+  <script>
+    /* js flag + intro-failure watchdog: if the deferred scripts never
+       arrive, the site still opens. Essential content is never trapped. */
+    (function () {
+      var r = document.documentElement;
+      r.className = r.className.replace(/\bno-js\b/, 'js');
+      window.addEventListener('load', function () {
+        window.setTimeout(function () {
+          if (document.body.classList.contains('intro-pending') && !window.__heirloomIntroReady) {
+            document.body.classList.remove('intro-pending');
+            document.body.classList.add('intro-done');
+            var o = document.getElementById('opening');
+            if (o) o.style.display = 'none';
+            if (document.querySelectorAll) {
+              document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in-view'); });
+            }
+          }
+        }, 2500);
+      });
+    })();
+  </script>
+</head>
+
+<body class="intro-pending">
+  <svg class="svg-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="icon-menu" viewBox="0 0 24 24">
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24">
+      <path d="m6 6 12 12M18 6 6 18" />
+    </symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24">
+      <path d="M7 3v4m10-4v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Z" />
+      <path d="M8 13h2m4 0h2M8 16h2" />
+    </symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24">
+      <path d="M13 5h6v6m0-6-9 9" />
+      <path d="M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+    </symbol>
+    <symbol id="icon-pin" viewBox="0 0 24 24">
+      <path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" />
+      <circle cx="12" cy="10" r="2.2" />
+    </symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24">
+      <path d="M20.2 8.6c0 5.2-8.2 10.1-8.2 10.1S3.8 13.8 3.8 8.6a4.1 4.1 0 0 1 7.3-2.5l.7.9.7-.9a4.1 4.1 0 0 1 7.7 2.5Z" />
+    </symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24">
+      <path d="M20 7v5h-5M4.8 9A7.5 7.5 0 0 1 18 6l2 2M4 17v-5h5m10.2 3A7.5 7.5 0 0 1 6 18l-2-2" />
+    </symbol>
+    <symbol id="divider" viewBox="0 0 240 40">
+      <path d="M4 20h82m68 0h82M91 20c10-12 18-12 29 0 11 12 19 12 29 0" />
+      <path d="M113 20c4-5 8-5 12 0-4 5-8 5-12 0Zm7-7v14" />
+    </symbol>
+    <symbol id="ornament-seal" viewBox="0 0 100 100">
+      <path d="M50 5 60 12 72 10 78 21 90 27 88 40 95 50 88 60 90 73 78 79 72 90 60 88 50 95 40 88 27 90 21 78 10 72 12 60 5 50 12 40 10 27 21 21 27 10 40 12Z" />
+      <circle cx="50" cy="50" r="29" />
+      <path d="M38 52c7-12 17-12 24 0M50 35v30" />
+    </symbol>
+    <symbol id="flourish" viewBox="0 0 60 60">
+      <path d="M5 55c0-25 16-43 50-50M13 47c-2-11-8-15-13-16m21 6c-1-10 3-16 10-19m-4 12c8-1 14 2 17 9M9 34c8-2 14 0 18 6M28 24c-1-8 1-14 7-19" />
+      <path d="M7 48c-3 2-5 4-6 7m17-18c-2 3-3 6-3 10m18-23c3-2 7-3 11-2" />
+    </symbol>
+    <symbol id="sprig" viewBox="0 0 80 80">
+      <path d="M12 70C25 51 41 32 68 10M22 56C13 50 9 42 10 33c10 2 16 8 18 17m7-21c-1-10 3-18 11-24 5 9 4 17-2 25m5 3c8-6 17-6 26-2-5 9-13 13-23 11" />
+    </symbol>
+    <symbol id="garland" viewBox="0 0 240 100">
+      <path d="M8 82C62 20 154 12 232 70M39 54c-8-18-5-31 7-42 12 13 14 27 4 41m31-23c-2-16 5-27 20-34 7 15 4 28-9 38m38-18c5-14 16-20 32-19 1 16-7 27-23 32m39-11c10-11 23-13 37-6-5 15-17 22-34 20" />
+      <path d="M64 34c-2 14 2 25 12 33m39-28c-6 14-4 26 5 37m38-42c-10 12-12 24-7 37m39-34c-13 9-18 20-17 34" />
+    </symbol>
+    <symbol id="lace" viewBox="0 0 600 400">
+      <path d="M0 200c75-120 150-120 225 0s150 120 225 0 100-120 150 0M0 200c75 120 150 120 225 0s150-120 225 0 100 120 150 0" />
+      <circle cx="75" cy="200" r="12" /><circle cx="225" cy="200" r="12" />
+      <circle cx="375" cy="200" r="12" /><circle cx="525" cy="200" r="12" />
+    </symbol>
+    <symbol id="postmark" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="27" /><circle cx="50" cy="50" r="21" />
+      <path d="M13 36h18m-21 7h20m-18 7h17m48-14h18m-16 7h20m-19 7h18" />
+      <path d="m50 37 4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1Z" />
+    </symbol>
+    <symbol id="stamp-mono" viewBox="0 0 90 110">
+      <path d="M7 3h76v104H7z" fill="#5D2029" stroke="#CDBB9A" stroke-width="2" />
+      <path d="M17 13h56v84H17z" fill="none" stroke="#CDBB9A" />
+      <text x="45" y="61" fill="#EEE8DD" font-family="serif" font-size="25" text-anchor="middle" data-couple-initials>A · J</text>
+      <path d="M27 72h36" stroke="#CDBB9A" />
+    </symbol>
+    <symbol id="stamp-rose" viewBox="0 0 90 110">
+      <path d="M7 3h76v104H7z" fill="#4B1A22" stroke="#CDBB9A" stroke-width="2" />
+      <path d="M17 13h56v84H17z" fill="none" stroke="#CDBB9A" />
+      <path d="M45 37c-7-11-20-2-13 8l13 17 13-17c7-10-6-19-13-8Z" fill="none" stroke="#EEE8DD" stroke-width="2" />
+      <path d="M29 72h32" stroke="#CDBB9A" />
+    </symbol>
+    <symbol id="stamp-sprig" viewBox="0 0 90 110">
+      <path d="M7 3h76v104H7z" fill="#5D2029" stroke="#CDBB9A" stroke-width="2" />
+      <path d="M17 13h56v84H17z" fill="none" stroke="#CDBB9A" />
+      <path d="M31 76c10-19 18-29 31-42m-23 31c-8-1-12-5-12-12 7 0 12 3 14 9m9-14c-1-7 2-12 8-15 4 7 3 12-2 17m3 4c6-3 11-2 15 1-4 6-9 8-15 5" fill="none" stroke="#EEE8DD" stroke-width="1.8" />
+    </symbol>
+  </svg>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ORNAMENT LIBRARY — every decorative asset of the suite,
+       drawn once as inline SVG symbols. Colours follow `color`.
+       ══════════════════════════════════════════════════════════ -->
+
+  <!-- ══════════════════════════════════════════════════════════
+       THE OPENING — a burgundy envelope, sealed in wax
+       ══════════════════════════════════════════════════════════ -->
+  <section id="opening" class="opening" aria-label="Your invitation awaits">
+    <span class="opening__watermark" aria-hidden="true">&amp;</span>
+
+    <div class="opening__inner">
+      <p class="opening__eyebrow eyebrow" data-content="content.openingEyebrow">A love letter from</p>
+      <p class="opening__names script" data-content="couple.names">Amelia &amp; Julien</p>
+
+      <div class="envelope-stage">
+        <svg class="envelope-lace" aria-hidden="true" focusable="false">
+          <use href="#lace" />
+        </svg>
+        <div class="envelope-shadow" aria-hidden="true"></div>
+
+        <!-- The entire envelope is one accessible control -->
+        <button id="envelope" class="envelope" type="button" aria-label="Open your invitation"
+          aria-describedby="opening-hint">
+          <span class="envelope__back" aria-hidden="true"></span>
+
+          <span class="envelope__letter" aria-hidden="true">
+            <span class="envelope__letter-inner">
+              <span class="envelope__letter-mono script" data-content="couple.initials">A · J</span>
+              <span class="envelope__letter-names" data-content="couple.names">Amelia &amp; Julien</span>
+              <span class="envelope__letter-rule" aria-hidden="true"></span>
+              <span class="envelope__letter-date" data-content="wedding.numerals">18 · 09 · 2027</span>
+            </span>
+          </span>
+
+          <span class="envelope__pocket" aria-hidden="true">
+            <span class="envelope__pocket-face"></span>
+            <span class="envelope__address">
+              <span class="envelope__to">To our dearest</span>
+              <span class="script" data-content="content.envelopeAddress">friends &amp; family</span>
+            </span>
+          </span>
+
+          <span class="envelope__flap" aria-hidden="true">
+            <span class="envelope__flap-face"></span>
+            <span class="envelope__flap-liner"></span>
+          </span>
+
+          <span class="envelope__stamps" aria-hidden="true">
+            <svg class="stamp" viewBox="0 0 90 110">
+              <use href="#stamp-mono" />
+            </svg>
+            <svg class="stamp" viewBox="0 0 90 110">
+              <use href="#stamp-rose" />
+            </svg>
+          </span>
+
+          <span class="envelope__seal" aria-hidden="true" data-content="couple.initials">A·J</span>
+        </button>
+      </div>
+
+      <p class="opening__hint" id="opening-hint">
+        <span class="opening__hint-rule" aria-hidden="true"></span>
+        <span data-content="content.openingHint">You are cordially invited</span>
+        <span class="opening__hint-rule" aria-hidden="true"></span>
+      </p>
+
+      <button id="open-invitation" class="btn opening__open" type="button" data-content="content.openButton">Open the Invitation</button>
+      <button id="skip-intro" class="opening__skip" type="button" data-content="content.skipButton">Skip straight to the invitation</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       THE SITE
+       ══════════════════════════════════════════════════════════ -->
+  <div id="site" class="site">
+
+    <header class="nav" data-nav>
+      <div class="nav__inner container">
+        <a class="nav__brand" href="#invitation" aria-label="Amelia and Julien — back to the invitation" data-aria-label-content="content.menuInvitation">
+          <span class="nav__mono" data-content="couple.initials">A·J</span>
+          <span class="nav__wordmark" data-content="couple.names">Amelia &amp; Julien</span>
+        </a>
+
+        <nav class="nav__links" aria-label="Sections">
+          <ul>
+            <li><a href="#story" data-content="content.navStory">Story</a></li>
+            <li><a href="#heirloom-gallery" data-content="content.navPhotos">Photos</a></li>
+            <li><a href="#details" data-content="content.navDetails">Details</a></li>
+            <li><a href="#venue" data-content="content.navVenue">Venue</a></li>
+            <li><a href="#rsvp" data-content="content.navRsvp">RSVP</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav__controls">
+          <!-- Optional ambient music — appears only when js/config.js provides a file -->
+          <button id="audio-toggle" class="icon-btn" type="button" aria-pressed="false" aria-label="Play ambient music"
+            hidden></button>
+          <button id="menu-toggle" class="icon-btn menu-toggle" type="button" aria-expanded="false"
+            aria-controls="mobile-menu" aria-label="Open menu">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-menu" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Full-screen scene index -->
+    <div id="mobile-menu" class="menu" role="dialog" aria-modal="true" aria-label="Invitation sections" hidden>
+      <nav aria-label="All sections">
+        <ul>
+          <li><a href="#invitation"><span>№ 01</span><span data-content="content.menuInvitation">The Invitation</span></a></li>
+          <li><a href="#story"><span>№ 02</span><span data-content="content.menuStory">Our Story</span></a></li>
+          <li><a href="#heirloom-gallery"><span>PHOTOS</span><span data-content="content.menuPhotos">The Visual Diary</span></a></li>
+          <li><a href="#save-the-date"><span>№ 03</span><span data-content="content.menuSaveDate">Save the Date</span></a></li>
+          <li><a href="#details"><span>№ 04</span><span data-content="content.menuDetails">The Details</span></a></li>
+          <li><a href="#palette"><span>№ 05</span><span data-content="content.menuPalette">The Palette</span></a></li>
+          <li><a href="#itinerary"><span>№ 06</span><span data-content="content.menuWeddingDay">The Wedding Day</span></a></li>
+          <li><a href="#venue"><span>№ 07</span><span data-content="content.menuVenue">Venue &amp; Location</span></a></li>
+          <li><a href="#rsvp"><span>№ 08</span><span data-content="content.menuRsvp">Kindly Respond</span></a></li>
+          <li><a href="#countdown"><span>№ 09</span><span data-content="content.menuCountdown">The Countdown</span></a></li>
+          <li><a href="#closing"><span>№ 10</span><span data-content="content.menuClosing">A Closing Note</span></a></li>
+        </ul>
+      </nav>
+      <button id="menu-close" class="icon-btn menu__close" type="button" aria-label="Close menu">
+        <svg class="icon" aria-hidden="true">
+          <use href="#icon-close" />
+        </svg>
+      </button>
+    </div>
+
+    <main id="main-content">
+      <!-- ══════════════════════════════════════════════════════════
+         № 01 · THE INVITATION — the letter, unfolded
+         ══════════════════════════════════════════════════════════ -->
+      <section id="invitation" class="scene scene--invitation" aria-labelledby="invitation-title">
+        <span class="watermark-editorial" aria-hidden="true">XVIII</span>
+        <div class="invite-side" aria-hidden="true">
+          <span data-content="wedding.numerals">18 · 09 · 2027</span>
+          <span data-content="venue.name">The Linden Estate</span>
+        </div>
+        <div class="container">
+          <article class="invite-card reveal" style="--reveal-delay:.15s">
+            <svg class="flourish flourish--tl" aria-hidden="true">
+              <use href="#flourish" />
+            </svg>
+            <svg class="flourish flourish--tr" aria-hidden="true">
+              <use href="#flourish" />
+            </svg>
+            <svg class="flourish flourish--bl" aria-hidden="true">
+              <use href="#flourish" />
+            </svg>
+            <svg class="flourish flourish--br" aria-hidden="true">
+              <use href="#flourish" />
+            </svg>
+            <svg class="sprig-top" aria-hidden="true">
+              <use href="#sprig" />
+            </svg>
+
+            <p class="invite-card__eyebrow eyebrow" data-content="content.invitationEyebrow">Together with their families</p>
+            <h1 id="invitation-title" class="invite-card__names script" tabindex="-1">
+              <span data-content="couple.partner-one">Amelia</span>
+              <span class="invite-card__ampersand" aria-hidden="true">&amp;</span>
+              <span data-content="couple.partner-two">Julien</span>
+            </h1>
+            <p class="invite-card__lead" data-content="content.invitationLead">request the honour of your presence as they exchange vows and begin their greatest adventure together.</p>
+
+            <div class="invite-card__ornament" aria-hidden="true">
+              <svg viewBox="0 0 280 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 27h69c15 0 19-13 30-13 9 0 13 7 19 13-6 6-10 13-19 13-11 0-15-13-30-13" />
+                  <path d="M270 27h-69c-15 0-19-13-30-13-9 0-13 7-19 13 6 6 10 13 19 13 11 0 15-13 30-13" />
+                  <path d="M140 27c-12-5-13-15 0-23 13 8 12 18 0 23Zm0 0c-12 5-13 15 0 23 13-8 12-18 0-23Z" />
+                  <path d="M117 27c-8-10-17-12-25-8 3 8 10 12 25 8Zm46 0c8-10 17-12 25-8-3 8-10 12-25 8Z" />
+                  <path d="M140 4v46" />
+                  <circle cx="140" cy="27" r="2.2" fill="currentColor" stroke="none" />
+                  <path d="M69 27h-7m156 0h-7" />
+                </g>
+              </svg>
+            </div>
+
+            <p class="invite-card__datewords" data-content="wedding.display">Saturday, 18 September 2027 · 4:00 PM</p>
+            <p class="invite-card__timezone">Venue local time · <span data-content="wedding.zoneLabel">GMT+2</span></p>
+            <p class="invite-card__venue"><span data-content="venue.name">The Linden Estate</span> <span data-content="content.invitationVenueSuffix">· Willowbrook</span></p>
+
+            <div class="invite-actions">
+              <a class="btn" href="#rsvp">Kindly reply</a>
+              <a class="btn btn--ghost" href="#venue">View directions</a>
+            </div>
+
+         
+          </article>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 02 · OUR STORY — a scrapbook collage
+         ══════════════════════════════════════════════════════════ -->
+      <section id="story" class="scene scene--story" aria-labelledby="story-title">
+        <div class="container story-grid">
+          <div class="story-copy">
+            <p class="kicker" data-content="content.storyKicker">№ 02 · Their Story</p>
+            <h2 id="story-title" class="story-title"><span data-content="content.storyTitle">Our</span> <span class="script-inline" data-content="content.storyTitleScript">Story</span></h2>
+            <div class="prose">
+              <!-- EDIT: replace with your own love story -->
+              <p data-content="content.storyParagraphOne">Every love story deserves a beautiful beginning, and ours started in the most ordinary of places — a crowded bookshop, a shared table, and one conversation neither of us wanted to end.</p>
+              <p data-content="content.storyParagraphTwo">Three cities, a thousand small adventures and one borrowed umbrella later, we are finally writing the chapter we always dreamed of. We would love nothing more than to have you beside us as we turn the page.</p>
+            </div>
+            <p class="story-note"><span data-content="content.storyNote">somewhere between hello &amp; forever</span><small data-content="content.storyNoteCredit">— a note we keep returning to</small></p>
+          </div>
+
+          <div class="story-collage" data-stagger>
+            <svg class="story-garland" aria-hidden="true">
+              <use href="#garland" />
+            </svg>
+
+            <div class="story-photo sp-a reveal reveal--media">
+              <figure class="polaroid">
+                <picture>
+                  <img src="assets/images/story-01.jpg" data-image="images.storyOne" data-alt="content.storyAltOne" width="870" height="1152"
+                    alt="Illustrative close-up of a bride's lace-sleeved hand resting in the groom's hand"
+                    loading="lazy" decoding="async">
+                </picture>
+                <figcaption data-content="content.storyCaptionOne">the first chapter</figcaption>
+              </figure>
+              <span class="tape tape--topleft" aria-hidden="true"></span>
+            </div>
+
+            <div class="story-photo sp-b reveal reveal--media">
+              <figure class="polaroid">
+                <picture>
+                  <img src="assets/images/story-02.jpg" data-image="images.storyTwo" data-alt="content.storyAltTwo" width="875" height="1152"
+                    alt="Illustrative reception photograph of a bride celebrating with her guests"
+                    loading="lazy" decoding="async">
+                </picture>
+                <figcaption data-content="content.storyCaptionTwo">always, us</figcaption>
+              </figure>
+              <span class="tape tape--toright" aria-hidden="true"></span>
+            </div>
+
+            <div class="story-photo sp-c reveal reveal--media">
+              <figure class="photo photo--arch">
+                <picture>
+                  <img src="assets/images/story-03.jpg" data-image="images.storyThree" data-alt="content.storyAltThree" width="995" height="1152"
+                    alt="Illustrative wedding table with a small floral arrangement and place settings"
+                    loading="lazy" decoding="async">
+                </picture>
+              </figure>
+              <span class="tape tape--top" aria-hidden="true"></span>
+            </div>
+
+            <div class="story-photo sp-d reveal reveal--media">
+              <figure class="polaroid">
+                <picture>
+                  <img src="assets/images/diary-07.jpg" data-image="images.storyFour" data-alt="content.storyAltFour" width="900" height="1200"
+                    alt="A newlywed couple walking together through a mountain meadow at sunset"
+                    loading="lazy" decoding="async">
+                </picture>
+                <figcaption data-content="content.storyCaptionFour">the long way home</figcaption>
+              </figure>
+              <span class="tape tape--topleft" aria-hidden="true"></span>
+            </div>
+
+            <span class="story-caption" aria-hidden="true" data-content="content.storyAside">the beginning of always</span>
+
+            <div class="story-keepsake" aria-hidden="true">
+              <svg class="postmark">
+                <use href="#postmark" />
+              </svg>
+              <svg class="stamp" viewBox="0 0 90 110">
+                <use href="#stamp-sprig" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <svg class="story-garland story-garland--bottom" aria-hidden="true">
+          <use href="#garland" />
+        </svg>
+      </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+         № 03 · Gallery
+         ══════════════════════════════════════════════════════════ -->
+
+
+<section class="hg" id="heirloom-gallery" aria-labelledby="hg-title">
+
+  <div class="hg-inner">
+
+    <!-- ── A · Editorial introduction ─────────────────────────────── -->
+    <header class="hg-intro">
+      <p class="hg-eyebrow" data-content="content.visualDiaryEyebrow">The Visual Diary</p>
+      <h2 class="hg-heading" id="hg-title">
+        <span class="hg-heading-line" data-content="content.visualDiaryTitle">A story told in</span>
+        <span class="hg-heading-script" data-content="content.visualDiaryScript">quiet stills</span>
+      </h2>
+      <p class="hg-lead" data-content="content.visualDiaryLead">Some moments are too soft for words — they live best in photographs. Move through them slowly, the way you would turn the pages of a family album.</p>
+    </header>
+
+    <!-- handwritten hints; one is shown per interaction mode -->
+    <p class="hg-hint hg-hint-swipe" aria-hidden="true" data-content="content.visualDiarySwipeHint">swipe them gently, either way</p>
+    <p class="hg-hint hg-hint-scroll" aria-hidden="true" data-content="content.visualDiaryScrollHint">keep scrolling — the album turns itself</p>
+
+    <!-- ── B · Image stage ──────────────────────────────────────────
+         The photograph collection. TO EDIT THE COLLECTION:
+         add, remove or reorder a <figure class="hg-plate"> block.
+         · src    — your photograph (portrait 3:4 crops best)
+         · alt    — describe the image for screen readers
+         · data-caption — small handwritten line shown under the stage
+         · data-meta    — tiny folio label (no fabricated places/dates)
+         Keep the first two images loading="eager"; use "lazy" after. -->
+    <div class="hg-scrollwrap">
+      <div class="hg-stage" id="hg-stage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Heirloom photographs">
+
+        <span class="hg-folio" id="hg-folio" aria-hidden="true">01</span>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 1 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-01.jpg" data-image="images.diary01" data-alt="content.diaryAlt01" width="900" height="1200"
+            alt="A bride holding a bouquet of white and blush flowers"
+            data-caption="a bouquet gathered before the vows" data-caption-content="content.diaryCaption01" data-meta="no. i" data-meta-content="content.diaryFolio01"
+            loading="eager" fetchpriority="high" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 2 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-02.jpg" data-image="images.diary02" data-alt="content.diaryAlt02" width="900" height="1200"
+            alt="A newlywed couple releasing balloons as guests gather around a pool"
+            data-caption="the whole gathering sent them into the sky" data-caption-content="content.diaryCaption02" data-meta="no. ii" data-meta-content="content.diaryFolio02"
+            loading="eager" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 3 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-03.jpg" data-image="images.diary03" data-alt="content.diaryAlt03" width="900" height="1200"
+            alt="A bride and groom embracing on a pebble beach"
+            data-caption="the shoreline held their quiet portrait" data-caption-content="content.diaryCaption03" data-meta="no. iii" data-meta-content="content.diaryFolio03"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 4 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-04.jpg" data-image="images.diary04" data-alt="content.diaryAlt04" width="900" height="1200"
+            alt="A bride's bouquet of pink and cream roses against her wedding dress"
+            data-caption="the bouquet, just before the walk" data-caption-content="content.diaryCaption04" data-meta="no. iv" data-meta-content="content.diaryFolio04"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 5 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-05.jpg" data-image="images.diary05" data-alt="content.diaryAlt05" width="900" height="1200"
+            alt="A wedding table set with flowers, candles, and crystal glasses"
+            data-caption="summer flowers gathered around the table" data-caption-content="content.diaryCaption05" data-meta="no. v" data-meta-content="content.diaryFolio05"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 6 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-06.jpg" data-image="images.diary06" data-alt="content.diaryAlt06" width="900" height="1200"
+            alt="An outdoor wedding ceremony set beneath a flower-decorated gazebo"
+            data-caption="the aisle before anyone arrived" data-caption-content="content.diaryCaption06" data-meta="no. vi" data-meta-content="content.diaryFolio06"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 7 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-07.jpg" data-image="images.diary07" data-alt="content.diaryAlt07" width="900" height="1200"
+            alt="A bride and groom walking together through a mountain meadow at sunset"
+            data-caption="one last walk through the hills" data-caption-content="content.diaryCaption07" data-meta="no. vii" data-meta-content="content.diaryFolio07"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 8 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-08.jpg" data-image="images.diary08" data-alt="content.diaryAlt08" width="900" height="1200"
+            alt="Two wedding rings resting among soft pink and white flowers"
+            data-caption="two rings, tucked among the petals" data-caption-content="content.diaryCaption08" data-meta="no. viii" data-meta-content="content.diaryFolio08"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 9 of 9">
+          <div class="hg-media"><img
+            src="assets/images/diary-09.jpg" data-image="images.diary09" data-alt="content.diaryAlt09" width="900" height="1200"
+            alt="A garden wedding aisle framed by a bouquet of roses"
+             data-caption-content="content.diaryCaption09" data-meta="no. ix" data-meta-content="content.diaryFolio09"
+            loading="lazy" decoding="async"></div>
+        </figure>
+
+        <p class="hg-empty-note" aria-hidden="true">…to be continued at the reception…</p>
+      </div>
+    </div>
+
+    <!-- ── C · Caption + minimal controls ───────────────────────────
+         (this block re-parents itself into the sticky stage on
+         desktop — the JS handles it; keep it after the scrollwrap) -->
+    <div class="hg-chrome" id="hg-chrome">
+      <figure class="hg-captionbox">
+        <blockquote class="hg-caption" id="hg-caption">
+          <span class="hg-caption-a is-front"></span>
+          <span class="hg-caption-b"></span>
+        </blockquote>
+        <figcaption class="hg-caption-meta" id="hg-caption-meta"></figcaption>
+      </figure>
+      <div class="hg-controls">
+        <button class="hg-btn" type="button" id="hg-prev" aria-label="Previous photograph">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 2.5 4.5 8 10 13.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="hg-progress">
+          <span class="hg-progress-num" aria-hidden="true"><span id="hg-progress-cur">01</span><span class="hg-progress-sep">—</span><span id="hg-progress-total">09</span></span>
+          <span class="hg-progress-bar"><span class="hg-progress-fill" id="hg-progress-fill"></span></span>
+        </div>
+        <button class="hg-btn" type="button" id="hg-next" aria-label="Next photograph">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 2.5 11.5 8 6 13.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="hg-sr" id="hg-live" aria-live="polite"></p>
+    </div>
+
+    <!-- ── D · End state ──────────────────────────────────────────── -->
+    <div class="hg-end" id="hg-end">
+      <p class="hg-end-note" data-content="content.visualDiaryEndNote">the rest is still unfolding —</p>
+      <button class="hg-end-restart" type="button" id="hg-restart" data-content="content.visualDiaryRestart">begin again</button>
+    </div>
+
+  </div>
+</section>
+
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 03 · SAVE THE DATE — a burgundy pause
+         ══════════════════════════════════════════════════════════ -->
+      <section id="save-the-date" class="scene scene--std scene--burgundy" aria-labelledby="std-title">
+        <div class="container">
+
+          <div class="std-heading-wrap reveal">
+            <h2 id="std-title" class="std-kicker-line">
+              <span class="std-kicker-num" aria-hidden="true">№ 03</span>
+              <span data-content="content.saveDateTitle">Save the Date</span>
+            </h2>
+          </div>
+
+          <div class="std-date-wrap reveal">
+            <span class="std-date-eyebrow eyebrow eyebrow--light" data-content="wedding.words">Saturday · The Eighteenth
+              of September · Two Thousand Twenty-Seven</span>
+            <p class="std-date"><span data-content="wedding.numerals">18 · 09 · 2027</span></p>
+            <span class="std-crossing" aria-hidden="true" data-content="content.saveDateCrossing">forever is coming</span>
+            <span class="std-venue" data-content="venue.name">The Linden Estate</span>
+          </div>
+
+          <div class="std-actions reveal">
+            <button id="ics-download" class="btn btn--light" type="button">
+              <svg class="icon" aria-hidden="true">
+                <use href="#icon-calendar" />
+              </svg>
+              <span data-content="content.calendarDownloadLabel">Add to Calendar</span>
+            </button>
+            <a id="gcal-link" class="btn btn--outline-light" href="#save-the-date">
+              <svg class="icon" aria-hidden="true">
+                <use href="#icon-external" />
+              </svg>
+              <span data-content="content.calendarGoogleLabel">Google Calendar</span>
+            </a>
+          </div>
+
+          <p class="std-note reveal" data-content="content.saveDateNote">The date is set. Add it to your calendar and keep these details close.</p>
+          <svg class="std-seal" aria-hidden="true">
+            <use href="#ornament-seal" />
+          </svg>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 04 · WEDDING DETAILS — the particulars
+         ══════════════════════════════════════════════════════════ -->
+      <section id="details" class="scene scene--details" aria-labelledby="details-title">
+        <div class="container">
+          <div class="details-grid">
+            <div class="details-copy">
+              <p class="kicker reveal" data-content="content.detailsKicker">№ 04 · The Particulars</p>
+              <h2 id="details-title" class="display display--h2 reveal"><span data-content="content.detailsTitleFirst">Wedding</span><br><em data-content="content.detailsTitleSecond">Details</em></h2>
+              <p class="details-intro reveal" data-content="content.detailsIntro">The day, at a glance.</p>
+
+              <div class="details-list">
+                <article class="detail-item reveal">
+                  <span class="index" aria-hidden="true">01</span>
+                  <div>
+                    <h3 data-content="content.ceremonyLabel">The Ceremony</h3>
+                    <p class="value" data-content="content.ceremonyTime">Four o'clock</p>
+                    <p class="note" data-content="content.ceremonyNote">Vows beneath the linden trees, weather kindly permitting.</p>
+                  </div>
+                </article>
+
+                <article class="detail-item reveal">
+                  <span class="index" aria-hidden="true">02</span>
+                  <div>
+                    <h3 data-content="content.receptionLabel">The Reception</h3>
+                    <p class="value" data-content="content.receptionTime">Six thirty</p>
+                    <p class="note" data-content="content.receptionNote">Dinner, speeches and dancing in the orangery.</p>
+                  </div>
+                </article>
+
+                <article class="detail-item reveal">
+                  <span class="index" aria-hidden="true">03</span>
+                  <div>
+                    <h3 data-content="content.kindlyReplyLabel">Kindly Reply</h3>
+                    <p class="value">By <span data-content="rsvp.deadline">the first of August, 2027</span></p>
+                    <p class="note" data-content="content.kindlyReplyNote">Please send your response using the card below.</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <figure class="details-portrait reveal reveal--media" data-drift>
+              <picture>
+                <img src="assets/images/details-table.jpg" data-image="images.details" width="1344" height="768"
+                  alt="Illustrative wedding reception table with a bright floral centerpiece and crystal glasses"
+                  loading="lazy" decoding="async">
+              </picture>
+             
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 05 · THE PALETTE
+         ══════════════════════════════════════════════════════════ -->
+      <section id="palette" class="scene scene--palette" aria-labelledby="palette-title">
+        <div class="container palette-layout">
+          <header class="palette-heading">
+            <p class="kicker reveal" data-content="content.paletteKicker">№ 05 · A Note on Colour</p>
+            <h2 id="palette-title" class="display display--h2 reveal"><span data-content="content.paletteTitleFirst">The wedding</span><br><em data-content="content.paletteTitleSecond">palette</em></h2>
+            <p class="palette-intro reveal" data-content="content.paletteIntro">A study in garden greens, softened rose and candlelit neutrals — chosen to feel at home beneath the linden trees.</p>
+            <aside class="palette-dresscode reveal" aria-label="Dress code">
+              <div class="palette-dresscode__top">
+                <span class="palette-dresscode__label" data-content="content.dressCodeLabel">Attire · Garden celebration</span>
+                <svg class="palette-dresscode__icon" viewBox="0 0 64 76" fill="none" aria-hidden="true">
+                  <path d="M25 10c1.7 3.2 4.1 4.8 7 4.8s5.3-1.6 7-4.8l6 4.5-4 10.1 11 38.1H12l11-38.1-4-10.1L25 10Z" />
+                  <path d="M25 10c1.8 3.4 4.1 5.2 7 5.2s5.2-1.8 7-5.2m-15 14.6h16M21 39h22m-27 21c8-3.1 16-3.1 24 0m-26-8c7-2.8 14-2.8 21 0" />
+                  <path d="M28 9c0 2.1 1.4 3.5 4 3.5S36 11.1 36 9" />
+                </svg>
+              </div>
+              <p class="palette-dresscode__title" data-content="content.dressCodeTitle">Garden formal</p>
+              <span class="palette-dresscode__rule" aria-hidden="true"></span>
+              <p class="palette-dresscode__note" data-content="content.dressCodeNote">A little dressed up, a little garden-ready. Soft tones are welcome, but the palette is only a suggestion — wear what makes you feel wonderful.</p>
+            </aside>
+          </header>
+          <ol class="palette-swatches" aria-label="Wedding colours">
+            <li class="palette-swatch reveal">
+              <span class="palette-color" style="--swatch-color:#EFE7D8" aria-hidden="true"></span>
+              <span class="palette-name">Ivory</span><span class="palette-value">#EFE7D8</span>
+            </li>
+            <li class="palette-swatch reveal">
+              <span class="palette-color" style="--swatch-color:#777957" aria-hidden="true"></span>
+              <span class="palette-name">Linden</span><span class="palette-value">#777957</span>
+            </li>
+            <li class="palette-swatch reveal">
+              <span class="palette-color" style="--swatch-color:#C5A0A0" aria-hidden="true"></span>
+              <span class="palette-name">Rose</span><span class="palette-value">#C5A0A0</span>
+            </li>
+            <li class="palette-swatch reveal">
+              <span class="palette-color" style="--swatch-color:#5D2029" aria-hidden="true"></span>
+              <span class="palette-name">Oxblood</span><span class="palette-value">#5D2029</span>
+            </li>
+            <li class="palette-swatch reveal">
+              <span class="palette-color" style="--swatch-color:#CDBB9A" aria-hidden="true"></span>
+              <span class="palette-name">Champagne</span><span class="palette-value">#CDBB9A</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+      <!-- ══════════════════════════════════════════════════════════
+         № 06 · THE WEDDING DAY
+         (moments are rendered from HEIRLOOM.moments in js/config.js)
+         ══════════════════════════════════════════════════════════ -->
+      <section id="itinerary" class="scene scene--itinerary" aria-labelledby="itinerary-title">
+        <div class="container">
+          <div class="itinerary-head">
+            <p class="kicker reveal" data-content="content.weddingDayKicker">№ 06 · The Celebration</p>
+            <h2 id="itinerary-title" class="display display--h2 reveal"><span data-content="content.weddingDayTitleFirst">The Wedding</span><br><em data-content="content.weddingDayTitleSecond">Day</em></h2>
+            <div class="itinerary-ornament reveal" aria-hidden="true">
+              <svg viewBox="0 0 280 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 27h69c15 0 19-13 30-13 9 0 13 7 19 13-6 6-10 13-19 13-11 0-15-13-30-13" />
+                  <path d="M270 27h-69c-15 0-19-13-30-13-9 0-13 7-19 13 6 6 10 13 19 13 11 0 15-13 30-13" />
+                  <path d="M140 27c-12-5-13-15 0-23 13 8 12 18 0 23Zm0 0c-12 5-13 15 0 23 13-8 12-18 0-23Z" />
+                  <path d="M117 27c-8-10-17-12-25-8 3 8 10 12 25 8Zm46 0c8-10 17-12 25-8-3 8-10 12-25 8Z" />
+                  <path d="M140 4v46" />
+                  <circle cx="140" cy="27" r="2.2" fill="currentColor" stroke="none" />
+                  <path d="M69 27h-7m156 0h-7" />
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <ul class="day-words" id="day-words" data-stagger aria-label="Moments of the wedding day"></ul>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 07 · VENUE & LOCATION
+         ══════════════════════════════════════════════════════════ -->
+      <section id="venue" class="scene scene--venue scene--night" aria-labelledby="venue-title">
+        <figure class="venue-feature reveal reveal--media">
+          <picture>
+            <img src="assets/images/venue-feature.jpg" data-image="images.venue" width="1344" height="768"
+              alt="Illustrative reception table with small flowers, glassware, and patterned napkins"
+              loading="lazy" decoding="async" fetchpriority="low">
+          </picture>
+        </figure>
+
+        <div class="venue-body">
+          <div class="container">
+            <div class="venue-head reveal">
+              <p class="kicker kicker--light" data-content="content.venueKicker">№ 07 · The Place</p>
+              <h2 id="venue-title" class="venue-name" data-content="venue.name">The Linden Estate</h2>
+            </div>
+
+            <div class="venue-grid">
+              <div class="venue-copy reveal">
+                <p class="prose" data-content="content.venueDescription">A storied country estate wrapped in rose gardens and old linden trees — where candlelit dinners drift slowly into long summer evenings.</p>
+              </div>
+
+              <div class="venue-aside reveal">
+                <div class="venue-address">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#icon-pin" />
+                  </svg>
+                  <p data-content="venue.address">12 Linden Lane, Willowbrook</p>
+                </div>
+
+                <div class="venue-sublines">
+                  <p class="sub"><span class="label-caps" data-content="content.venueCeremonyLabel">Ceremony</span> <em data-content="content.venueCeremonyText">in the garden, at four o'clock</em></p>
+                  <p class="sub"><span class="label-caps" data-content="content.venueReceptionLabel">Reception</span> <em data-content="content.venueReceptionText">dinner &amp; dancing in the orangery</em>
+                  </p>
+                </div>
+
+                <div class="venue-actions">
+                  <a id="map-link" class="btn btn--light"
+                    href="https://www.google.com/maps/search/?api=1&query=The%20Linden%20Estate%2C%20Willowbrook"
+                    target="_blank" rel="noopener">
+                    <svg class="icon" aria-hidden="true">
+                      <use href="#icon-pin" />
+                    </svg>
+                    <span data-content="content.mapButton">View Location</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 08 · KINDLY RESPOND — the response card
+         ══════════════════════════════════════════════════════════ -->
+      <section id="rsvp" class="scene scene--rsvp" aria-labelledby="rsvp-title">
+        <span class="watermark-script" aria-hidden="true">répondez</span>
+        <div class="container">
+          <div class="rsvp-card reveal">
+            <p class="kicker kicker--center" data-content="content.rsvpKicker">№ 08 · Your Reply</p>
+            <h2 id="rsvp-title" class="rsvp-title" data-content="content.rsvpTitle">Kindly Respond</h2>
+            <p class="rsvp-deadline"><span data-content="content.rsvpLead">Kindly reply by</span> <span data-content="rsvp.deadline">the first of August, 2027</span>
+            </p>
+            <div class="rsvp-ornament" aria-hidden="true">
+              <svg viewBox="0 0 300 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 38h74c19 0 27-9 37-18m173 18h-74c-19 0-27-9-37-18" />
+                  <path d="M18 45h63m201 0h-63" opacity=".62" />
+                  <path d="M91 34c9-13 18-17 28-17m90 17c-9-13-18-17-28-17" />
+                  <path d="M102 34c-6-8-13-10-21-7 3 8 10 11 21 7Zm96 0c6-8 13-10 21-7-3 8-10 11-21 7Z" />
+                  <path d="M140 37c-13-6-15-17-3-29 3 5 7 8 13 10-1 8-4 14-10 19Zm20 0c13-6 15-17 3-29-3 5-7 8-13 10 1 8 4 14 10 19Z" />
+                  <path d="M150 17c-11 0-17 7-17 16 0 10 7 17 17 22 10-5 17-12 17-22 0-9-6-16-17-16Z" />
+                  <path d="M143 34c2-5 5-8 9-8s7 3 9 8c-2 5-5 8-9 8s-7-3-9-8Z" />
+                  <circle cx="150" cy="34" r="3" />
+                  <path d="M132 46c5 3 11 5 18 5s13-2 18-5m-18 5v8m-8 0h16" />
+                  <path d="M72 38c-5-5-11-7-17-5 2 6 8 9 17 8m156-3c5-5 11-7 17-5-2 6-8 9-17 8Z" />
+                  <circle cx="9" cy="38" r="2" fill="currentColor" stroke="none" />
+                  <circle cx="291" cy="38" r="2" fill="currentColor" stroke="none" />
+                </g>
+              </svg>
+            </div>
+
+            <form id="rsvp-form" class="rsvp-form" novalidate>
+              <div class="field" id="field-name">
+                <label for="rsvp-name" data-content="content.rsvpNameLabel">Your name</label>
+                <input id="rsvp-name" name="name" type="text" autocomplete="name" placeholder="e.g. Eleanor Whitmore" data-placeholder-content="content.rsvpNamePlaceholder"
+                  aria-describedby="err-name" required>
+                <p class="field-error" id="err-name" data-content="content.rsvpNameError" hidden>May we have your name? Two letters or more will do.</p>
+              </div>
+
+              <div class="field" id="field-email">
+                <label for="rsvp-email" data-content="content.rsvpEmailLabel">Email address</label>
+                <input id="rsvp-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" data-placeholder-content="content.rsvpEmailPlaceholder"
+                  aria-describedby="err-email" required>
+                <p class="field-error" id="err-email" data-content="content.rsvpEmailError" hidden>That email address does not look quite right.</p>
+              </div>
+
+              <fieldset class="field" id="field-attendance" aria-describedby="err-attendance">
+                <legend class="field-legend" data-content="content.rsvpAttendanceLabel">Will you be joining us?</legend>
+                <div class="choices">
+                  <label class="choice">
+                    <input type="radio" name="attendance" value="accepts">
+                    <span class="diamond" aria-hidden="true"></span>
+                    <span class="text" data-content="content.rsvpAcceptLabel">Joyfully accepts</span>
+                  </label>
+                  <label class="choice">
+                    <input type="radio" name="attendance" value="declines">
+                    <span class="diamond" aria-hidden="true"></span>
+                    <span class="text" data-content="content.rsvpDeclineLabel">Regretfully declines</span>
+                  </label>
+                </div>
+                <p class="field-error" id="err-attendance" data-content="content.rsvpAttendanceError" hidden>Please let us know whether you can come.</p>
+              </fieldset>
+
+              <div class="field">
+                <label for="rsvp-guests" data-content="content.rsvpGuestsLabel">Seats in your party</label>
+                <select id="rsvp-guests" name="guests">
+                  <option value="1">1 guest</option>
+                  <option value="2">2 guests</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="rsvp-dietary" data-content="content.rsvpDietaryLabel">Dietary requirements</label>
+                <textarea id="rsvp-dietary" name="dietary" rows="2"
+                  placeholder="Allergies, intolerances, or dishes to avoid" data-placeholder-content="content.rsvpDietaryPlaceholder"></textarea>
+              </div>
+
+              <div class="field">
+                <label for="rsvp-message" data-content="content.rsvpMessageLabel">A note for the couple</label>
+                <textarea id="rsvp-message" name="message" rows="3"
+                  placeholder="Song requests, memories, well wishes…" data-placeholder-content="content.rsvpMessagePlaceholder"></textarea>
+              </div>
+
+              <div class="rsvp-honeypot" aria-hidden="true">
+                <label for="rsvp-website">Leave this field empty</label>
+                <input id="rsvp-website" name="website" type="text" tabindex="-1" autocomplete="off">
+              </div>
+
+              <div class="rsvp-actions">
+                <button id="rsvp-submit" class="btn" type="submit">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#icon-heart" />
+                  </svg>
+                  <span data-content="content.rsvpSubmitLabel">Send Response</span>
+                </button>
+                <p class="rsvp-note" id="rsvp-demo-note">
+                  <strong>Demonstration mode</strong> — replies are checked here but never sent or stored.
+                  Publish this invitation on its Cloudflare Pages site to save guest replies.
+                </p>
+                <p class="rsvp-status" id="rsvp-status"><span id="rsvp-live" role="status" aria-live="polite"></span>
+                </p>
+              </div>
+            </form>
+
+            <div id="rsvp-preview" class="rsvp-preview" hidden>
+              <p class="script-intro">with gratitude, we have your reply</p>
+              <dl class="rsvp__summary rsvp-summary"></dl>
+              <p class="rsvp-note rsvp__demo-note">
+                This is a preview of your reply. <strong>Nothing has been sent or stored</strong> —
+                this invitation is currently running in demonstration mode.
+              </p>
+              <div class="rsvp-actions">
+                <button id="rsvp-edit" class="btn btn--ghost" type="button" data-content="content.rsvpAmendLabel">Amend the reply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 09 · THE COUNTDOWN
+         ══════════════════════════════════════════════════════════ -->
+      <section id="countdown" class="scene scene--countdown" aria-labelledby="countdown-title">
+        <div class="container">
+          <p class="kicker kicker--center reveal" data-content="content.countdownKicker">№ 09 · Counting the Moments</p>
+          <h2 id="countdown-title" class="count-script reveal"><span data-content="content.countdownTitle">until we say</span> <em data-content="content.countdownPromise">“I&nbsp;do”</em></h2>
+
+          <div class="count-row reveal" id="countdown-clock" role="timer" aria-label="Countdown to the wedding">
+            <div class="count-unit"><span class="count-num" data-cd-days>—</span><span
+                class="count-label label-caps" data-content="content.countdownDaysLabel">Days</span></div>
+            <div class="count-unit"><span class="count-num" data-cd-hours>—</span><span
+                class="count-label label-caps" data-content="content.countdownHoursLabel">Hours</span></div>
+            <div class="count-unit"><span class="count-num" data-cd-mins>—</span><span
+                class="count-label label-caps" data-content="content.countdownMinutesLabel">Minutes</span></div>
+            <div class="count-unit"><span class="count-num" data-cd-secs>—</span><span
+                class="count-label label-caps" data-content="content.countdownSecondsLabel">Seconds</span></div>
+          </div>
+
+          <p class="count-summary" id="countdown-summary" aria-live="polite"></p>
+          <p class="count-message" id="countdown-message" hidden></p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════
+         № 10 · A CLOSING NOTE — the last page of the suite
+         ══════════════════════════════════════════════════════════ -->
+      <section id="closing" class="scene scene--closing scene--burgundy" aria-labelledby="closing-title">
+        <svg class="closing-garland" aria-hidden="true">
+          <use href="#garland" />
+        </svg>
+        <div class="container">
+          <p class="closing-script" data-content="content.closingScript">with all our love</p>
+          <h2 id="closing-title" class="closing-names script" data-content="couple.names">Amelia &amp; Julien</h2>
+          <p class="closing-date">
+            <span data-content="wedding.numerals">18 · 09 · 2027</span>
+            &nbsp;·&nbsp;
+            <span data-content="venue.name">The Linden Estate</span>
+          </p>
+          <p class="closing-message" data-content="content.closingMessage">Thank you, from the bottom of our hearts, for being part of our story. We cannot wait to celebrate with you beneath the linden trees.</p>
+
+       
+
+         
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p class="small"><span data-content="couple.names">Amelia &amp; Julien</span> · <span
+            data-content="wedding.numerals">18 · 09 · 2027</span></p>
+        <p class="small" data-content="content.footerTagline">A day together, forever held.</p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Motion — GSAP via CDN; everything works without it -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+  <script src="js/boot.js" defer></script>
+</body>
+</html>

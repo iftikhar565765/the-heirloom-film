@@ -1,0 +1,205 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE HEIRLOOM FILM · rsvp.css
+   The response card's controls: under-ruled inputs, engraved
+   radio diamonds, a burgundy letterpress button, honest states.
+   ═══════════════════════════════════════════════════════════════ */
+
+.rsvp-form {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2rem);
+  text-align: left;
+}
+.rsvp-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ── Under-ruled text fields ────────────────────────────────────── */
+.field { display: grid; gap: .45rem; }
+.field--half-row { grid-template-columns: 1fr 1fr; gap: clamp(1rem, 3vw, 1.6rem); }
+.field--half-row .field { gap: .45rem; }
+
+.field label,
+.field-legend {
+  font-family: var(--font-body);
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+}
+fieldset.field { border: 0; padding: 0; margin: 0; min-width: 0; }
+.field-legend { border: 0; padding: 0; margin: 0; }
+
+.field input[type="text"],
+.field input[type="email"],
+.field select,
+.field textarea {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(212, 193, 160, .9);
+  border-radius: 0;
+  padding: .55rem .1rem .65rem;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.8vw, 1.2rem);
+  transition: border-color var(--t-fast) var(--ease-soft), background-color var(--t-fast);
+  appearance: none;
+  -webkit-appearance: none;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 5.2rem;
+  line-height: 1.55;
+}
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+  border-bottom-color: var(--burgundy);
+  background: rgba(212, 193, 160, .14);
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(110, 101, 93, .55);
+  font-style: italic;
+}
+
+/* select, redrawn with a champagne diamond */
+.field select {
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--burgundy) 50%),
+                    linear-gradient(135deg, var(--burgundy) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 55%, calc(100% - 9px) 55%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2rem;
+}
+.field select:invalid { color: rgba(110, 101, 93, .55); }
+
+/* ── Attendance choices — engraved radio diamonds ────────────────── */
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+}
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: clamp(.85rem, 2.5vw, 1.05rem) 1rem;
+  border: 1px solid rgba(212, 193, 160, .85);
+  background: rgba(252, 248, 240, .65);
+  cursor: pointer;
+  transition: border-color var(--t-fast), background-color var(--t-fast), box-shadow var(--t-fast);
+}
+.choice input {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+}
+.choice .diamond {
+  width: .85rem; height: .85rem;
+  flex: none;
+  transform: rotate(45deg);
+  border: 1px solid var(--burgundy);
+  background: transparent;
+  transition: background-color var(--t-fast) var(--ease-soft), box-shadow var(--t-fast);
+}
+.choice span.text {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2.6vw, 1.15rem);
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.2;
+}
+.choice:hover { border-color: var(--burgundy); box-shadow: 0 4px 14px rgba(66, 24, 32, .08); }
+.choice:has(input:checked) {
+  border-color: var(--burgundy);
+  background: rgba(101, 27, 39, .05);
+  box-shadow: inset 0 0 0 1px var(--burgundy);
+}
+.choice:has(input:checked) .diamond { background: var(--burgundy); box-shadow: 0 0 0 2px #FCF8F0, 0 0 0 3px rgba(101, 27, 39, .35); }
+.choice:has(input:checked) .text { color: var(--burgundy); }
+.choice input:focus-visible + .diamond { outline: 2px solid var(--burgundy); outline-offset: 3px; }
+
+/* ── Validation states ──────────────────────────────────────────── */
+.field.is-invalid input,
+.field.is-invalid select,
+.field.is-invalid textarea { border-bottom-color: var(--crimson); }
+.field-error {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  font-family: var(--font-body);
+  font-size: .66rem;
+  letter-spacing: .12em;
+  color: var(--crimson);
+}
+.choices .field-error { grid-column: 1 / -1; }
+
+/* ── Submit ─────────────────────────────────────────────────────── */
+.rsvp-actions { display: grid; justify-items: center; gap: .9rem; margin-top: .4rem; }
+.rsvp-note {
+  max-width: 42ch;
+  text-align: center;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.rsvp-note strong { font-style: normal; font-weight: 500; color: var(--burgundy); }
+
+/* ── Submission states ───────────────────────────────────────────── */
+.rsvp-status {
+  min-height: 1.2rem;
+  text-align: center;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--olive);
+}
+.rsvp-status [aria-live] { display: inline; }
+.rsvp-status.is-error { color: var(--crimson); }
+
+/* confirmation preview — a filled reply card */
+.rsvp-preview {
+  text-align: left;
+  display: grid;
+  gap: 1.2rem;
+}
+.rsvp-preview .script-intro {
+  text-align: center;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  color: var(--burgundy);
+  margin: 0;
+}
+.rsvp-summary { display: grid; gap: 0; border-top: 1px solid rgba(212, 193, 160, .7); }
+.rsvp-summary > div {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, auto) 1fr;
+  gap: 1rem;
+  padding: .8rem .2rem;
+  border-bottom: 1px solid rgba(212, 193, 160, .7);
+}
+.rsvp-summary dt {
+  font-family: var(--font-body);
+  font-size: .6rem;
+  font-weight: 500;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  padding-top: .25rem;
+}
+.rsvp-summary dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 2.8vw, 1.18rem);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.rsvp-preview .rsvp-actions { margin-top: .4rem; }

@@ -1,0 +1,423 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE HEIRLOOM FILM · envelope.css
+   The opening — a burgundy heirloom envelope, built from layered
+   elements so its parts move independently. GSAP drives the
+   sequence (js/envelope.js); the keyframes at the bottom are the
+   graceful fallback when GSAP fails to load.
+   ═══════════════════════════════════════════════════════════════ */
+
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  /* a dark, cinematic room — one warm spotlight, the letter lit */
+  background:
+    radial-gradient(52% 44% at 50% 46%, color-mix(in srgb, var(--champagne) 16%, transparent), transparent 72%),
+    radial-gradient(120% 80% at 50% -12%, color-mix(in srgb, var(--crimson) 30%, transparent), transparent 60%),
+    radial-gradient(130% 110% at 50% 118%, color-mix(in srgb, var(--burgundy) 45%, transparent), transparent 64%),
+    linear-gradient(178deg, var(--night) 0%, var(--night-deep) 62%, color-mix(in srgb, var(--night-deep) 90%, black) 130%);
+  padding: clamp(1rem, 4vh, 3rem);
+  overflow: hidden;
+}
+.opening::after { content: none; }
+
+/* oversized calligraphic ampersand, faint, behind everything */
+.opening__watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -54%);
+  font-family: var(--font-script);
+  font-size: clamp(16rem, 58vmin, 34rem);
+  line-height: 1;
+  color: var(--champagne);
+  opacity: .05;
+  pointer-events: none;
+  user-select: none;
+}
+
+.opening__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(115% 115% at 50% 42%, transparent 48%, rgba(10, 2, 4, .55) 100%);
+}
+
+.opening__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.1rem, 3.4vh, 2.1rem);
+  text-align: center;
+  max-height: 100%;
+}
+
+.opening__eyebrow {
+  font-size: var(--fs-eyebrow);
+  letter-spacing: .42em;
+  color: var(--champagne);
+}
+.opening__names {
+  font-size: clamp(3rem, 11vw, 5.6rem);
+  color: var(--ivory);
+  text-shadow:
+    0 1px 0 rgba(66, 24, 32, .8),
+    0 10px 34px rgba(212, 193, 160, .16);
+  margin: -.5rem 0 0;
+}
+
+.opening__hint {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1rem, 2.6vw, 1.25rem);
+  color: rgba(237, 227, 211, .92);
+}
+.opening__hint-rule {
+  width: clamp(1.4rem, 6vw, 3rem);
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--champagne-soft));
+}
+.opening__hint-rule:last-child { background: linear-gradient(to left, transparent, var(--champagne-soft)); }
+
+.opening__open {
+  padding: .95em 2.3em;
+}
+.opening__skip {
+  font-family: var(--font-body);
+  font-size: .66rem;
+  font-weight: 500;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(212, 193, 160, .8);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  padding: .55rem .2rem;
+  opacity: .85;
+  transition: color var(--t-fast), border-color var(--t-fast), opacity var(--t-fast);
+}
+.opening__skip:hover, .opening__skip:focus-visible {
+  color: var(--ivory);
+  border-bottom-color: var(--champagne-soft);
+  opacity: 1;
+}
+
+/* ── Stage ──────────────────────────────────────────────────────── */
+.envelope-stage {
+  position: relative;
+  width: min(84vw, 31rem);
+  aspect-ratio: 10 / 7;
+  display: grid;
+  place-items: center;
+}
+
+/* lace doily resting behind the envelope — a faint golden halo */
+.envelope-lace {
+  position: absolute;
+  width: 128%;
+  aspect-ratio: 1;
+  color: var(--gold);
+  opacity: .34;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(212, 193, 160, .12));
+}
+
+.envelope-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -7%;
+  width: 80%;
+  height: 36px;
+  transform: translateX(-50%);
+  background: radial-gradient(50% 50% at 50% 50%, rgba(5, 1, 2, .8), transparent 70%);
+  filter: blur(7px);
+}
+
+.envelope {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1100px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: block;
+}
+
+/* the "it's waiting" tell — one quiet breath, nothing looping fast */
+.envelope:not(.is-open) { animation: envelope-breathe 6s var(--ease-soft) infinite alternate; }
+@keyframes envelope-breathe {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-7px); }
+}
+
+/* ── Back panel ─────────────────────────────────────────────────── */
+.envelope__back {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 5px;
+  background: linear-gradient(172deg, var(--wine) 0%, color-mix(in srgb, var(--wine) 88%, black) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(248, 243, 234, .06),
+    inset 0 -16px 34px rgba(23, 8, 12, .55);
+}
+
+/* ── The letter inside ──────────────────────────────────────────── */
+.envelope__letter {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 5%;
+  top: auto;
+  height: 92%;
+  z-index: 1;
+  transform: translateY(4%);
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.envelope__letter-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  background: linear-gradient(168deg,
+    color-mix(in srgb, var(--paper-raised) 98%, white) 0%,
+    color-mix(in srgb, var(--ivory) 90%, var(--parchment)) 100%);
+  box-shadow: inset 0 0 0 1px rgba(212, 193, 160, .5), inset 0 0 0 5px rgba(252, 248, 240, 1), inset 0 0 0 6px rgba(212, 193, 160, .38);
+  padding: 1.2rem;
+  text-align: center;
+}
+.envelope__letter-mono {
+  font-family: var(--font-script);
+  font-size: clamp(1.35rem, 4.4vw, 1.9rem);
+  color: var(--burgundy);
+}
+.envelope__letter-names {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.15rem, 3.6vw, 1.6rem);
+  letter-spacing: .06em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.envelope__letter-rule {
+  width: 46px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--champagne-soft), transparent);
+}
+.envelope__letter-date {
+  font-family: var(--font-body);
+  font-size: clamp(.56rem, 1.7vw, .68rem);
+  font-weight: 500;
+  letter-spacing: .32em;
+  color: var(--charcoal);
+}
+
+/* ── The front pocket ──────────────────────────────────────────── */
+.envelope__pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 4px 8px rgba(23, 8, 12, .35));
+}
+.envelope__pocket-face {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--crimson) 82%, white) 0%,
+      var(--burgundy) 34%, color-mix(in srgb, var(--burgundy) 84%, black) 78%,
+      color-mix(in srgb, var(--burgundy) 72%, black) 100%);
+}
+.envelope__pocket-face::after {
+  /* side fold shading + bottom depth */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, rgba(23, 8, 12, .28) 0 4%, transparent 16% 84%, rgba(23, 8, 12, .28) 96% 100%),
+    linear-gradient(0deg, rgba(23, 8, 12, .38), transparent 30%),
+    linear-gradient(178deg, rgba(248, 243, 234, .07), transparent 18%);
+}
+
+/* address panel — a fine ivory plate on the burgundy pocket */
+.envelope__address {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translateX(-50%);
+  width: 74%;
+  padding: .8rem .6rem .95rem;
+  text-align: center;
+  background:   linear-gradient(172deg,
+    color-mix(in srgb, var(--paper-raised) 96%, transparent),
+    color-mix(in srgb, var(--parchment) 92%, transparent));
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 193, 160, .65),
+    inset 0 0 0 3px rgba(248, 243, 234, 1),
+    inset 0 0 0 4px rgba(212, 193, 160, .4),
+    0 2px 6px rgba(23, 8, 12, .3);
+}
+.envelope__to {
+  display: block;
+  font-family: var(--font-body);
+  font-size: clamp(.52rem, 1.6vw, .62rem);
+  font-weight: 500;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+}
+.envelope__address .script {
+  font-size: clamp(1.2rem, 4vw, 1.7rem);
+  color: var(--burgundy);
+  line-height: 1.05;
+  margin-top: .18rem;
+}
+
+/* ── The flap ───────────────────────────────────────────────────── */
+.envelope__flap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 48%;
+  z-index: 4;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.envelope__flap-face,
+.envelope__flap-liner {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.envelope__flap-face {
+  background: linear-gradient(184deg, color-mix(in srgb, var(--crimson) 82%, white) 0%,
+    var(--burgundy) 40%, color-mix(in srgb, var(--burgundy) 80%, black) 100%);
+  box-shadow: inset 0 0 0 1px rgba(248, 243, 234, .07);
+  filter: drop-shadow(0 3px 4px rgba(23, 8, 12, .4));
+}
+.envelope__flap-face::after { /* crease lines from corners to the tip */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - 1px), rgba(248, 243, 234, .09) 50%, transparent calc(50% + 1px)),
+    linear-gradient(to bottom left, transparent calc(50% - 1px), rgba(23, 8, 12, .16) 50%, transparent calc(50% + 1px));
+}
+.envelope__flap-liner {
+  transform: rotateX(180deg);
+  background:
+    radial-gradient(130% 110% at 50% 0%, rgba(248, 243, 234, .5), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(212, 193, 160, .32) 0 1px, transparent 1px 9px),
+    linear-gradient(184deg,
+      color-mix(in srgb, var(--paper-raised) 80%, var(--champagne)) 0%,
+      color-mix(in srgb, var(--parchment) 78%, var(--champagne)) 100%);
+}
+
+/* ── Postage stamps, tucked top-right ──────────────────────────── */
+.envelope__stamps {
+  position: absolute;
+  top: 4.5%;
+  right: 4.5%;
+  z-index: 6;
+  display: flex;
+  gap: .4rem;
+  pointer-events: none;
+}
+.envelope__stamps .stamp { width: clamp(3rem, 9vw, 3.6rem); height: auto; }
+.envelope__stamps .stamp:first-child { transform: rotate(5deg) translateY(4px); }
+.envelope__stamps .stamp:last-child  { transform: rotate(-3.5deg); }
+
+/* ── The wax seal ───────────────────────────────────────────────── */
+.envelope__seal {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  z-index: 7;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  will-change: transform, opacity;
+  display: grid;
+  place-items: center;
+  width: clamp(4.4rem, 13vw, 5.6rem);
+  height: clamp(4.4rem, 13vw, 5.6rem);
+  border-radius: 46% 54% 51% 49% / 52% 47% 53% 48%;
+  background:
+    radial-gradient(125% 125% at 34% 26%, color-mix(in srgb, var(--crimson) 72%, white) 0%,
+      var(--crimson) 38%, var(--burgundy) 62%, color-mix(in srgb, var(--burgundy) 70%, black) 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 214, 190, .28),
+    inset 0 -4px 8px rgba(23, 8, 12, .6),
+    inset 0 0 0 2px rgba(255, 214, 190, .1),
+    var(--shadow-seal);
+  color: var(--ivory);
+  font-family: var(--font-script);
+  font-size: clamp(1.5rem, 4.6vw, 2rem);
+  line-height: 1;
+  text-shadow:
+    0 1px 1px rgba(23, 8, 12, .8),
+    0 -1px 0 rgba(255, 224, 196, .3);
+  pointer-events: none;
+}
+.envelope__seal::after { /* pressed inner ring */
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 214, 190, .22);
+  box-shadow: inset 0 1px 2px rgba(23, 8, 12, .5);
+}
+.envelope:active .envelope__seal { transform: translate(-50%, -50%) rotate(-3deg) scale(.95); }
+
+/* ── Opening state hooks (driven by JS) ─────────────────────────── */
+.envelope.is-open { animation: none; }
+
+/* ── Fallback sequence — pure CSS, only when GSAP is absent ────── */
+.envelope.is-fallback-open .envelope__seal {
+  animation: seal-break .7s var(--ease-soft) forwards;
+}
+@keyframes seal-break {
+  40%  { transform: translate(-50%, -50%) rotate(9deg) scale(1.06); opacity: 1; }
+  100% { transform: translate(-50%, -40%) rotate(17deg) scale(.9); opacity: 0; }
+}
+.envelope.is-fallback-open .envelope__flap {
+  animation: flap-open 1.3s var(--ease-soft) .55s forwards;
+}
+@keyframes flap-open {
+  0%   { transform: rotateX(0); z-index: 4; }
+  84%  { transform: rotateX(-88deg); z-index: 4; }
+  85%  { transform: rotateX(-90deg); z-index: 0; }
+  100% { transform: rotateX(-105deg); z-index: 0; }
+}
+.envelope.is-fallback-open .envelope__letter {
+  animation: letter-rise 1.9s var(--ease-soft) 1.55s forwards;
+}
+@keyframes letter-rise {
+  0%   { transform: translateY(4%); }
+  55%  { transform: translateY(-62%); }
+  100% { transform: translateY(-58%) scale(1.9); }
+}
+
+/* the whole cover fades away once the sequence ends */
+.opening.is-leaving {
+  opacity: 0;
+  transform: scale(1.015);
+  transition: opacity 1s var(--ease-soft), transform 1s var(--ease-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .envelope:not(.is-open) { animation: none; }
+}
