@@ -9,7 +9,11 @@
   var colorAction = document.getElementById('canvas-color-action');
   var colorActionLabel = document.getElementById('canvas-color-label');
   var textColorInput = document.getElementById('canvas-text-color');
+  var bgColorInput = document.getElementById('canvas-bg-color');
+  var textGroup = document.getElementById('canvas-text-group');
   var resetElementColorsButton = document.getElementById('reset-element-colors');
+  var removeElementButton = document.getElementById('remove-element');
+  var closeTooltipButton = document.getElementById('close-color-tooltip');
   var headerSaveStatus = document.getElementById('header-save-status');
   var headerSaveLabel = document.getElementById('header-save-label');
   var accessCodeRow = document.getElementById('access-code-row');
@@ -57,6 +61,23 @@
   var hintTimer = null;
   var selectedColorSelector = '';
   var selectedColorDefaults = null;
+  var selectedColorKey = '';
+  var selectedColorRemovable = false;
+  var elementLabels = {
+    'opening-watermark': 'Opening watermark',
+    'opening-eyebrow': 'Opening introduction',
+    'opening-names': 'Opening names',
+    'envelope-lace': 'Envelope lace',
+    'envelope-shadow': 'Envelope shadow',
+    'envelope-letter': 'Envelope letter',
+    'envelope-address': 'Envelope address',
+    'envelope-flap': 'Envelope flap',
+    'envelope-stamps': 'Postage stamps',
+    'envelope-seal': 'Wax seal',
+    'opening-hint': 'Invitation hint',
+    'open-button': 'Open button',
+    'details-keepsake': 'Keepsake card'
+  };
   var adminEmail = '';
   var publishId = '';
   var ownerToken = '';
@@ -641,6 +662,7 @@
     addSimpleField(grid, 'content.storyParagraphTwo', 'Story · second paragraph', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.storyQuote', 'Keepsake quote', { wide: true, multiline: true, rows: 2, hint: 'The quote pinned to the keepsake folio.' });
     addSimpleField(grid, 'content.storyQuoteLabel', 'Keepsake quote credit', { wide: true });
+    addSimpleField(grid, 'content.detailsKeepsakeNote', 'Reply keepsake card note', { wide: true, multiline: true, rows: 2, hint: 'The words inside the sealed reply card beside the details.' });
     addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
     section.appendChild(grid);
@@ -879,6 +901,7 @@
       config.theme = select.value;
       config.themeColors = {};
       config.colorEdits = {};
+      config.hiddenElements = {};
       renderSidebar();
       notify();
     });
@@ -1029,23 +1052,42 @@
       return;
     }
     if (message.type === 'heirloom:element-selected') {
-      if ((message.element === 'color' || message.element === 'text') &&
-          typeof message.selector === 'string' && message.selector.indexOf('body > ') === 0 &&
-          /^#[0-9a-f]{6}$/i.test(message.color || '') &&
-          message.anchor && Number.isFinite(message.anchor.left) &&
-          Number.isFinite(message.anchor.top) && Number.isFinite(message.anchor.width) &&
-          Number.isFinite(message.anchor.height)) {
+      var validSelector = typeof message.selector === 'string' &&
+        (message.selector === 'body' || message.selector.indexOf('body > ') === 0);
+      var validAnchor = message.anchor && Number.isFinite(message.anchor.left) &&
+        Number.isFinite(message.anchor.top) && Number.isFinite(message.anchor.width) &&
+        Number.isFinite(message.anchor.height);
+      var isBackground = message.element === 'background';
+      var elementKind = message.element;
+      var hasColor = isBackground || /^#[0-9a-f]{6}$/i.test(message.color || '');
+      if ((elementKind === 'color' || elementKind === 'text' || isBackground) &&
+          validSelector && hasColor && validAnchor) {
         selectedColorSelector = message.selector;
-        selectedColorDefaults = { color: message.color };
+        selectedColorKey = typeof message.key === 'string' ? message.key : '';
+        selectedColorRemovable = !!selectedColorKey && selectedColorKey !== 'skip-intro' &&
+          !!elementLabels[selectedColorKey];
         var savedColors = config.colorEdits && config.colorEdits[selectedColorSelector];
-        if (textColorInput) textColorInput.value = savedColors && savedColors.color || message.color;
+        if (textColorInput) {
+          textColorInput.value = (savedColors && savedColors.color) || message.color || '#f7f4ee';
+        }
+        if (bgColorInput) {
+          bgColorInput.value = (savedColors && savedColors.backgroundColor) ||
+            message.backgroundColor || '#211316';
+        }
+        selectedColorDefaults = {
+          color: textColorInput ? textColorInput.value : '',
+          backgroundColor: bgColorInput ? bgColorInput.value : ''
+        };
         if (colorActionLabel) colorActionLabel.textContent = message.label || 'Selected element';
+        if (textGroup) textGroup.hidden = isBackground;
+        if (removeElementButton) removeElementButton.hidden = !selectedColorRemovable;
         if (colorAction) colorAction.hidden = false;
         positionColorTooltip(message.anchor);
-        if (hint) hint.textContent = 'Element selected. Choose a text colour to update it in the preview.';
+        if (hint) hint.textContent = isBackground
+          ? 'Background selected. Choose a colour to update it, then press Done.'
+          : 'Element selected. Recolour it, remove it, or press Done to keep editing.';
       } else {
-        selectedColorSelector = '';
-        if (colorAction) colorAction.hidden = true;
+        hideColorTooltip(false);
         if (hint && message.element === 'text') {
           hint.textContent = 'Edit the selected text in the preview. Click elsewhere when you are done.';
         }
@@ -1148,9 +1190,57 @@
     config.colorEdits[selectedColorSelector].color = value.toUpperCase();
     notify('Colour updated in the invitation preview.');
   }
+
+  function updateSelectedBackground(value) {
+    if (!selectedColorSelector || !/^#[0-9a-f]{6}$/i.test(value)) return;
+    if (!config.colorEdits || typeof config.colorEdits !== 'object') config.colorEdits = {};
+    if (!config.colorEdits[selectedColorSelector]) config.colorEdits[selectedColorSelector] = {};
+    config.colorEdits[selectedColorSelector].backgroundColor = value.toUpperCase();
+    notify('Background colour updated in the invitation preview.');
+  }
+
+  function hideColorTooltip(clearInPreview) {
+    selectedColorSelector = '';
+    selectedColorKey = '';
+    selectedColorRemovable = false;
+    if (colorAction) colorAction.hidden = true;
+    if (clearInPreview !== false && frame && frame.contentWindow) {
+      frame.contentWindow.postMessage({ type: 'heirloom:clear-selection' },
+        window.location.origin === 'null' ? '*' : window.location.origin);
+    }
+  }
+
   if (textColorInput) {
     textColorInput.addEventListener('input', function () {
       updateSelectedColor(textColorInput.value);
+    });
+  }
+  if (bgColorInput) {
+    bgColorInput.addEventListener('input', function () {
+      updateSelectedBackground(bgColorInput.value);
+    });
+  }
+  if (closeTooltipButton) {
+    closeTooltipButton.addEventListener('click', function () {
+      hideColorTooltip(true);
+      if (hint) hint.textContent = 'Tooltip closed. Click any element or the background to keep styling your invitation.';
+    });
+  }
+  if (removeElementButton) {
+    removeElementButton.addEventListener('click', function () {
+      if (!selectedColorKey || !elementLabels[selectedColorKey]) return;
+      if (!config.hiddenElements || typeof config.hiddenElements !== 'object') config.hiddenElements = {};
+      config.hiddenElements[selectedColorKey] = true;
+      var removedLabel = elementLabels[selectedColorKey];
+      hideColorTooltip(true);
+      notify('"' + removedLabel + '" was removed from the invitation. Use “Restore removed elements” under the preview to bring it back.');
+    });
+  }
+  var restoreRemovedButton = document.getElementById('restore-removed');
+  if (restoreRemovedButton) {
+    restoreRemovedButton.addEventListener('click', function () {
+      config.hiddenElements = {};
+      notify('All removed elements are back in the invitation.');
     });
   }
   if (resetElementColorsButton) {
@@ -1158,6 +1248,7 @@
       if (!selectedColorSelector || !config.colorEdits) return;
       delete config.colorEdits[selectedColorSelector];
       if (textColorInput && selectedColorDefaults) textColorInput.value = selectedColorDefaults.color;
+      if (bgColorInput && selectedColorDefaults) bgColorInput.value = selectedColorDefaults.backgroundColor;
       notify('Selected element colours restored.');
     });
   }

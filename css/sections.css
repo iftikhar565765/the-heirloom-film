@@ -604,48 +604,62 @@
   font-size: .83rem;
   line-height: 1.6;
 }
-/* the keepsake note card answering the ledger */
+/* the sealed reply folio answering the ledger — deep lacquer, gold
+   hairline double frame, champagne script: a keepsake, not a notice */
 .details-keepsake {
   position: relative;
   z-index: 1;
   justify-self: center;
   width: min(100%, 24rem);
   margin: 0;
-  padding: clamp(2.2rem, 5vw, 3rem) clamp(1.8rem, 4vw, 2.6rem) clamp(2rem, 4.5vw, 2.8rem);
+  padding: clamp(2.8rem, 5.5vw, 3.4rem) clamp(1.8rem, 4vw, 2.6rem) clamp(2.4rem, 4.5vw, 3rem);
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 1.1rem;
-  background: linear-gradient(176deg,
-    color-mix(in srgb, var(--paper-raised) 97%, white),
-    color-mix(in srgb, var(--ivory) 88%, var(--champagne)));
-  box-shadow: var(--shadow-paper);
+  gap: 1.05rem;
+  background:
+    radial-gradient(120% 90% at 50% 0%,
+      color-mix(in srgb, var(--night) 88%, white) 0%,
+      var(--night) 42%, var(--night-deep) 100%);
+  border-radius: 2px;
+  box-shadow:
+    0 26px 52px rgba(12, 3, 6, .5),
+    0 6px 18px rgba(12, 3, 6, .35);
 }
 .details-keepsake::before {
   content: "";
   position: absolute;
-  inset: .6rem;
-  border: 1px solid rgba(93, 32, 41, .22);
+  inset: .7rem;
+  border: 1px solid color-mix(in srgb, var(--champagne) 52%, transparent);
+  pointer-events: none;
+}
+.details-keepsake::after {
+  content: "";
+  position: absolute;
+  inset: .95rem;
+  border: 1px solid color-mix(in srgb, var(--champagne) 22%, transparent);
   pointer-events: none;
 }
 .details-keepsake__seal {
-  width: clamp(3.4rem, 8vw, 4.4rem);
+  width: clamp(3.2rem, 7vw, 4rem);
   height: auto;
-  color: var(--burgundy);
+  color: var(--champagne);
   fill: none;
   stroke: currentColor;
   stroke-width: 1.15;
+  filter: drop-shadow(0 2px 8px rgba(205, 187, 154, .28));
 }
 .details-keepsake__script {
   margin: 0;
   font-size: clamp(2.2rem, 5vw, 3rem);
   line-height: 1;
-  color: var(--burgundy);
+  color: var(--champagne);
+  text-shadow: 0 1px 14px color-mix(in srgb, var(--champagne) 32%, transparent);
 }
 .details-keepsake__rule {
-  width: 4.2rem;
+  width: 4.6rem;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(93, 32, 41, .45), transparent);
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--champagne) 72%, transparent), transparent);
 }
 .details-keepsake__note {
   margin: 0;
@@ -653,8 +667,8 @@
   font-family: var(--font-display);
   font-style: italic;
   font-size: 1.02rem;
-  line-height: 1.6;
-  color: var(--ink-soft);
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--ivory) 88%, transparent);
 }
 .details-keepsake__deadline {
   margin: 0;
@@ -662,9 +676,9 @@
   font-size: .62rem;
   letter-spacing: .22em;
   text-transform: uppercase;
-  color: var(--charcoal);
+  color: color-mix(in srgb, var(--champagne) 78%, transparent);
 }
-.details-keepsake__deadline span { color: var(--burgundy); letter-spacing: .12em; }
+.details-keepsake__deadline span { color: var(--champagne); letter-spacing: .12em; }
 .details-keepsake__cta { margin-top: .4rem; }
 
 /* ═══════════════════════════════════════════════════════════════

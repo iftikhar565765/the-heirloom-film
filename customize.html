@@ -49,7 +49,7 @@
           </div>
             <span class="step-number">YOUR EDITOR</span>
         </div>
-        <p class="editor-intro">Open a chapter to refine shared details. You can also click any text or colour in the live preview to edit it in place.</p>
+        <p class="editor-intro">Open a chapter to refine shared details. You can also click any text or colour in the live preview to edit it in place, click the background to change its colour, and remove any element from its tooltip.</p>
 
         <div class="access-code-row" id="access-code-row" hidden>
           <label for="access-code">Access code</label>
@@ -87,17 +87,30 @@
           <iframe id="invitation-preview" title="Live preview of your wedding invitation" src="index.html"></iframe>
           <div class="preview-loading" id="preview-loading">Preparing your invitation…</div>
           <div class="canvas-color-action" id="canvas-color-action" hidden>
-            <span class="canvas-color-action__title" id="canvas-color-label">Selected element</span>
-            <label>
-              <span>Colour</span>
-              <input id="canvas-text-color" type="color" aria-label="Selected element text colour">
-            </label>
-            <button type="button" id="reset-element-colors">Reset</button>
+            <div class="canvas-color-action__head">
+              <span class="canvas-color-action__title" id="canvas-color-label">Selected element</span>
+              <button type="button" class="canvas-color-action__close" id="close-color-tooltip">Done</button>
+            </div>
+            <div class="canvas-color-action__row">
+              <label id="canvas-text-group">
+                <span>Text</span>
+                <input id="canvas-text-color" type="color" aria-label="Selected element text colour">
+              </label>
+              <label>
+                <span>Background</span>
+                <input id="canvas-bg-color" type="color" aria-label="Selected element background colour">
+              </label>
+            </div>
+            <div class="canvas-color-action__row canvas-color-action__actions">
+              <button type="button" id="reset-element-colors">Reset</button>
+              <button type="button" id="remove-element" hidden>Remove</button>
+            </div>
           </div>
         </div>
         <div class="preview-footer">
           <span><i></i> Preview updates as you edit</span>
-          <span>Select text to edit · click elements to recolour</span>
+          <button type="button" class="text-button" id="restore-removed">Restore removed elements</button>
+          <span>Select text to edit · click elements to recolour or remove · click the background to recolour it</span>
         </div>
       </div>
     </section>

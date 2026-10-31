@@ -120,6 +120,7 @@
 
   /* ── Entry point ─────────────────────────────────────────────── */
   function open() {
+    if (inEditor) return;
     if (started || finished) return;
     started = true;
     skipBtn.disabled = true;
@@ -130,8 +131,13 @@
     else                           openWithFallback();
   }
 
+  /* Inside the customizer preview the envelope is an editable scene,
+     not a control — clicks select & recolour its parts instead of
+     opening it. Guests (top-level page) keep the full choreography. */
+  var inEditor = window.parent !== window;
+
   envelope.addEventListener('click', open);
-  if (openBtn) openBtn.addEventListener('click', open);
+  if (!inEditor && openBtn) openBtn.addEventListener('click', open);
 
   skipBtn.addEventListener('click', function () {
     if (started) return;

@@ -83,6 +83,7 @@
     window.HEIRLOOM = cfg;
     injectContent();
     applyColorEdits();
+    applyHiddenElements();
     renderMoments();
     initCountdown();
     initMapLink();
@@ -179,11 +180,88 @@
   }
 
   function colorToHex(color) {
-    var match = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
-    if (!match) return '#000000';
+    var match = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?/i);
+    if (!match) return '';
+    if (match[4] !== undefined && Number(match[4]) === 0) return '';
     return '#' + match.slice(1, 4).map(function (part) {
       return Number(part).toString(16).padStart(2, '0');
     }).join('').toUpperCase();
+  }
+
+  function backgroundToHex(styles) {
+    return colorToHex(styles.backgroundColor);
+  }
+
+  /* The colour a region really shows: walk up until a painted
+     background is found, so gradient sections still get a fair
+     starting value in the editor's background tooltip.          */
+  function effectiveBackground(element) {
+    var current = element;
+    while (current && current !== document.documentElement) {
+      var hex = backgroundToHex(window.getComputedStyle(current));
+      if (hex) return hex;
+      current = current.parentElement;
+    }
+    return '#18070b';
+  }
+
+  /* Removable pieces of the opening & keepsake — keyed in HTML via
+     data-element-key and hidden through config.hiddenElements.      */
+  var elementLabels = {
+    'opening-watermark': 'Opening watermark',
+    'opening-eyebrow': 'Opening introduction',
+    'opening-names': 'Opening names',
+    'envelope-lace': 'Envelope lace',
+    'envelope-shadow': 'Envelope shadow',
+    'envelope-letter': 'Envelope letter',
+    'envelope-address': 'Envelope address',
+    'envelope-flap': 'Envelope flap',
+    'envelope-stamps': 'Postage stamps',
+    'envelope-seal': 'Wax seal',
+    'opening-hint': 'Invitation hint',
+    'open-button': 'Open button',
+    'details-keepsake': 'Keepsake card'
+  };
+
+  function keyFor(element) {
+    var keyed = element && element.closest ? element.closest('[data-element-key]') : null;
+    return keyed ? keyed.getAttribute('data-element-key') : '';
+  }
+
+  var appliedHiddenElements = [];
+
+  function applyHiddenElements() {
+    appliedHiddenElements.forEach(function (element) {
+      element.style.removeProperty('display');
+    });
+    appliedHiddenElements = [];
+    var hidden = cfg.hiddenElements;
+    if (!hidden || typeof hidden !== 'object' || Array.isArray(hidden)) return;
+    Object.keys(hidden).forEach(function (key) {
+      if (!hidden[key]) return;
+      var element;
+      try {
+        element = document.querySelector('[data-element-key="' + key + '"]');
+      } catch (error) {
+        return;
+      }
+      if (!element) return;
+      appliedHiddenElements.push(element);
+      element.style.setProperty('display', 'none', 'important');
+    });
+  }
+
+  function labelFor(element) {
+    var text = (element.textContent || '').trim().replace(/\s+/g, ' ');
+    if (text) return text.slice(0, 40);
+    var key = keyFor(element);
+    if (key && elementLabels[key]) return elementLabels[key];
+    if (element.getAttribute('aria-label')) return element.getAttribute('aria-label').slice(0, 40);
+    var cls = (element.className || '').toString().trim().split(/\s+/)[0] || '';
+    if (cls) return cls.replace(/[_.-]+/g, ' ').replace(/\b\w/g, function (ch) {
+      return ch.toUpperCase();
+    }).slice(0, 40);
+    return element.tagName.toLowerCase();
   }
 
   function sendColorSelection(element) {
@@ -191,14 +269,35 @@
     if (!selector) return;
     var styles = window.getComputedStyle(element);
     var rect = element.getBoundingClientRect();
+    var key = keyFor(element);
     previewMessage({
       type: 'heirloom:element-selected',
       element: 'color',
       selector: selector,
-      label: (element.textContent || element.getAttribute('aria-label') ||
-        element.tagName.toLowerCase()).trim().replace(/\s+/g, ' ').slice(0, 40),
-      color: colorToHex(styles.color),
+      key: key,
+      removable: !!key,
+      label: labelFor(element),
+      color: colorToHex(styles.color) || '#f7f4ee',
+      backgroundColor: backgroundToHex(styles),
       anchor: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+    });
+  }
+
+  function sendBackgroundSelection(element, x, y) {
+    var selector = element === document.body ? 'body' : colorSelectorFor(element);
+    if (!selector) return;
+    var name = element.id ? '#' + element.id :
+      (element.getAttribute('aria-label') || element.className || 'background')
+        .toString().trim().replace(/\s+/g, ' ').split(' ').slice(0, 2).join(' ');
+    previewMessage({
+      type: 'heirloom:element-selected',
+      element: 'background',
+      selector: selector,
+      key: '',
+      removable: false,
+      label: 'Background · ' + name,
+      backgroundColor: effectiveBackground(element),
+      anchor: { left: (x || 0) - 30, top: (y || 0) - 30, width: 60, height: 60 }
     });
   }
 
@@ -239,9 +338,14 @@
       }
       if (/^#[0-9a-f]{6}$/i.test(edit.backgroundColor || '')) {
         element.style.setProperty('background-color', edit.backgroundColor, 'important');
+        /* gradient images would cover the flat colour — clear them so
+           the change is always visible in the preview and live page */
+        element.style.setProperty('background-image', 'none', 'important');
       }
     });
   }
+
+  var clearEditorSelection = null;
 
   function enableCanvasEditing() {
     if (window.parent === window) return;
@@ -257,11 +361,43 @@
         'outline:1px dashed rgba(205,187,154,.9)!important;' +
         'outline-offset:3px!important;' +
         'cursor:crosshair!important;' +
-      '}';
+      '}' +
+      /* decorative envelope pieces ignore pointer events on the guest
+         page — the editor needs to reach them for recolour & removal */
+      '.envelope-lace,.envelope-shadow,.envelope__stamps,.envelope__seal,.envelope__letter{' +
+        'pointer-events:auto!important;' +
+      '}' +
+      '[data-element-key]:not([contenteditable="true"]){cursor:crosshair;}';
     document.head.appendChild(editorStyles);
 
+    function clearActive() {
+      if (activeColorElement) activeColorElement.classList.remove('heirloom-editor-color-selected');
+      activeColorElement = null;
+      if (activeText) activeText.blur();
+      activeText = null;
+    }
+
+    clearEditorSelection = function () {
+      if (activeText) {
+        activeText.removeAttribute('contenteditable');
+        activeText.classList.remove('heirloom-editor-text-active');
+      }
+      clearActive();
+    };
+
     document.addEventListener('click', function (event) {
-      if (event.target.closest('#envelope, #open-invitation, #skip-intro')) return;
+      if (event.target.closest('#skip-intro')) {
+        /* the skip link stays fully functional and never selectable —
+           discard any open selection so the tooltip never lingers    */
+        previewMessage({ type: 'heirloom:element-selected', element: 'none' });
+        clearActive();
+        return;
+      }
+      if (event.target.closest('input, textarea, select, label')) {
+        previewMessage({ type: 'heirloom:element-selected', element: 'none' });
+        clearActive();
+        return;
+      }
 
       var textElement = event.target.closest('[data-editor-path], [data-content]');
       var textPath = '';
@@ -296,13 +432,17 @@
             selection.selectNodeContents(textElement);
           }
         }
+        var keyedOwner = keyFor(textElement);
         previewMessage({
           type: 'heirloom:element-selected',
           element: 'text',
           path: textPath,
           selector: colorSelectorFor(textElement),
+          key: keyedOwner,
+          removable: !!keyedOwner,
           label: (textElement.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40),
-          color: colorToHex(window.getComputedStyle(textElement).color),
+          color: colorToHex(window.getComputedStyle(textElement).color) || '#f7f4ee',
+          backgroundColor: backgroundToHex(window.getComputedStyle(textElement)),
           anchor: (function () {
             var rect = textElement.getBoundingClientRect();
             return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
@@ -311,24 +451,49 @@
         return;
       }
 
+      /* envelope faces paint over their keyed wrappers — select the
+         face itself for recolouring; Remove still targets the keyed
+         parent (keyFor walks up) so the whole piece comes away      */
+      var envelopeFace = event.target.closest('.envelope__flap-face, .envelope__pocket-face, ' +
+        '.envelope__flap-liner, .envelope__back, .envelope__letter-inner');
+      if (envelopeFace) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearActive();
+        activeColorElement = envelopeFace;
+        envelopeFace.classList.add('heirloom-editor-color-selected');
+        sendColorSelection(envelopeFace);
+        return;
+      }
+
+      /* keyed decorative pieces (lace, stamps, seal, letter, flap…) —
+         selectable for recolouring and removable                          */
+      var keyedElement = event.target.closest('[data-element-key]');
+      if (keyedElement && !keyedElement.closest('[data-nav], #mobile-menu')) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearActive();
+        activeColorElement = keyedElement;
+        keyedElement.classList.add('heirloom-editor-color-selected');
+        sendColorSelection(keyedElement);
+        return;
+      }
+
       var colorElement = event.target.closest('a, button, p, h1, h2, h3, h4, li, span, strong, em, blockquote');
       if (colorElement && !colorElement.closest('[data-nav], #mobile-menu')) {
         event.preventDefault();
         event.stopPropagation();
-        if (activeText) activeText.blur();
-        activeText = null;
-        if (activeColorElement) activeColorElement.classList.remove('heirloom-editor-color-selected');
+        clearActive();
         activeColorElement = colorElement;
         colorElement.classList.add('heirloom-editor-color-selected');
         sendColorSelection(colorElement);
         return;
       }
 
-      previewMessage({ type: 'heirloom:element-selected', element: 'none' });
-      if (activeColorElement) activeColorElement.classList.remove('heirloom-editor-color-selected');
-      activeColorElement = null;
-      if (activeText) activeText.blur();
-      activeText = null;
+      /* blank space → select the surrounding background for recolouring */
+      var backgroundElement = event.target.closest('section, header, footer') || document.body;
+      sendBackgroundSelection(backgroundElement, event.clientX, event.clientY);
+      clearActive();
     }, true);
 
     document.addEventListener('blur', function (event) {
@@ -367,6 +532,9 @@
       var previewConfig = message.config;
       if (previewConfig.rsvp) previewConfig.rsvp.endpoint = '';
       applyPreviewConfig(previewConfig);
+    }
+    if (message.type === 'heirloom:clear-selection' && clearEditorSelection) {
+      clearEditorSelection();
     }
   });
   var themePresets = {
@@ -437,6 +605,7 @@
   }
   injectContent();
   applyColorEdits();
+  applyHiddenElements();
   enableCanvasEditing();
 
   /* ══ 2 · NAVIGATION ════════════════════════════════════════════ */

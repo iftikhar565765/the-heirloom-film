@@ -160,24 +160,24 @@
        THE OPENING — a burgundy envelope, sealed in wax
        ══════════════════════════════════════════════════════════ -->
   <section id="opening" class="opening" aria-label="Your invitation awaits">
-    <span class="opening__watermark" aria-hidden="true">&amp;</span>
+    <span class="opening__watermark" aria-hidden="true" data-element-key="opening-watermark">&amp;</span>
 
     <div class="opening__inner">
-      <p class="opening__eyebrow eyebrow" data-content="content.openingEyebrow">A love letter from</p>
-      <p class="opening__names script" data-content="couple.names">Amelia &amp; Julien</p>
+      <p class="opening__eyebrow eyebrow" data-content="content.openingEyebrow" data-element-key="opening-eyebrow">A love letter from</p>
+      <p class="opening__names script" data-content="couple.names" data-element-key="opening-names">Amelia &amp; Julien</p>
 
       <div class="envelope-stage">
-        <svg class="envelope-lace" aria-hidden="true" focusable="false">
+        <svg class="envelope-lace" aria-hidden="true" focusable="false" data-element-key="envelope-lace">
           <use href="#lace" />
         </svg>
-        <div class="envelope-shadow" aria-hidden="true"></div>
+        <div class="envelope-shadow" aria-hidden="true" data-element-key="envelope-shadow"></div>
 
         <!-- The entire envelope is one accessible control -->
         <button id="envelope" class="envelope" type="button" aria-label="Open your invitation"
           aria-describedby="opening-hint">
           <span class="envelope__back" aria-hidden="true"></span>
 
-          <span class="envelope__letter" aria-hidden="true">
+          <span class="envelope__letter" aria-hidden="true" data-element-key="envelope-letter">
             <span class="envelope__letter-inner">
               <span class="envelope__letter-mono script" data-content="couple.initials">A · J</span>
               <span class="envelope__letter-names" data-content="couple.names">Amelia &amp; Julien</span>
@@ -188,18 +188,18 @@
 
           <span class="envelope__pocket" aria-hidden="true">
             <span class="envelope__pocket-face"></span>
-            <span class="envelope__address">
+            <span class="envelope__address" data-element-key="envelope-address">
               <span class="envelope__to">To our dearest</span>
               <span class="script" data-content="content.envelopeAddress">friends &amp; family</span>
             </span>
           </span>
 
-          <span class="envelope__flap" aria-hidden="true">
+          <span class="envelope__flap" aria-hidden="true" data-element-key="envelope-flap">
             <span class="envelope__flap-face"></span>
             <span class="envelope__flap-liner"></span>
           </span>
 
-          <span class="envelope__stamps" aria-hidden="true">
+          <span class="envelope__stamps" aria-hidden="true" data-element-key="envelope-stamps">
             <svg class="stamp" viewBox="0 0 90 110">
               <use href="#stamp-mono" />
             </svg>
@@ -208,17 +208,17 @@
             </svg>
           </span>
 
-          <span class="envelope__seal" aria-hidden="true" data-content="couple.initials">A·J</span>
+          <span class="envelope__seal" aria-hidden="true" data-content="couple.initials" data-element-key="envelope-seal">A·J</span>
         </button>
       </div>
 
-      <p class="opening__hint" id="opening-hint">
+      <p class="opening__hint" id="opening-hint" data-element-key="opening-hint">
         <span class="opening__hint-rule" aria-hidden="true"></span>
         <span data-content="content.openingHint">You are cordially invited</span>
         <span class="opening__hint-rule" aria-hidden="true"></span>
       </p>
 
-      <button id="open-invitation" class="btn opening__open" type="button" data-content="content.openButton">Open the Invitation</button>
+      <button id="open-invitation" class="btn opening__open" type="button" data-content="content.openButton" data-element-key="open-button">Open the Invitation</button>
       <button id="skip-intro" class="opening__skip" type="button" data-content="content.skipButton">Skip straight to the invitation</button>
     </div>
   </section>
@@ -496,13 +496,13 @@
               </div>
             </div>
 
-            <aside class="details-keepsake reveal reveal--media" aria-label="A note from the couple">
+            <aside class="details-keepsake reveal reveal--media" aria-label="A note from the couple" data-element-key="details-keepsake">
               <svg class="details-keepsake__seal" aria-hidden="true">
                 <use href="#ornament-seal" />
               </svg>
               <p class="details-keepsake__script script" data-content="content.detailsKeepsakeTitle">with joy</p>
               <span class="details-keepsake__rule" aria-hidden="true"></span>
-              <p class="details-keepsake__note" data-content="content.kindlyReplyNote">Please send your response using the card below.</p>
+              <p class="details-keepsake__note" data-content="content.detailsKeepsakeNote">A reply card is enclosed below — your words are the keepsake we shall treasure.</p>
               <p class="details-keepsake__deadline">Kindly reply by <span data-content="rsvp.deadline">the first of August, 2027</span></p>
               <a class="btn btn--light details-keepsake__cta" href="#rsvp" data-content="content.respondLabel">Respond to the invitation</a>
             </aside>

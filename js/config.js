@@ -105,6 +105,7 @@ window.HEIRLOOM = {
     kindlyReplyLabel: "Kindly Reply",
     kindlyReplyNote: "Please send your response using the card below.",
     detailsKeepsakeTitle: "with joy",
+    detailsKeepsakeNote: "A reply card is enclosed below — your words are the keepsake we shall treasure.",
     respondLabel: "Respond to the invitation",
     paletteKicker: "№ 05 · A Note on Colour",
     paletteTitleFirst: "The wedding",
