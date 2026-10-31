@@ -1,8 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "the-heirloom-film",
-  "pages_build_output_dir": "./dist",
+  "main": "worker.js",
   "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "none"
+  },
   "d1_databases": [
     {
       "binding": "DB",

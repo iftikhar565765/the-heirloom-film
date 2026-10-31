@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "A cinematic wedding invitation — Cloudflare Pages + Pages Functions + D1",
+  "description": "A cinematic wedding invitation — Cloudflare Workers (static assets + API) + D1",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "dev": "npm run build && npm run db:migrate:local && wrangler pages dev --d1 DB=heirloom-invitations",
-    "deploy": "npm run build && wrangler pages deploy dist",
+    "dev": "npm run build && npm run db:migrate:local && wrangler dev --port 8788",
+    "deploy": "npm run build && wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply heirloom-invitations --local",
     "db:migrate:remote": "wrangler d1 migrations apply heirloom-invitations --remote"
   },
@@ -16,5 +16,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "allowScripts": {
+    "workerd@1.20261023.1": true
   }
 }

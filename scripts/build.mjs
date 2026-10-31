@@ -7,7 +7,6 @@ const output = join(root, "dist");
 const publicFiles = [
   "index.html",
   "customize.html",
-  "_routes.json",
   "assets",
   "css",
   "js",
@@ -18,4 +17,4 @@ await mkdir(output, { recursive: true });
 await Promise.all(publicFiles.map((path) =>
   cp(join(root, path), join(output, path), { recursive: true })
 ));
-console.log(`Built Pages static assets in ${output}`);
+console.log(`Built Workers static assets in ${output}`);

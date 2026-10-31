@@ -41,11 +41,15 @@ npm run dev          # builds, applies local D1 migrations, serves on :8788
 # open http://127.0.0.1:8788/customize.html
 ```
 
-(`npm run dev` passes `--d1 DB=heirloom-invitations` explicitly — local
-`pages dev` needs the flag even though `wrangler.jsonc` declares the
-binding; on the deployed site the binding comes from the config.)
+(`npm run dev` serves through `wrangler dev`, which reads the D1 binding
+straight from `wrangler.jsonc`.)
 
-## Deploy to Cloudflare Pages (GitHub → Pages)
+## Deploy to Cloudflare (Workers + static assets)
+
+The project deploys as a **Worker** with static assets: `worker.js` routes
+`/api/*` to the request handlers in `functions/`, and every page, script
+and stylesheet is served as a static asset from the CDN edge. The live
+URL is `https://the-heirloom-film.<your-subdomain>.workers.dev`.
 
 Go-live checklist, in order:
 
@@ -66,23 +70,21 @@ Go-live checklist, in order:
    No tables in the remote database is the #1 cause of "HTTP 500" on the
    live site while everything worked locally — run the command above before
    smoke-testing.
-3. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**,
-   pick the repository. Build settings: **no framework**, build command
-   `node scripts/build.mjs`, output directory `dist`.
-
-   ⚠️ **Deploy command must be `npx wrangler pages deploy`** (the default) —
-   *never* `npx wrangler deploy`. `wrangler deploy` is the Cloudflare Workers
-   command; on a Pages project it fails with "Missing entry-point to Worker
-   script or to assets directory" and the whole deployment is marked failed
-   even though the build succeeded. If the deploy log says the project was
-   not found, append `--project-name=<your Pages project name>`.
-4. In the Pages project → **Settings → Bindings**, verify the D1 database is
-   bound as `DB` (Cloudflare reads the binding from `wrangler.jsonc`). That
-   is the only required binding.
-5. Optional secrets (Settings → Environment variables): `ACCESS_CODE`
+3. Cloudflare dashboard → **Workers & Pages → Create application →
+   Workers → Connect to Git**, pick the repository. Accept the defaults:
+   build command `node scripts/build.mjs`, deploy command
+   `npx wrangler deploy`. Every push to `main` then builds and deploys
+   automatically, and the D1 binding, the static-asset directory and the
+   worker entry point are all read from `wrangler.jsonc` on deploy —
+   nothing needs to be configured in the dashboard.
+4. Bindings need no dashboard setup — `wrangler.jsonc` already declares the
+   D1 database as `DB` and it is applied on every deploy. That is the only
+   required binding.
+5. Optional secrets (**Settings → Variables and Secrets**): `ACCESS_CODE`
    (sells the editor behind a code), `RESEND_API_KEY` + `RSVP_FROM`
    (emails each reply to the couple). See *Selling the product* below.
-6. Redeploy and smoke-test: open `https://PROJECT.pages.dev/customize.html`,
+6. Redeploy and smoke-test: open
+   `https://the-heirloom-film.<your-subdomain>.workers.dev/customize.html`,
    publish a test invitation, open its guest link, send a test reply, and
    check it appears under **Guest replies** in the editor.
 
@@ -90,14 +92,16 @@ Alternative one-command deploy (direct upload, no Git connection) after
 `npx wrangler login`:
 
 ```
-npm run deploy       # builds dist, then `wrangler pages deploy dist`
+npm run deploy       # builds dist, then `wrangler deploy`
 ```
 
-The live editor is `https://PROJECT.pages.dev/customize.html`; published
-invitations live at `https://PROJECT.pages.dev/?invite=ID`.
+The live editor is
+`https://the-heirloom-film.<your-subdomain>.workers.dev/customize.html`;
+published invitations live at
+`https://the-heirloom-film.<your-subdomain>.workers.dev/?invite=ID`.
 
-`_routes.json` limits Functions execution to `/api/*` — every page, script and
-stylesheet is served as a static asset from the CDN edge.
+Static assets are served directly from the edge; the Worker only runs for
+`/api/*` calls, so 99% of requests never touch a Worker instance.
 
 ## Selling the product
 
@@ -106,8 +110,8 @@ tightness:
 
 1. **Open editor (default).** Anyone with the link can publish. Fine when you
    sell the link personally and trust buyers.
-2. **Access-code gate (recommended).** In the Pages project →
-   **Settings → Environment variables**, add a secret `ACCESS_CODE` with any
+2. **Access-code gate (recommended).** In the Worker project →
+   **Settings → Variables and Secrets**, add a secret `ACCESS_CODE` with any
    string you choose. The editor then asks buyers to paste that code before
    their first publish — you hand the code over only after payment. The code
    is checked server-side by the publish Function.
@@ -151,8 +155,8 @@ programme. Empty the list to hide the whole scene.
   against the invitation's limit), rate-limits per IP (5 per 10 minutes),
   stores replies in D1. Guests are never asked for an email address. When the
   couple enters a notification email in the editor, every reply is emailed to
-  that address the moment it arrives — add the two Cloudflare Pages
-  environment variables `RESEND_API_KEY` (a Resend API key) and `RSVP_FROM`
+  that address the moment it arrives — add the two Worker environment
+  variables `RESEND_API_KEY` (a Resend API key) and `RSVP_FROM`
   (a verified sending address such as `RSVP <rsvp@yourdomain.com>`) to switch
   delivery on. Replies are always visible in the editor under **Guest
   replies** (latest 100), with or without email delivery.
