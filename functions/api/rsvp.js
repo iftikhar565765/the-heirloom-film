@@ -15,16 +15,27 @@ function cleanText(value, maxLength) {
 async function sendNotification(env, record, reply) {
   if (!record.recipient) return false;
   if (!env.RESEND_API_KEY || !env.RSVP_FROM) return false;
+  let coupleNames = "the couple";
+  try {
+    const published = JSON.parse(record.config_json);
+    if (published && published.couple && typeof published.couple.namesLine === "string") {
+      coupleNames = published.couple.namesLine;
+    }
+  } catch {
+    /* the stored config could not be read — the generic subject still works */
+  }
   const attendance = reply.attendance === "attending" ? "Attending" : "Declining";
+  const subject = `RSVP for ${coupleNames} — ${reply.name}`;
   const text = [
-    "A wedding RSVP was submitted.",
+    `A reply has come in for the wedding of ${coupleNames}.`,
     "",
     `Name: ${reply.name}`,
-    `Email: ${reply.email}`,
     `Attendance: ${attendance}`,
     `Party size: ${reply.guests}`,
     `Dietary requirements: ${reply.dietary || "None provided"}`,
     `Message: ${reply.message || "None provided"}`,
+    "",
+    "Open your editor's “Guest replies” panel to see every response.",
   ].join("\n");
   try {
     const response = await fetch("https://api.resend.com/emails", {
@@ -36,8 +47,8 @@ async function sendNotification(env, record, reply) {
       body: JSON.stringify({
         from: env.RSVP_FROM,
         to: [record.recipient],
-        reply_to: reply.email,
-        subject: "Wedding invitation RSVP",
+        ...(reply.email ? { reply_to: reply.email } : {}),
+        subject,
         text,
       }),
     });
@@ -79,14 +90,16 @@ export async function onRequestPost(context) {
   if (reply.website) return json({ error: "The RSVP could not be accepted." }, 400);
 
   const name = cleanText(reply.name, 240).replace(/[\r\n]+/g, " ");
+  /* guests no longer hand over an email address — when one is
+     supplied anyway (older forms, integrations) it must be valid */
   const email = typeof reply.email === "string" ? reply.email.trim() : "";
   const attendance = reply.attendance;
   const guests = Number(reply.guests);
   const maxGuests = Number(record.max_guests);
-  if (name.length < 2 || !validEmail(email) ||
+  if (name.length < 2 || (email && !validEmail(email)) ||
       !["attending", "declining"].includes(attendance) ||
       !Number.isInteger(guests) || guests < 1 || guests > maxGuests) {
-    return json({ error: "Please check the name, email, attendance and guest count." }, 422);
+    return json({ error: "Please check the name, attendance and guest count." }, 422);
   }
 
   const cleaned = {

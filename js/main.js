@@ -122,29 +122,49 @@
       bodoni: "'Bodoni Moda', serif",
       playfair: "'Playfair Display', serif",
       dmSerif: "'DM Serif Display', serif",
-      cormorant: "'Cormorant Garamond', serif"
+      cormorant: "'Cormorant Garamond', serif",
+      prata: "'Prata', serif",
+      marcellus: "'Marcellus', serif",
+      italiana: "'Italiana', serif",
+      libreCaslon: "'Libre Caslon Text', serif"
     },
     display: {
       cormorant: "'Cormorant Garamond', serif",
       ebGaramond: "'EB Garamond', serif",
       lora: "'Lora', serif",
-      playfair: "'Playfair Display', serif"
+      playfair: "'Playfair Display', serif",
+      cardo: "'Cardo', serif",
+      spectral: "'Spectral', serif",
+      crimsonPro: "'Crimson Pro', serif",
+      libreBaskerville: "'Libre Baskerville', serif"
     },
     script: {
       pinyon: "'Pinyon Script', cursive",
       greatVibes: "'Great Vibes', cursive",
-      allura: "'Allura', cursive"
+      allura: "'Allura', cursive",
+      tangerine: "'Tangerine', cursive",
+      parisienne: "'Parisienne', cursive",
+      alexBrush: "'Alex Brush', cursive",
+      mrsSaintDelafield: "'Mrs Saint Delafield', cursive",
+      herrVonMuellerhoff: "'Herr Von Muellerhoff', cursive"
     },
     hand: {
       laBelle: "'La Belle Aurore', cursive",
       caveat: "'Caveat', cursive",
-      cedarville: "'Cedarville Cursive', cursive"
+      cedarville: "'Cedarville Cursive', cursive",
+      shadowsIntoLight: "'Shadows Into Light', cursive",
+      homemadeApple: "'Homemade Apple', cursive",
+      nothingYouCouldDo: "'Nothing You Could Do', cursive"
     },
     body: {
       jost: "'Jost', sans-serif",
       dmSans: "'DM Sans', sans-serif",
       lato: "'Lato', sans-serif",
-      montserrat: "'Montserrat', sans-serif"
+      montserrat: "'Montserrat', sans-serif",
+      karla: "'Karla', sans-serif",
+      workSans: "'Work Sans', sans-serif",
+      outfit: "'Outfit', sans-serif",
+      sourceSans: "'Source Sans 3', sans-serif"
     }
   };
 
@@ -220,7 +240,33 @@
     'envelope-seal': 'Wax seal',
     'opening-hint': 'Invitation hint',
     'open-button': 'Open button',
-    'details-reply': 'Reply seal'
+    'folio-quote': 'Keepsake quote card',
+    'folio-note-one': 'Folio note i',
+    'folio-note-two': 'Folio note ii',
+    'folio-note-three': 'Folio note iii',
+    'story-garland-top': 'Story garland',
+    'story-garland-bottom': 'Story garland (bottom)',
+    'story-caption': 'Story inscription',
+    'story-note': 'Story handwritten note',
+    'story-keepsake': 'Stamp & postmark',
+    'std-note': 'Save-the-date note',
+    'std-seal': 'Save-the-date seal',
+    'detail-ceremony': 'Details · ceremony',
+    'detail-reception': 'Details · reception',
+    'detail-reply': 'Details · kindly reply',
+    'evening-watermark': 'Evening watermark',
+    'evening-entry-one': 'Evening · ceremony moment',
+    'evening-entry-two': 'Evening · cocktails moment',
+    'evening-entry-three': 'Evening · dinner moment',
+    'evening-entry-four': 'Evening · dancing moment',
+    'palette-dresscode': 'Dress code card',
+    'palette-swatches': 'Palette swatches',
+    'day-words': 'Wedding-day words',
+    'rsvp-watermark': 'RSVP watermark',
+    'rsvp-ornament': 'RSVP ornament',
+    'countdown-clock': 'Countdown clock',
+    'closing-garland': 'Closing garland',
+    'closing-message': 'Closing message'
   };
 
   function keyFor(element) {
@@ -252,6 +298,13 @@
   }
 
   function labelFor(element) {
+    /* keyed pieces carry a clean catalogue name — prefer it over
+       scraped text so the tooltip always reads well */
+    var keyed = element && element.closest ? element.closest('[data-element-key]') : null;
+    if (keyed) {
+      var key = keyed.getAttribute('data-element-key');
+      if (key && elementLabels[key]) return elementLabels[key];
+    }
     var text = (element.textContent || '').trim().replace(/\s+/g, ' ');
     if (text) return text.slice(0, 40);
     var key = keyFor(element);
@@ -479,7 +532,7 @@
         return;
       }
 
-      var colorElement = event.target.closest('a, button, p, h1, h2, h3, h4, li, span, strong, em, blockquote');
+      var colorElement = event.target.closest('a, button, p, h1, h2, h3, h4, li, span, strong, em, blockquote, svg');
       if (colorElement && !colorElement.closest('[data-nav], #mobile-menu')) {
         event.preventDefault();
         event.stopPropagation();
@@ -777,6 +830,18 @@
 
     var raw = cfg.wedding && cfg.wedding.iso;
     var target = raw ? new Date(raw) : null;
+    if ((!target || isNaN(target.getTime())) && cfg.wedding) {
+      /* the timer always follows the wedding date — if the ISO stamp
+         is missing, fall back to the date the invitation displays  */
+      var fallback = Date.parse((cfg.wedding.display || '').replace(/(\d{1,2})\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4}).*?(\d{1,2}:\d{2})\s*(AM|PM)?/i, function (_, d, y, t, ap) {
+        var months = { january: 0, february: 1, march: 2, april: 3, may: 4, june: 5, july: 6, august: 7, september: 8, october: 9, november: 10, december: 11 };
+        var month = (cfg.wedding.display || '').toLowerCase().match(/(january|february|march|april|may|june|july|august|september|october|november|december)/);
+        var hh = parseInt(t, 10) % 12 + (ap && /pm/i.test(ap) ? 12 : 0);
+        return y + '-' + String((month ? months[month[1]] : 0) + 1).padStart(2, '0') + '-' +
+          String(parseInt(d, 10)).padStart(2, '0') + 'T' + String(hh).padStart(2, '0') + ':' + t.slice(3) + ':00';
+      }));
+      if (!isNaN(fallback)) target = new Date(fallback);
+    }
     if (!target || isNaN(target.getTime())) {
       showMsg((cfg.countdown && cfg.countdown.invalidMessage) ||
               'See the details below for the full schedule.');

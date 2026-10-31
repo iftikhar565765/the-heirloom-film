@@ -116,11 +116,15 @@ programme. Empty the list to hide the whole scene.
   Owner tokens are random; only their SHA-256 hashes are stored. The public
   endpoint never exposes the token or the reply-notification email. Public
   pages poll for changed revisions every three seconds.
-- `functions/api/rsvp.js` — validates replies (name, email, attendance, party
-  size against the invitation's limit), rate-limits per IP (5 per 10 minutes),
-  stores replies in D1. Email forwarding through Resend is optional: set
-  `RESEND_API_KEY` and `RSVP_FROM` only if you want it; replies are always
-  visible in the editor under **Guest replies** (latest 100).
+- `functions/api/rsvp.js` — validates replies (name, attendance, party size
+  against the invitation's limit), rate-limits per IP (5 per 10 minutes),
+  stores replies in D1. Guests are never asked for an email address. When the
+  couple enters a notification email in the editor, every reply is emailed to
+  that address the moment it arrives — add the two Cloudflare Pages
+  environment variables `RESEND_API_KEY` (a Resend API key) and `RSVP_FROM`
+  (a verified sending address such as `RSVP <rsvp@yourdomain.com>`) to switch
+  delivery on. Replies are always visible in the editor under **Guest
+  replies** (latest 100), with or without email delivery.
 - Publishing is rate-limited to 10 new invitations per hour per IP.
 
 ## Accessibility & resilience

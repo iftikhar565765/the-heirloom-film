@@ -6,6 +6,8 @@
    · Demo mode (default) — validates locally and shows a preview
      of the reply with an explicit statement that nothing was
      sent or stored. Never pretends a reply was received.
+   Guests answer with a name, an attendance choice, a seat count
+   (a stepped number field) and optional notes — no email asked.
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {
@@ -31,29 +33,22 @@
   var liveRegion = document.getElementById('rsvp-live');
 
   var nameInput = document.getElementById('rsvp-name');
-  var emailInput = document.getElementById('rsvp-email');
   var attendanceInputs = form.querySelectorAll('input[name="attendance"]');
-  var guestsSelect = document.getElementById('rsvp-guests');
+  var guestsInput = document.getElementById('rsvp-guests');
   var dietaryInput = document.getElementById('rsvp-dietary');
   var messageInput = document.getElementById('rsvp-message');
 
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-  /* ── honour the invitation's allowance ───────────────────────── */
-  function buildGuestOptions() {
-    if (!guestsSelect) return;
-    guestsSelect.textContent = '';
-    var content = window.HEIRLOOM && window.HEIRLOOM.content || {};
-    for (var i = 1; i <= maxGuests; i++) {
-      var option = document.createElement('option');
-      option.value = String(i);
-      option.textContent = i + ' ' + (i === 1
-        ? (content.rsvpGuestSingular || 'guest')
-        : (content.rsvpGuestPlural || 'guests'));
-      guestsSelect.appendChild(option);
-    }
+  /* ── honour the invitation's allowance ────────────────────────── */
+  function configureGuestInput() {
+    if (!guestsInput) return;
+    guestsInput.max = String(maxGuests);
+    guestsInput.min = '1';
+    guestsInput.step = '1';
+    var current = parseInt(guestsInput.value, 10);
+    if (!isFinite(current) || current < 1) guestsInput.value = '1';
+    if (current > maxGuests) guestsInput.value = String(maxGuests);
   }
-  buildGuestOptions();
+  configureGuestInput();
 
   document.addEventListener('heirloom:config-updated', function () {
     var next = window.HEIRLOOM && window.HEIRLOOM.rsvp || {};
@@ -62,7 +57,7 @@
     maxGuests = isFinite(configuredMaxGuests) && configuredMaxGuests >= 1
       ? Math.floor(configuredMaxGuests)
       : 2;
-    buildGuestOptions();
+    configureGuestInput();
     if (demoNote) demoNote.hidden = !!endpoint;
     if (previewNote) previewNote.hidden = !!endpoint;
   });
@@ -82,12 +77,19 @@
     if (wrap) wrap.classList.toggle('is-invalid', invalid);
     var input = key === 'attendance' ? attendanceInputs[0]
               : key === 'name' ? nameInput
-              : key === 'email' ? emailInput : null;
+              : key === 'guests' ? guestsInput : null;
     if (input) input.setAttribute('aria-invalid', invalid ? 'true' : 'false');
   }
 
-  function validName()  { return nameInput.value.trim().length >= 2; }
-  function validEmail() { return EMAIL_RE.test(emailInput.value.trim()); }
+  function validName() { return nameInput.value.trim().length >= 2; }
+  function guestCount() {
+    var value = parseInt(guestsInput.value, 10);
+    return isFinite(value) ? value : 0;
+  }
+  function validGuests() {
+    var value = guestCount();
+    return Number.isInteger(value) && value >= 1 && value <= maxGuests;
+  }
   function attendanceValue() {
     var chosen = null;
     attendanceInputs.forEach(function (r) { if (r.checked) chosen = r.value; });
@@ -96,9 +98,12 @@
 
   /* live validation: clear as the guest types, flag on leave */
   nameInput.addEventListener('input', function () { if (validName()) setError('name', false); });
-  emailInput.addEventListener('input', function () { if (validEmail()) setError('email', false); });
+  guestsInput.addEventListener('input', function () { if (validGuests()) setError('guests', false); });
   nameInput.addEventListener('blur', function () { setError('name', !validName()); });
-  emailInput.addEventListener('blur', function () { setError('email', !validEmail()); });
+  guestsInput.addEventListener('blur', function () {
+    if (guestsInput.value === '') { guestsInput.value = '1'; setError('guests', false); return; }
+    setError('guests', !validGuests());
+  });
   attendanceInputs.forEach(function (r) {
     r.addEventListener('change', function () { setError('attendance', false); });
   });
@@ -120,9 +125,9 @@
   function collectReply() {
     return {
       name: nameInput.value.trim(),
-      email: emailInput.value.trim(),
+      email: '',
       attendance: attendanceValue() === 'accepts' ? 'attending' : 'declining',
-      guests: Number(guestsSelect.value || 1),
+      guests: guestCount(),
       dietary: dietaryInput.value.trim(),
       message: messageInput.value.trim(),
       website: (document.getElementById('rsvp-website') || {}).value || ''
@@ -133,7 +138,6 @@
   function renderPreview(reply, isDemo) {
     summaryEl.innerHTML =
       '<div><dt>Name</dt><dd>' + esc(reply.name) + '</dd></div>' +
-      '<div><dt>Email</dt><dd>' + esc(reply.email) + '</dd></div>' +
       '<div><dt>Reply</dt><dd>' +
         (reply.attendance === 'attending' ? 'Joyfully accepts' : 'Regretfully declines') +
       '</dd></div>' +
@@ -157,7 +161,7 @@
 
     var bad = [];
     if (!validName()) { setError('name', true); bad.push(nameInput); }
-    if (!validEmail()) { setError('email', true); bad.push(emailInput); }
+    if (!validGuests()) { setError('guests', true); bad.push(guestsInput); }
     if (!attendanceValue()) { setError('attendance', true); bad.push(attendanceInputs[0]); }
 
     if (bad.length) {

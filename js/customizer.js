@@ -45,7 +45,8 @@
       var title = document.createElement('strong');
       title.textContent = reply.name + ' · ' + (reply.attendance === 'attending' ? 'Attending' : 'Declining');
       var details = document.createElement('span');
-      details.textContent = reply.email + ' · ' + reply.guests + (reply.guests === 1 ? ' guest' : ' guests');
+      details.textContent = (reply.email ? reply.email + ' · ' : '') +
+        reply.guests + (reply.guests === 1 ? ' guest' : ' guests');
       var note = document.createElement('span');
       note.textContent = [reply.dietary, reply.message].filter(Boolean).join(' · ');
       item.appendChild(title);
@@ -76,8 +77,41 @@
     'envelope-seal': 'Wax seal',
     'opening-hint': 'Invitation hint',
     'open-button': 'Open button',
-    'details-reply': 'Reply seal'
+    'folio-quote': 'Keepsake quote card',
+    'folio-note-one': 'Folio note i',
+    'folio-note-two': 'Folio note ii',
+    'folio-note-three': 'Folio note iii',
+    'story-garland-top': 'Story garland',
+    'story-garland-bottom': 'Story garland (bottom)',
+    'story-caption': 'Story inscription',
+    'story-note': 'Story handwritten note',
+    'story-keepsake': 'Stamp & postmark',
+    'std-note': 'Save-the-date note',
+    'std-seal': 'Save-the-date seal',
+    'detail-ceremony': 'Details · ceremony',
+    'detail-reception': 'Details · reception',
+    'detail-reply': 'Details · kindly reply',
+    'evening-watermark': 'Evening watermark',
+    'evening-entry-one': 'Evening · ceremony moment',
+    'evening-entry-two': 'Evening · cocktails moment',
+    'evening-entry-three': 'Evening · dinner moment',
+    'evening-entry-four': 'Evening · dancing moment',
+    'palette-dresscode': 'Dress code card',
+    'palette-swatches': 'Palette swatches',
+    'day-words': 'Wedding-day words',
+    'rsvp-watermark': 'RSVP watermark',
+    'rsvp-ornament': 'RSVP ornament',
+    'countdown-clock': 'Countdown clock',
+    'closing-garland': 'Closing garland',
+    'closing-message': 'Closing message'
   };
+
+  function labelForKey(key) {
+    return elementLabels[key] ||
+      (key ? key.replace(/-/g, ' ').replace(/\b\w/g, function (ch) { return ch.toUpperCase(); })
+           .replace(/\b\w/, function (ch) { return ch.toUpperCase(); })
+      : 'Selected element');
+  }
   var adminEmail = '';
   var publishId = '';
   var ownerToken = '';
@@ -662,7 +696,12 @@
     addSimpleField(grid, 'content.storyParagraphTwo', 'Story · second paragraph', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.storyQuote', 'Keepsake quote', { wide: true, multiline: true, rows: 2, hint: 'The quote pinned to the keepsake folio.' });
     addSimpleField(grid, 'content.storyQuoteLabel', 'Keepsake quote credit', { wide: true });
-    addSimpleField(grid, 'content.detailsKeepsakeNote', 'Reply seal note', { wide: true, multiline: true, rows: 2, hint: 'The words beneath the wax seal beside the details.' });
+    addSimpleField(grid, 'content.eveningIntro', 'Evening · introduction', { wide: true, multiline: true, rows: 2, hint: 'The line beneath the programme heading.' });
+    [['One', 'ceremony'], ['Two', 'cocktails'], ['Three', 'dinner'], ['Four', 'dancing']].forEach(function (entry) {
+      addSimpleField(grid, 'content.evening' + entry[0] + 'Time', 'Evening · ' + entry[1] + ' time', {});
+      addSimpleField(grid, 'content.evening' + entry[0] + 'Title', 'Evening · ' + entry[1] + ' title', {});
+      addSimpleField(grid, 'content.evening' + entry[0] + 'Note', 'Evening · ' + entry[1] + ' note', { wide: true });
+    });
     addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
     section.appendChild(grid);
@@ -736,7 +775,7 @@
 
     var note = document.createElement('span');
     note.className = 'field-hint';
-    note.textContent = 'Optional — every reply is always listed under “Guest replies” when you reopen your edit link. Add an email and the platform also forwards each reply by email when notifications are configured.';
+    note.textContent = 'Every reply is always listed under “Guest replies” when you reopen your edit link. Add your email and each reply is also emailed to you the moment it arrives — set the RESEND_API_KEY and RSVP_FROM environment variables on your Cloudflare Pages project to switch the email delivery on.';
     field.appendChild(note);
     section.appendChild(grid);
     section.appendChild(field);
@@ -799,23 +838,42 @@
     var roles = [
       {
         key: 'editorial', label: 'Editorial headings', defaultValue: 'bodoni',
-        choices: [['bodoni', 'Bodoni Moda'], ['playfair', 'Playfair Display'], ['dmSerif', 'DM Serif Display'], ['cormorant', 'Cormorant Garamond']]
+        choices: [
+          ['bodoni', 'Bodoni Moda'], ['playfair', 'Playfair Display'], ['dmSerif', 'DM Serif Display'],
+          ['cormorant', 'Cormorant Garamond'], ['prata', 'Prata'], ['marcellus', 'Marcellus'],
+          ['italiana', 'Italiana'], ['libreCaslon', 'Libre Caslon Text']
+        ]
       },
       {
         key: 'display', label: 'Romantic serif', defaultValue: 'cormorant',
-        choices: [['cormorant', 'Cormorant Garamond'], ['ebGaramond', 'EB Garamond'], ['lora', 'Lora'], ['playfair', 'Playfair Display']]
+        choices: [
+          ['cormorant', 'Cormorant Garamond'], ['ebGaramond', 'EB Garamond'], ['lora', 'Lora'],
+          ['playfair', 'Playfair Display'], ['cardo', 'Cardo'], ['spectral', 'Spectral'],
+          ['crimsonPro', 'Crimson Pro'], ['libreBaskerville', 'Libre Baskerville']
+        ]
       },
       {
         key: 'script', label: 'Signature script', defaultValue: 'pinyon',
-        choices: [['pinyon', 'Pinyon Script'], ['greatVibes', 'Great Vibes'], ['allura', 'Allura']]
+        choices: [
+          ['pinyon', 'Pinyon Script'], ['greatVibes', 'Great Vibes'], ['allura', 'Allura'],
+          ['tangerine', 'Tangerine'], ['parisienne', 'Parisienne'], ['alexBrush', 'Alex Brush'],
+          ['mrsSaintDelafield', 'Mrs Saint Delafield'], ['herrVonMuellerhoff', 'Herr Von Muellerhoff']
+        ]
       },
       {
         key: 'hand', label: 'Handwritten accents', defaultValue: 'laBelle',
-        choices: [['laBelle', 'La Belle Aurore'], ['caveat', 'Caveat'], ['cedarville', 'Cedarville Cursive']]
+        choices: [
+          ['laBelle', 'La Belle Aurore'], ['caveat', 'Caveat'], ['cedarville', 'Cedarville Cursive'],
+          ['shadowsIntoLight', 'Shadows Into Light'], ['homemadeApple', 'Homemade Apple'],
+          ['nothingYouCouldDo', 'Nothing You Could Do']
+        ]
       },
       {
         key: 'body', label: 'Interface & small text', defaultValue: 'jost',
-        choices: [['jost', 'Jost'], ['dmSans', 'DM Sans'], ['lato', 'Lato'], ['montserrat', 'Montserrat']]
+        choices: [
+          ['jost', 'Jost'], ['dmSans', 'DM Sans'], ['lato', 'Lato'], ['montserrat', 'Montserrat'],
+          ['karla', 'Karla'], ['workSans', 'Work Sans'], ['outfit', 'Outfit'], ['sourceSans', 'Source Sans 3']
+        ]
       }
     ];
     roles.forEach(function (role) {
@@ -855,18 +913,38 @@
       playfair: '"Playfair Display", serif',
       dmSerif: '"DM Serif Display", serif',
       cormorant: '"Cormorant Garamond", serif',
+      prata: '"Prata", serif',
+      marcellus: '"Marcellus", serif',
+      italiana: '"Italiana", serif',
+      libreCaslon: '"Libre Caslon Text", serif',
       ebGaramond: '"EB Garamond", serif',
       lora: '"Lora", serif',
+      cardo: '"Cardo", serif',
+      spectral: '"Spectral", serif',
+      crimsonPro: '"Crimson Pro", serif',
+      libreBaskerville: '"Libre Baskerville", serif',
       pinyon: '"Pinyon Script", cursive',
       greatVibes: '"Great Vibes", cursive',
       allura: '"Allura", cursive',
+      tangerine: '"Tangerine", cursive',
+      parisienne: '"Parisienne", cursive',
+      alexBrush: '"Alex Brush", cursive',
+      mrsSaintDelafield: '"Mrs Saint Delafield", cursive',
+      herrVonMuellerhoff: '"Herr Von Muellerhoff", cursive',
       laBelle: '"La Belle Aurore", cursive',
       caveat: '"Caveat", cursive',
       cedarville: '"Cedarville Cursive", cursive',
+      shadowsIntoLight: '"Shadows Into Light", cursive',
+      homemadeApple: '"Homemade Apple", cursive',
+      nothingYouCouldDo: '"Nothing You Could Do", cursive',
       jost: '"Jost", sans-serif',
       dmSans: '"DM Sans", sans-serif',
       lato: '"Lato", sans-serif',
-      montserrat: '"Montserrat", sans-serif'
+      montserrat: '"Montserrat", sans-serif',
+      karla: '"Karla", sans-serif',
+      workSans: '"Work Sans", sans-serif',
+      outfit: '"Outfit", sans-serif',
+      sourceSans: '"Source Sans 3", sans-serif'
     };
     return families[font] || families.bodoni;
   }
@@ -1064,8 +1142,9 @@
           validSelector && hasColor && validAnchor) {
         selectedColorSelector = message.selector;
         selectedColorKey = typeof message.key === 'string' ? message.key : '';
-        selectedColorRemovable = !!selectedColorKey && selectedColorKey !== 'skip-intro' &&
-          !!elementLabels[selectedColorKey];
+        /* every keyed element can be removed — the skip link alone is
+           protected so guests can always reach the invitation */
+        selectedColorRemovable = !!selectedColorKey && selectedColorKey !== 'skip-intro';
         var savedColors = config.colorEdits && config.colorEdits[selectedColorSelector];
         if (textColorInput) {
           textColorInput.value = (savedColors && savedColors.color) || message.color || '#f7f4ee';
@@ -1228,10 +1307,10 @@
   }
   if (removeElementButton) {
     removeElementButton.addEventListener('click', function () {
-      if (!selectedColorKey || !elementLabels[selectedColorKey]) return;
+      if (!selectedColorKey || selectedColorKey === 'skip-intro') return;
       if (!config.hiddenElements || typeof config.hiddenElements !== 'object') config.hiddenElements = {};
       config.hiddenElements[selectedColorKey] = true;
-      var removedLabel = elementLabels[selectedColorKey];
+      var removedLabel = labelForKey(selectedColorKey);
       hideColorTooltip(true);
       notify('"' + removedLabel + '" was removed from the invitation. Use “Restore removed elements” under the preview to bring it back.');
     });
