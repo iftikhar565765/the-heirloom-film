@@ -36,34 +36,54 @@ open index.html        # or double-click it
 Full product with working publish + RSVP (needs Node.js 18+):
 
 ```
-npm install wrangler --save-dev   # once
-node scripts/build.mjs
-npx wrangler d1 migrations apply heirloom-invitations --local
-npx wrangler pages dev --port 8788 --d1 DB=heirloom-invitations
+npm install          # once — installs wrangler
+npm run dev          # builds, applies local D1 migrations, serves on :8788
 # open http://127.0.0.1:8788/customize.html
 ```
 
-(The `--d1` flag binds the database for `pages dev`; on the deployed site
-the binding comes from the Pages project settings instead.)
+(`npm run dev` passes `--d1 DB=heirloom-invitations` explicitly — local
+`pages dev` needs the flag even though `wrangler.jsonc` declares the
+binding; on the deployed site the binding comes from the config.)
 
 ## Deploy to Cloudflare Pages (GitHub → Pages)
 
+Go-live checklist, in order:
+
 1. Push this repository to GitHub (`main` branch).
-2. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**,
-   pick the repository. Build settings: **no framework**, build command
-   `node scripts/build.mjs`, output directory `dist`.
-3. Create the D1 database once and paste its id into `wrangler.jsonc`
-   (the id in the file is the production database for this project):
+2. Create the D1 database **and apply the migration to it** — without the
+   tables the publish and RSVP endpoints would return HTTP 500:
 
    ```
-   npx wrangler d1 create heirloom-invitations
+   npx wrangler login
+   npx wrangler d1 create heirloom-invitations     # skip if it exists already
    npx wrangler d1 migrations apply heirloom-invitations --remote
    ```
 
+   The database id in `wrangler.jsonc` is the production database for this
+   project; if you create a fresh database, paste its id into
+   `wrangler.jsonc` before the next step.
+3. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**,
+   pick the repository. Build settings: **no framework**, build command
+   `node scripts/build.mjs`, output directory `dist`.
 4. In the Pages project → **Settings → Bindings**, verify the D1 database is
-   bound as `DB`. That is the only required binding.
-5. Redeploy. The live editor is `https://PROJECT.pages.dev/customize.html`;
-   published invitations live at `https://PROJECT.pages.dev/?invite=ID`.
+   bound as `DB` (Cloudflare reads the binding from `wrangler.jsonc`). That
+   is the only required binding.
+5. Optional secrets (Settings → Environment variables): `ACCESS_CODE`
+   (sells the editor behind a code), `RESEND_API_KEY` + `RSVP_FROM`
+   (emails each reply to the couple). See *Selling the product* below.
+6. Redeploy and smoke-test: open `https://PROJECT.pages.dev/customize.html`,
+   publish a test invitation, open its guest link, send a test reply, and
+   check it appears under **Guest replies** in the editor.
+
+Alternative one-command deploy (direct upload, no Git connection) after
+`npx wrangler login`:
+
+```
+npm run deploy       # builds dist, then `wrangler deploy`
+```
+
+The live editor is `https://PROJECT.pages.dev/customize.html`; published
+invitations live at `https://PROJECT.pages.dev/?invite=ID`.
 
 `_routes.json` limits Functions execution to `/api/*` — every page, script and
 stylesheet is served as a static asset from the CDN edge.

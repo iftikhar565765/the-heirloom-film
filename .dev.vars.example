@@ -1,0 +1,14 @@
+# Copy this file to .dev.vars to use the optional secrets locally:
+#   cp .dev.vars.example .dev.vars
+# On the deployed site, set them in the Pages project:
+#   Settings → Environment variables (they are all optional).
+#
+# Access-code gate: when set, buyers must quote this code before
+# their first publish. Leave empty for an open editor.
+ACCESS_CODE=
+
+# Reply-notification email (via resend.com). Both values are needed
+# together; without them replies are still stored in D1 and shown in
+# the editor's Guest replies panel.
+RESEND_API_KEY=
+RSVP_FROM=

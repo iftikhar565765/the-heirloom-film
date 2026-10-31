@@ -1,0 +1,20 @@
+{
+  "name": "the-heirloom-film",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A cinematic wedding invitation — Cloudflare Pages + Pages Functions + D1",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && npm run db:migrate:local && wrangler pages dev --d1 DB=heirloom-invitations",
+    "deploy": "npm run build && wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply heirloom-invitations --local",
+    "db:migrate:remote": "wrangler d1 migrations apply heirloom-invitations --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
