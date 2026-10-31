@@ -132,8 +132,3 @@ programme. Empty the list to hide the whole scene.
   page; a watchdog reveals the site even if a script fails.
 - If the GSAP CDN is unreachable, a pure-CSS keyframe sequence opens the
   envelope instead. No icon library — every ornament is inline SVG.
-
-## Legacy PHP backend
-
-The `php/` directory remains for old self-hosted deployments. Cloudflare
-Pages does not execute PHP; the Pages Functions above replace it.
