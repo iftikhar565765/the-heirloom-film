@@ -161,8 +161,7 @@ section[id] { scroll-margin-top: 4.75rem; }
 .invite-card,
 .rsvp-card,
 .folio-card,
-.dm-palette,
-.particulars-card {
+.dm-palette {
   --ink: #292622;
   --ink-soft: #4E4942;
   --charcoal: #70695F;

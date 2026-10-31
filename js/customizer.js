@@ -93,15 +93,14 @@
     'detail-ceremony': 'Details · ceremony',
     'detail-reception': 'Details · reception',
     'detail-reply': 'Details · kindly reply',
-    'particulars-card': 'Particulars card',
-    'particulars-ghost': 'Particulars watermark',
-    'particulars-eyebrow': 'Particulars · eyebrow',
-    'particulars-mono': 'Particulars monogram',
-    'particulars-date': 'Particulars · the date',
-    'particulars-place': 'Particulars · the place',
-    'particulars-attire': 'Particulars · the attire',
-    'particulars-carriages': 'Particulars · the carriages',
-    'particulars-seal': 'Particulars wax seal',
+    'details-art': 'Details ornamental crest',
+    'details-art-frame': 'Crest · plate frame',
+    'details-art-arch': 'Crest · linden wreath',
+    'details-art-drop': 'Crest · hanging drop',
+    'details-art-rings': 'Crest · wedding rings',
+    'details-art-mono': 'Crest · monogram',
+    'details-art-date': 'Crest · date ribbon',
+    'details-art-sparkles': 'Crest · sparkles',
     'palette-dresscode': 'Dress code card',
     'palette-swatches': 'Palette swatches',
     'day-words': 'Wedding-day words',
@@ -711,13 +710,6 @@
     addSimpleField(grid, 'content.receptionNote', 'Reception · note', { wide: true });
     addSimpleField(grid, 'content.kindlyReplyLabel', 'Kindly reply · heading', {});
     addSimpleField(grid, 'content.kindlyReplyNote', 'Kindly reply · note', { wide: true });
-    addSimpleField(grid, 'content.particularsEyebrow', 'Particulars card · eyebrow', {});
-    addSimpleField(grid, 'content.particularsAttireLabel', 'Particulars · attire label', {});
-    addSimpleField(grid, 'content.particularsAttire', 'Particulars · attire', {});
-    addSimpleField(grid, 'content.particularsAttireNote', 'Particulars · attire note', { wide: true });
-    addSimpleField(grid, 'content.particularsCarriagesLabel', 'Particulars · carriages label', {});
-    addSimpleField(grid, 'content.particularsCarriagesTime', 'Particulars · carriages time', {});
-    addSimpleField(grid, 'content.particularsCarriagesNote', 'Particulars · carriages note', { wide: true });
     addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
     section.appendChild(grid);

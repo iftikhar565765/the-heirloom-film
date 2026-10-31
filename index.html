@@ -497,57 +497,139 @@
               </div>
             </div>
 
-            <!-- The engraved insert card — a letterpress “particulars”
-                 plate on ivory paper, sealed in wax. It carries the
-                 facts the ledger does not: the date, the place, the
-                 attire and the carriages. Every piece is editable,
-                 recolourable and removable in the customizer. -->
-            <aside class="particulars-card reveal" data-element-key="particulars-card" aria-label="The particulars">
-              <svg class="particulars-card__flourish particulars-card__flourish--tl" aria-hidden="true">
-                <use href="#flourish" />
+            <!-- The ornamental crest — a grand engraved artwork drawn
+                 entirely in SVG: a double hairline plate frame, two
+                 linden branches tied at the foot, wedding rings, the
+                 couple's script monogram, the date on an engraved
+                 ribbon and a scatter of sparkles. Every piece follows
+                 the theme colours and can be recoloured or removed
+                 individually in the customizer. -->
+            <aside class="details-art reveal" data-element-key="details-art"
+              role="img"
+              aria-label="An engraved crest: linden branches tied at the foot encircle two wedding rings, the couple's monogram and the wedding date on a ribbon.">
+              <svg viewBox="0 0 520 680" aria-hidden="true" focusable="false">
+                <defs>
+                  <radialGradient id="details-art-glow" cx="50%" cy="44%" r="58%">
+                    <stop offset="0%" stop-color="currentColor" stop-opacity=".12"/>
+                    <stop offset="55%" stop-color="currentColor" stop-opacity=".05"/>
+                    <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+                  </radialGradient>
+                  <path id="details-art-leaf" d="M0 0 C 4.5 -5.2, 12.5 -6.2, 17.5 0 C 12.5 6.2, 4.5 5.2, 0 0 Z"/>
+                  <path id="details-art-spark" d="M0 -7.5 C 1.3 -2.2, 2.2 -1.3, 7.5 0 C 2.2 1.3, 1.3 2.2, 0 7.5 C -1.3 2.2, -2.2 1.3, -7.5 0 C -2.2 -1.3, -1.3 -2.2, 0 -7.5 Z"/>
+                </defs>
+
+                <circle cx="260" cy="300" r="252" fill="url(#details-art-glow)"/>
+
+                <!-- the engraved plate frame -->
+                <g class="details-art__frame" data-element-key="details-art-frame" fill="none" stroke="currentColor">
+                  <rect x="10.5" y="10.5" width="499" height="659" stroke-width="1" opacity=".38"/>
+                  <rect x="22" y="22" width="476" height="636" stroke-width="1" opacity=".8"/>
+                  <path d="M260 17.5 L264.5 22 L260 26.5 L255.5 22 Z" fill="currentColor" stroke="none"/>
+                  <path d="M260 653.5 L264.5 658 L260 662.5 L255.5 658 Z" fill="currentColor" stroke="none"/>
+                  <path d="M22 22 l7.4 0 M22 22 l0 7.4 M498 22 l-7.4 0 M498 22 l0 7.4 M22 658 l7.4 0 M22 658 l0 -7.4 M498 658 l-7.4 0 M498 658 l0 -7.4" stroke-width="1.6" opacity=".9"/>
+                </g>
+
+                <g class="details-art__inner" transform="translate(0 24)">
+                <!-- the linden wreath, tied at the foot -->
+                <g class="details-art__arch" data-element-key="details-art-arch" fill="none" stroke="currentColor" stroke-linecap="round">
+                  <path class="details-art__stem" d="M252 492 A 152 192 0 0 1 173 143 C 168 132, 158 126, 146 128" stroke-width="2"/>
+                  <path class="details-art__stem" d="M268 492 A 152 192 0 0 0 347 143 C 352 132, 362 126, 374 128" stroke-width="2"/>
+                  <g class="details-art__foliage" fill="currentColor" stroke="none">
+                    <g>
+      <use href="#details-art-leaf" transform="translate(249.4 491.5) rotate(-137.0) scale(1.02)"/>
+      <use href="#details-art-leaf" transform="translate(221.1 485.6) rotate(-199.5) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(194.1 473.0) rotate(-110.7) scale(1.10)"/>
+      <use href="#details-art-leaf" transform="translate(169.5 454.3) rotate(-174.9) scale(0.94)"/>
+      <use href="#details-art-leaf" transform="translate(148.1 430.0) rotate(-88.1) scale(1.04)"/>
+      <use href="#details-art-leaf" transform="translate(130.8 401.1) rotate(-154.1) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(118.0 368.6) rotate(-68.8) scale(1.12)"/>
+      <use href="#details-art-leaf" transform="translate(110.3 333.6) rotate(-136.0) scale(0.92)"/>
+      <use href="#details-art-leaf" transform="translate(108.0 297.4) rotate(-51.4) scale(1.06)"/>
+      <use href="#details-art-leaf" transform="translate(111.1 261.3) rotate(-118.8) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(119.5 226.6) rotate(-33.9) scale(1.08)"/>
+      <use href="#details-art-leaf" transform="translate(133.0 194.6) rotate(-100.5) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(150.9 166.3) rotate(-14.5) scale(1.00)"/>
+      <use href="#details-art-leaf" transform="translate(172.8 142.7) rotate(-79.5) scale(0.84)"/>
+                    </g>
+                    <g transform="scale(-1,1) translate(-520,0)">
+      <use href="#details-art-leaf" transform="translate(249.4 491.5) rotate(-137.0) scale(1.02)"/>
+      <use href="#details-art-leaf" transform="translate(221.1 485.6) rotate(-199.5) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(194.1 473.0) rotate(-110.7) scale(1.10)"/>
+      <use href="#details-art-leaf" transform="translate(169.5 454.3) rotate(-174.9) scale(0.94)"/>
+      <use href="#details-art-leaf" transform="translate(148.1 430.0) rotate(-88.1) scale(1.04)"/>
+      <use href="#details-art-leaf" transform="translate(130.8 401.1) rotate(-154.1) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(118.0 368.6) rotate(-68.8) scale(1.12)"/>
+      <use href="#details-art-leaf" transform="translate(110.3 333.6) rotate(-136.0) scale(0.92)"/>
+      <use href="#details-art-leaf" transform="translate(108.0 297.4) rotate(-51.4) scale(1.06)"/>
+      <use href="#details-art-leaf" transform="translate(111.1 261.3) rotate(-118.8) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(119.5 226.6) rotate(-33.9) scale(1.08)"/>
+      <use href="#details-art-leaf" transform="translate(133.0 194.6) rotate(-100.5) scale(0.90)"/>
+      <use href="#details-art-leaf" transform="translate(150.9 166.3) rotate(-14.5) scale(1.00)"/>
+      <use href="#details-art-leaf" transform="translate(172.8 142.7) rotate(-79.5) scale(0.84)"/>
+                    </g>
+                                        <g class="details-art__buds">
+                      <circle cx="248.9" cy="500.5" r="2.4"/><circle cx="190.9" cy="481.4" r="2.4"/>
+                      <circle cx="142.3" cy="436.8" r="2.4"/><circle cx="109.9" cy="372.5" r="2.4"/>
+                      <circle cx="99.0" cy="297.3" r="2.4"/><circle cx="111.6" cy="222.5" r="2.4"/>
+                      <circle cx="145.3" cy="159.3" r="2.4"/>
+                      <circle cx="271.1" cy="500.5" r="2.4"/><circle cx="329.1" cy="481.4" r="2.4"/>
+                      <circle cx="377.7" cy="436.8" r="2.4"/><circle cx="410.1" cy="372.5" r="2.4"/>
+                      <circle cx="421.0" cy="297.3" r="2.4"/><circle cx="408.4" cy="222.5" r="2.4"/>
+                      <circle cx="374.7" cy="159.3" r="2.4"/>
+                    </g>
+                  </g>
+                  <!-- the ribbon tie at the foot of the wreath -->
+                  <path d="M244 478 C 253 492, 253 505, 246 518" stroke-width="1.4" opacity=".85"/>
+                  <path d="M276 478 C 267 492, 267 505, 274 518" stroke-width="1.4" opacity=".85"/>
+                  <path d="M260 486 L266.5 494 L260 502 L253.5 494 Z" fill="currentColor" stroke="none"/>
+                </g>
+
+                <!-- a drop hanging from the plate's top edge -->
+                <g class="details-art__drop" data-element-key="details-art-drop" fill="none" stroke="currentColor">
+                  <path d="M260 24 L260 90" stroke-width="1" opacity=".7"/>
+                  <circle cx="260" cy="95" r="2.2" fill="currentColor" stroke="none"/>
+                  <path d="M260 104 L268.5 118 L260 132 L251.5 118 Z" stroke-width="1.3"/>
+                  <path d="M260 110 L260 126" stroke-width=".8" opacity=".6"/>
+                </g>
+
+                <!-- the wedding rings -->
+                <g class="details-art__rings" data-element-key="details-art-rings" fill="none" stroke="currentColor">
+                  <circle cx="237" cy="238" r="25.5" stroke-width="2"/>
+                  <circle cx="283" cy="238" r="25.5" stroke-width="2"/>
+                  <path d="M299 214 L303.5 224.5 L314 229 L303.5 233.5 L299 244 L294.5 233.5 L284 229 L294.5 224.5 Z" fill="currentColor" stroke="none" opacity=".9"/>
+                </g>
+
+                <!-- the monogram and its flourished divider -->
+                <g class="details-art__mono" data-element-key="details-art-mono">
+                  <text class="details-art__mono-text" x="260" y="362" text-anchor="middle"
+                    data-content="couple.initials">A · J</text>
+                  <path d="M170 400 C 206 391, 236 391, 251 399 M269 399 C 284 391, 314 391, 350 400"
+                    fill="none" stroke="currentColor" stroke-width="1.1" opacity=".85"/>
+                  <path d="M260 391 L268 399 L260 407 L252 399 Z" fill="currentColor"/>
+                </g>
+
+                <!-- the date on an engraved ribbon -->
+                <g class="details-art__date" data-element-key="details-art-date">
+                  <path d="M122 514 L86 505 L99 533 L86 561 L122 552 Z" fill="currentColor" opacity=".12"/>
+                  <path d="M398 514 L434 505 L421 533 L434 561 L398 552 Z" fill="currentColor" opacity=".12"/>
+                  <path d="M138 510 C 200 519, 320 519, 382 510 L382 556 C 320 565, 200 565, 138 556 Z"
+                    fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="1.1"/>
+                  <text class="details-art__numerals" x="260" y="545" text-anchor="middle"
+                    textLength="216" lengthAdjust="spacing"
+                    data-content="wedding.numerals">18 · 09 · 2027</text>
+                </g>
+                </g>
+
+                <!-- a scatter of sparkles -->
+                <g class="details-art__accents" data-element-key="details-art-sparkles" fill="currentColor">
+                  <use href="#details-art-spark" transform="translate(142 182) scale(.9)"/>
+                  <use href="#details-art-spark" transform="translate(384 210) scale(.68)"/>
+                  <use href="#details-art-spark" transform="translate(116 340) scale(.6)"/>
+                  <use href="#details-art-spark" transform="translate(406 346) scale(.82)"/>
+                  <use href="#details-art-spark" transform="translate(172 472) scale(.62)"/>
+                  <use href="#details-art-spark" transform="translate(352 480) scale(.78)"/>
+                </g>
               </svg>
-              <svg class="particulars-card__flourish particulars-card__flourish--tr" aria-hidden="true">
-                <use href="#flourish" />
-              </svg>
-              <svg class="particulars-card__flourish particulars-card__flourish--bl" aria-hidden="true">
-                <use href="#flourish" />
-              </svg>
-              <svg class="particulars-card__flourish particulars-card__flourish--br" aria-hidden="true">
-                <use href="#flourish" />
-              </svg>
-              <span class="particulars-card__ghost script" aria-hidden="true" data-element-key="particulars-ghost">&amp;</span>
-
-              <p class="particulars-card__eyebrow" data-content="content.particularsEyebrow" data-element-key="particulars-eyebrow">The Particulars</p>
-              <span class="particulars-card__mono script" data-content="couple.initials" data-element-key="particulars-mono">A · J</span>
-              <span class="particulars-card__rule" aria-hidden="true"></span>
-
-              <div class="particulars-card__rows">
-                <div class="particulars-row" data-element-key="particulars-date">
-                  <span class="particulars-row__label" data-content="content.particularsDateLabel">The Date</span>
-                  <span class="particulars-row__value particulars-row__value--numerals" data-content="wedding.numerals">18 · 09 · 2027</span>
-                  <span class="particulars-row__note" data-content="wedding.words">Saturday · The Eighteenth of September</span>
-                </div>
-
-                <div class="particulars-row" data-element-key="particulars-place">
-                  <span class="particulars-row__label" data-content="content.particularsPlaceLabel">The Place</span>
-                  <span class="particulars-row__value" data-content="venue.name">The Linden Estate</span>
-                  <span class="particulars-row__note" data-content="venue.address">12 Linden Lane, Willowbrook</span>
-                </div>
-
-                <div class="particulars-row" data-element-key="particulars-attire">
-                  <span class="particulars-row__label" data-content="content.particularsAttireLabel">The Attire</span>
-                  <span class="particulars-row__value" data-content="content.particularsAttire">Garden formal</span>
-                  <span class="particulars-row__note" data-content="content.particularsAttireNote">Soft tones are welcome — wear what makes you feel wonderful.</span>
-                </div>
-
-                <div class="particulars-row" data-element-key="particulars-carriages">
-                  <span class="particulars-row__label" data-content="content.particularsCarriagesLabel">The Carriages</span>
-                  <span class="particulars-row__value" data-content="content.particularsCarriagesTime">At midnight</span>
-                  <span class="particulars-row__note" data-content="content.particularsCarriagesNote">The last dance ends as the clocks strike twelve.</span>
-                </div>
-              </div>
-
-              <span class="particulars-card__seal" aria-hidden="true" data-content="couple.initials" data-element-key="particulars-seal">A·J</span>
             </aside>
           </div>
         </div>

@@ -606,156 +606,76 @@
   line-height: 1.6;
 }
 /* ════════════════════════════════════════════════════════════════
-   The engraved particulars card — an ivory letterpress insert
-   on the right of the ledger, sealed in wax. It carries the
-   facts the ledger does not: date, place, attire, carriages.
+   The ornamental crest — a grand engraved artwork on the right of
+   the ledger, drawn entirely in SVG. Linden branches tied at the
+   foot encircle the wedding rings, the monogram and the date on a
+   ribbon. Every stroke follows the theme colours through
+   currentColor, so the whole crest recolours with the palette and
+   each piece can be hidden individually in the customizer.
    ════════════════════════════════════════════════════════════════ */
 .scene--details { overflow-x: clip; }
-.particulars-card {
-  position: relative;
-  width: min(100%, 29rem);
+.details-art {
   justify-self: end;
-  padding: clamp(2.5rem, 4.5vw, 3.3rem) clamp(1.9rem, 3.4vw, 2.7rem) clamp(3.1rem, 5vw, 3.6rem);
-  background:
-    linear-gradient(168deg,
-      color-mix(in srgb, var(--paper-raised) 96%, var(--champagne) 4%),
-      var(--ivory) 55%,
-      color-mix(in srgb, var(--ivory) 93%, var(--champagne) 7%));
-  color: var(--ink);
-  border: 1px solid color-mix(in srgb, var(--champagne) 72%, transparent);
-  box-shadow:
-    0 2px 4px rgba(12, 3, 6, .22),
-    0 34px 70px rgba(10, 2, 4, .5),
-    inset 0 0 0 1px rgba(255, 255, 255, .5);
-  transform: rotate(.5deg);
+  width: min(100%, 34rem);
+  color: var(--champagne);
+  filter: drop-shadow(0 22px 48px rgba(8, 2, 4, .45));
 }
-/* the inner hairline frame of the letterpress plate */
-.particulars-card::before {
-  content: "";
-  position: absolute;
-  inset: .6rem;
-  border: 1px solid color-mix(in srgb, var(--burgundy) 24%, transparent);
-  pointer-events: none;
+.details-art svg { display: block; width: 100%; height: auto; }
+.details-art text { fill: currentColor; }
+.details-art__mono-text {
+  font-family: var(--font-script);
+  font-size: 88px;
 }
-.particulars-card__flourish {
-  position: absolute;
-  z-index: 2;
-  width: 2.5rem;
-  height: auto;
-  color: color-mix(in srgb, var(--burgundy) 58%, var(--champagne));
-  opacity: .85;
-}
-.particulars-card__flourish--tl { top: .95rem; left: .95rem; }
-.particulars-card__flourish--tr { top: .95rem; right: .95rem; transform: scaleX(-1); }
-.particulars-card__flourish--bl { bottom: .95rem; left: .95rem; transform: scaleY(-1); }
-.particulars-card__flourish--br { bottom: .95rem; right: .95rem; transform: scale(-1); }
-/* the ghost ampersand pressed into the paper */
-.particulars-card__ghost {
-  position: absolute;
-  right: -.35rem;
-  bottom: -1.7rem;
-  font-size: clamp(9.5rem, 15vw, 12.5rem);
-  line-height: 1;
-  color: color-mix(in srgb, var(--burgundy) 7%, transparent);
-  pointer-events: none;
-  user-select: none;
-}
-.particulars-card__eyebrow {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  text-align: center;
-  color: color-mix(in srgb, var(--burgundy) 76%, var(--ink));
-  font-family: var(--font-body);
-  font-size: .58rem;
-  font-weight: 500;
-  letter-spacing: .3em;
-  text-transform: uppercase;
-}
-.particulars-card__mono {
-  position: relative;
-  z-index: 1;
-  display: block;
-  margin-top: .45rem;
-  text-align: center;
-  font-size: clamp(2.9rem, 5vw, 3.7rem);
-  line-height: 1;
-  color: var(--burgundy);
-}
-.particulars-card__rule {
-  display: block;
-  width: 4.2rem;
-  height: 1px;
-  margin: 1.15rem auto 0;
-  background: linear-gradient(to right, transparent,
-    color-mix(in srgb, var(--burgundy) 55%, transparent),
-    transparent);
-}
-.particulars-card__rows { position: relative; z-index: 1; margin-top: .35rem; }
-.particulars-row {
-  padding: 1.05rem 0 .95rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--burgundy) 13%, transparent);
-  text-align: center;
-}
-.particulars-row:last-child { border-bottom: 0; }
-.particulars-row__label {
-  display: block;
-  color: color-mix(in srgb, var(--burgundy) 78%, var(--ink));
-  font-family: var(--font-body);
-  font-size: .55rem;
-  font-weight: 500;
-  letter-spacing: .26em;
-  text-transform: uppercase;
-}
-.particulars-row__value {
-  display: block;
-  margin-top: .4rem;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
-  font-weight: 400;
-  line-height: 1.2;
-}
-.particulars-row__value--numerals {
+.details-art__numerals {
   font-family: var(--font-editorial);
+  font-size: 27px;
   letter-spacing: .1em;
-  font-size: clamp(1.5rem, 2.8vw, 1.95rem);
 }
-.particulars-row__note {
-  display: block;
-  max-width: 30ch;
-  margin: .3rem auto 0;
-  color: color-mix(in srgb, var(--ink) 72%, transparent);
-  font-style: italic;
-  font-size: .78rem;
-  line-height: 1.55;
+/* the frame sits a step behind the line work */
+.details-art__frame { color: color-mix(in srgb, var(--champagne) 64%, transparent); }
+/* buds & sparkles carry the rose note of the palette */
+.details-art__accents { color: var(--rose); }
+.details-art__buds { opacity: .85; }
+
+/* the crest draws itself in: stems trace, foliage fades after */
+@media (prefers-reduced-motion: no-preference) {
+  .details-art .details-art__stem {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+  }
+  .details-art.in-view .details-art__stem {
+    animation: details-art-draw 2.8s cubic-bezier(.6, 0, .3, 1) .25s forwards;
+  }
+  .details-art .details-art__foliage,
+  .details-art .details-art__rings,
+  .details-art .details-art__mono,
+  .details-art .details-art__date,
+  .details-art .details-art__accents,
+  .details-art .details-art__drop {
+    opacity: 0;
+  }
+  .details-art.in-view .details-art__foliage {
+    animation: details-art-fade 1.6s ease 1.1s forwards;
+  }
+  .details-art.in-view .details-art__rings {
+    animation: details-art-fade 1.4s ease 1.7s forwards;
+  }
+  .details-art.in-view .details-art__mono {
+    animation: details-art-fade 1.5s ease 2s forwards;
+  }
+  .details-art.in-view .details-art__date {
+    animation: details-art-fade 1.5s ease 2.3s forwards;
+  }
+  .details-art.in-view .details-art__drop,
+  .details-art.in-view .details-art__accents {
+    animation: details-art-fade 1.8s ease 2.55s forwards;
+  }
 }
-/* the wax seal dipping over the lower edge of the card */
-.particulars-card__seal {
-  position: absolute;
-  z-index: 3;
-  left: 50%;
-  bottom: -1.45rem;
-  transform: translateX(-50%) rotate(-6deg);
-  display: grid;
-  place-items: center;
-  width: 3.05rem;
-  height: 3.05rem;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 28%,
-      color-mix(in srgb, var(--burgundy) 78%, #fff 8%),
-      var(--burgundy) 52%,
-      color-mix(in srgb, var(--burgundy) 64%, #000 26%));
-  color: color-mix(in srgb, var(--champagne) 92%, #fff 8%);
-  font-family: var(--font-body);
-  font-size: .7rem;
-  font-weight: 500;
-  letter-spacing: .07em;
-  box-shadow:
-    0 10px 22px rgba(10, 2, 4, .42),
-    inset 0 0 0 2px color-mix(in srgb, var(--champagne) 28%, transparent),
-    inset 0 -3px 6px rgba(0, 0, 0, .3);
+@keyframes details-art-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes details-art-fade {
+  to { opacity: 1; }
 }
 
 /* the countdown names the date it is counting toward */

@@ -20,8 +20,8 @@
   }
   .story-folio { padding-top: 3.5rem; }
   .venue-head { margin-top: 0; }
-  /* the particulars card centres itself beneath the ledger */
-  .particulars-card { justify-self: center; transform: none; }
+  /* the crest centres itself beneath the ledger */
+  .details-art { justify-self: center; width: min(100%, 26rem); }
 }
 
 /* ── ≤ 880px — navigation condenses to its menu ─────────────────── */
@@ -304,8 +304,7 @@
   .std-crossing { font-size: clamp(1.55rem, 7vw, 2.25rem); }
   .std-venue { margin-top: 1rem; }
   .detail-item { grid-template-columns: 1.8rem minmax(0, 1fr); column-gap: .7rem; }
-  .particulars-card { width: min(100%, 24.5rem); }
-  .particulars-row__note { max-width: 26ch; }
+  .details-art { width: min(100%, 23rem); }
   .palette-swatches { gap: .6rem; }
   .palette-value { font-size: .5rem; letter-spacing: .06em; }
   .venue-name { overflow-wrap: anywhere; }
@@ -344,10 +343,7 @@
   .fc-quote { padding: 2.4rem 1.55rem 2.25rem; }
   .fc-note { padding: 1.9rem 1.3rem 1.8rem; }
   .details-copy > .display { font-size: clamp(2.45rem, 11vw, 3.3rem); }
-  .particulars-card { padding: 2.2rem 1.5rem 2.7rem; }
-  .particulars-card__mono { font-size: 2.5rem; }
-  .particulars-row__value { font-size: 1.25rem; }
-  .particulars-row__value--numerals { font-size: 1.4rem; }
+  .details-art { width: min(100%, 20.5rem); }
   .palette-heading .display { font-size: clamp(2rem, 9vw, 2.75rem); }
   .itinerary-head .display { font-size: clamp(2.35rem, 10vw, 3.2rem); }
   .day-words { padding: 1rem; }

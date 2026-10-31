@@ -254,15 +254,14 @@
     'detail-ceremony': 'Details · ceremony',
     'detail-reception': 'Details · reception',
     'detail-reply': 'Details · kindly reply',
-    'particulars-card': 'Particulars card',
-    'particulars-ghost': 'Particulars watermark',
-    'particulars-eyebrow': 'Particulars · eyebrow',
-    'particulars-mono': 'Particulars monogram',
-    'particulars-date': 'Particulars · the date',
-    'particulars-place': 'Particulars · the place',
-    'particulars-attire': 'Particulars · the attire',
-    'particulars-carriages': 'Particulars · the carriages',
-    'particulars-seal': 'Particulars wax seal',
+    'details-art': 'Details ornamental crest',
+    'details-art-frame': 'Crest · plate frame',
+    'details-art-arch': 'Crest · linden wreath',
+    'details-art-drop': 'Crest · hanging drop',
+    'details-art-rings': 'Crest · wedding rings',
+    'details-art-mono': 'Crest · monogram',
+    'details-art-date': 'Crest · date ribbon',
+    'details-art-sparkles': 'Crest · sparkles',
     'palette-dresscode': 'Dress code card',
     'palette-swatches': 'Palette swatches',
     'day-words': 'Wedding-day words',
@@ -501,7 +500,11 @@
           configPathForContent(textElement.getAttribute('data-content') || '');
         if (textElement.closest('[data-nav], #mobile-menu')) textPath = '';
       }
-      if (textElement && textPath && typeof getConfigValue(textPath) === 'string') {
+      if (textElement && textPath && typeof getConfigValue(textPath) === 'string' &&
+          !textElement.closest('svg')) {
+        /* SVG artwork text (the crest monogram & numerals) stays out
+           of the text editor — it is recoloured or removed with its
+           group instead, and follows the sidebar fields         */
         event.stopPropagation();
         if (textElement === activeText) return;
         if (textElement.closest('a, button')) event.preventDefault();
