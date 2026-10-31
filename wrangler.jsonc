@@ -2,19 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "heirloom-invitation",
   "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-10-31",
+  "compatibility_date": "2026-09-01",
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "heirloom-invitations",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
-      "migrations_dir": "migrations"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "IMAGES",
-      "bucket_name": "heirloom-invitation-images"
+      "database_id": "fd6c18a6-32a8-470c-9628-ffd6530b885c"
     }
   ]
 }

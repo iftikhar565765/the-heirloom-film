@@ -62,11 +62,15 @@ export async function onRequestPost(context) {
   const config = request && request.config;
   const email = request && request.adminEmail;
 
-  if (!["publish", "save"].includes(action) || !validConfig(config)) {
+  if (!validConfig(config)) {
     return json({ error: "The invitation design or publishing action is invalid." }, 422);
   }
-  if (!validEmail(email)) {
-    return json({ error: "Enter a valid admin email to receive RSVP replies." }, 422);
+  /* The reply-notification email is optional: replies are always
+     stored in D1 and listed in the editor; the email only adds
+     convenience forwarding when it is provided.                    */
+  const recipient = typeof email === "string" && email.trim() ? email.trim() : "";
+  if (recipient && !validEmail(recipient)) {
+    return json({ error: "Enter a valid email address, or leave the reply email empty." }, 422);
   }
 
   const templateId = typeof config.templateId === "string" ? config.templateId : "heirloom-film";
@@ -86,6 +90,16 @@ export async function onRequestPost(context) {
   const maxGuests = Number.isInteger(guestLimit) ? Math.min(20, Math.max(1, guestLimit)) : 2;
 
   if (action === "publish" && !id) {
+    /* Optional seller gate: when the ACCESS_CODE secret is set on the
+       Pages project, only buyers quoting that code can create new
+       invitations. Leave the secret unset for an open editor.        */
+    const requiredCode = typeof context.env.ACCESS_CODE === "string" ? context.env.ACCESS_CODE.trim() : "";
+    if (requiredCode) {
+      const supplied = request && typeof request.accessCode === "string" ? request.accessCode.trim() : "";
+      if (supplied !== requiredCode) {
+        return json({ error: "This editor is protected by an access code.", codeRequired: true }, 403);
+      }
+    }
     if (!(await withinRateLimit(context.env, context.request, "publish", 10, 3600))) {
       return json({ error: "Too many invitations were published from this connection. Try again later." }, 429);
     }
@@ -96,7 +110,7 @@ export async function onRequestPost(context) {
       "INSERT INTO invitations " +
       "(id, owner_hash, recipient, max_guests, config_json, template_id, published, revision, created_at, updated_at) " +
       "VALUES (?1, ?2, ?3, ?4, ?5, ?6, 1, 1, ?7, ?7)"
-    ).bind(newId, ownerHash, email.trim(), maxGuests, configJson, templateId, now).run();
+    ).bind(newId, ownerHash, recipient, maxGuests, configJson, templateId, now).run();
 
     return json({
       id: newId,
@@ -119,7 +133,7 @@ export async function onRequestPost(context) {
   await context.env.DB.prepare(
     "UPDATE invitations SET recipient = ?1, max_guests = ?2, config_json = ?3, " +
     "template_id = ?4, published = 1, revision = ?5, updated_at = ?6 WHERE id = ?7"
-  ).bind(email.trim(), maxGuests, configJson, templateId, revision, now, id).run();
+  ).bind(recipient, maxGuests, configJson, templateId, revision, now, id).run();
 
   return json({
     id,
