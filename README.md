@@ -62,9 +62,20 @@ Go-live checklist, in order:
    The database id in `wrangler.jsonc` is the production database for this
    project; if you create a fresh database, paste its id into
    `wrangler.jsonc` before the next step.
+
+   No tables in the remote database is the #1 cause of "HTTP 500" on the
+   live site while everything worked locally — run the command above before
+   smoke-testing.
 3. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**,
    pick the repository. Build settings: **no framework**, build command
    `node scripts/build.mjs`, output directory `dist`.
+
+   ⚠️ **Deploy command must be `npx wrangler pages deploy`** (the default) —
+   *never* `npx wrangler deploy`. `wrangler deploy` is the Cloudflare Workers
+   command; on a Pages project it fails with "Missing entry-point to Worker
+   script or to assets directory" and the whole deployment is marked failed
+   even though the build succeeded. If the deploy log says the project was
+   not found, append `--project-name=<your Pages project name>`.
 4. In the Pages project → **Settings → Bindings**, verify the D1 database is
    bound as `DB` (Cloudflare reads the binding from `wrangler.jsonc`). That
    is the only required binding.
@@ -79,7 +90,7 @@ Alternative one-command deploy (direct upload, no Git connection) after
 `npx wrangler login`:
 
 ```
-npm run deploy       # builds dist, then `wrangler deploy`
+npm run deploy       # builds dist, then `wrangler pages deploy dist`
 ```
 
 The live editor is `https://PROJECT.pages.dev/customize.html`; published
