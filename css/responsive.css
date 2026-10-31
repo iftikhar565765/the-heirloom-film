@@ -19,7 +19,7 @@
     gap: clamp(2.4rem, 6vw, 3.6rem);
   }
   .story-folio { padding-top: 3.5rem; }
-  .details-keepsake { width: min(100%, 38rem); }
+  .details-reply { width: min(100%, 28rem); }
   .venue-head { margin-top: 0; }
 }
 
@@ -71,23 +71,69 @@
     min-width: 1rem;
   }
 
-  /* story: the folio becomes a staggered stack, keeps its tilts.
-     Each keepsake takes its own row so the quote stays readable;
-     the small negative margins pin each note over the edge above. */
+  /* story: the folio becomes a salon column — a calm, centred
+     stack of engraved keepsakes. No tape, no collisions: even
+     air between the cards, a champagne hairline frame on each,
+     and only the faintest hand-set tilt. Restraint is the
+     luxury here. */
   .story-folio {
-    grid-template-columns: repeat(6, 1fr);
-    padding-block: 2.5rem 2.6rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.7rem;
+    width: min(100%, 24.5rem);
+    margin-inline: auto;
+    padding-block: 2.7rem 2.4rem;
   }
-  .fc-quote { grid-column: 1 / 7; grid-row: 1; }
-  .fc-note--one { grid-column: 3 / 7; grid-row: 2; margin: -1.5rem 0 0 -0.6rem; }
-  .fc-note--two { grid-column: 1 / 5; grid-row: 3; margin: -1.5rem 0 0 .4rem; }
-  .fc-note--three { grid-column: 2 / 7; grid-row: 4; margin: -1.5rem 0 0; }
+  .fc-quote,
+  .fc-note--one,
+  .fc-note--two,
+  .fc-note--three {
+    grid-column: 1;
+    grid-row: auto;
+    margin: 0;
+  }
+  .fc-quote { transform: rotate(-1.2deg); }
+  .fc-note--one { transform: rotate(.85deg); }
+  .fc-note--two { transform: rotate(-.85deg); }
+  .fc-note--three { transform: rotate(.7deg); }
+
+  /* engraved stationery: a champagne hairline frame on every
+     card instead of tape, resting on a deeper, softer plinth */
+  .story-folio .folio-card {
+    box-shadow:
+      0 1px 2px rgba(41, 35, 34, .1),
+      0 18px 36px rgba(41, 35, 34, .17);
+  }
+  .story-folio .folio-card::before {
+    content: "";
+    position: absolute;
+    inset: .55rem;
+    border: 1px solid color-mix(in srgb, var(--champagne) 42%, transparent);
+    pointer-events: none;
+  }
+  .story-folio .tape { display: none; }
+
+  .fc-quote { padding: 2.7rem 1.9rem 2.5rem; }
+  .fc-quote blockquote {
+    font-size: clamp(1.4rem, 6vw, 1.85rem);
+    line-height: 1.42;
+  }
+  .fc-quote figcaption { margin-top: 1.05rem; font-size: 1.05rem; }
+  .fc-note { padding: 2.1rem 1.5rem 1.95rem; }
+  .fc-note .folio-card__hand { font-size: clamp(1.35rem, 5.4vw, 1.7rem); }
+
+  /* the handwritten caption lands beneath the stack, centred,
+     like an inscription under a framed plate */
   .story-caption {
-    left: auto; right: .8rem;
-    bottom: .9rem;
-    font-size: clamp(1.4rem, 6vw, 1.9rem);
+    position: static;
+    margin-top: .9rem;
+    text-align: center;
+    white-space: normal;
+    text-shadow: none;
+    transform: rotate(-1.4deg);
+    font-size: clamp(1.5rem, 6vw, 2rem);
   }
-  .story-garland { width: 8.5rem; right: -2.4rem; top: 1.2rem; }
+  .story-keepsake { display: none; }
+  .story-garland { width: 7.2rem; right: -1.9rem; top: -.6rem; opacity: .9; }
   .story-garland--bottom { display: none; }
   .story-note { margin-top: 1.6rem; }
 
@@ -130,7 +176,7 @@
 
   .details-copy > .display br,
   .palette-heading > .display br { display: none; }
-  .details-keepsake { width: min(100%, 26rem); }
+  .details-reply { width: min(100%, 24rem); }
   .palette-layout { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
   .palette-swatches { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .venue-grid { gap: 2rem; }
@@ -175,17 +221,8 @@
   .story-grid { gap: 1.8rem; }
   .story-title { font-size: clamp(2.1rem, 10vw, 3.5rem); }
   .story-copy .prose { max-width: none; }
-  .story-folio { margin-inline: -.15rem; }
-  .story-caption {
-    right: .35rem;
-    bottom: .4rem;
-    max-width: calc(100% - .7rem);
-    white-space: normal;
-    text-align: right;
-    font-size: clamp(1.1rem, 5vw, 1.55rem);
-  }
-  .story-keepsake { top: .4rem; right: .15rem; }
-  .story-keepsake .stamp { width: 2.8rem; }
+  .story-folio { gap: 1.55rem; }
+  .story-caption { font-size: clamp(1.4rem, 5.6vw, 1.8rem); }
   .std-kicker-line { gap: .5rem; }
   .std-kicker-line::before,
   .std-kicker-line::after { width: clamp(1rem, 8vw, 2.2rem); }
@@ -231,9 +268,10 @@
 
 /* ── ≤ 440px — narrow phones: no squished prints ────────────────── */
 @media (max-width: 440px) {
-  .fc-note--one { grid-column: 2 / 7; }
-  .fc-note--two { grid-column: 1 / 6; }
-  .story-keepsake .postmark { display: none; }
+  /* the salon column breathes a little closer on narrow phones */
+  .story-folio { gap: 1.45rem; width: min(100%, 21.5rem); }
+  .fc-quote { padding: 2.4rem 1.55rem 2.25rem; }
+  .fc-note { padding: 1.9rem 1.3rem 1.8rem; }
   .details-copy > .display { font-size: clamp(2.45rem, 11vw, 3.3rem); }
   .palette-heading .display { font-size: clamp(2rem, 9vw, 2.75rem); }
   .itinerary-head .display { font-size: clamp(2.35rem, 10vw, 3.2rem); }

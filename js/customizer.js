@@ -76,7 +76,7 @@
     'envelope-seal': 'Wax seal',
     'opening-hint': 'Invitation hint',
     'open-button': 'Open button',
-    'details-keepsake': 'Keepsake card'
+    'details-reply': 'Reply seal'
   };
   var adminEmail = '';
   var publishId = '';
@@ -662,7 +662,7 @@
     addSimpleField(grid, 'content.storyParagraphTwo', 'Story · second paragraph', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.storyQuote', 'Keepsake quote', { wide: true, multiline: true, rows: 2, hint: 'The quote pinned to the keepsake folio.' });
     addSimpleField(grid, 'content.storyQuoteLabel', 'Keepsake quote credit', { wide: true });
-    addSimpleField(grid, 'content.detailsKeepsakeNote', 'Reply keepsake card note', { wide: true, multiline: true, rows: 2, hint: 'The words inside the sealed reply card beside the details.' });
+    addSimpleField(grid, 'content.detailsKeepsakeNote', 'Reply seal note', { wide: true, multiline: true, rows: 2, hint: 'The words beneath the wax seal beside the details.' });
     addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
     section.appendChild(grid);

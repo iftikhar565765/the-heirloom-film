@@ -604,82 +604,141 @@
   font-size: .83rem;
   line-height: 1.6;
 }
-/* the sealed reply folio answering the ledger — deep lacquer, gold
-   hairline double frame, champagne script: a keepsake, not a notice */
-.details-keepsake {
+/* the sealed reply answering the ledger — an OPEN composition, not a
+   card: a hand-poured wax seal bearing the couple's monogram, a
+   candlelit halo, a ghosted initial behind. The lacquer of a keepsake
+   without the box. */
+.details-reply {
   position: relative;
   z-index: 1;
   justify-self: center;
-  width: min(100%, 24rem);
+  width: min(100%, 26rem);
   margin: 0;
-  padding: clamp(2.8rem, 5.5vw, 3.4rem) clamp(1.8rem, 4vw, 2.6rem) clamp(2.4rem, 4.5vw, 3rem);
+  padding: clamp(1.4rem, 3.2vw, 2.2rem) clamp(.4rem, 1.6vw, 1.2rem);
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 1.05rem;
+  gap: 1.1rem;
+}
+/* candlelit halo behind the seal */
+.details-reply::before {
+  content: "";
+  position: absolute;
+  top: clamp(.2rem, 1.5vw, 1.2rem);
+  left: 50%;
+  width: min(115%, 23rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--champagne) 10%, transparent) 0%,
+    transparent 62%);
+  pointer-events: none;
+}
+/* ghost monogram — the initials, monumental and nearly silent */
+.details-reply__ghost {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-7deg);
+  font-size: clamp(8.5rem, 20vw, 11rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--parchment) 5%, transparent);
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+/* the wax seal itself — hand-poured, slightly irregular */
+.details-reply__seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(6.4rem, 14vw, 7.8rem);
+  aspect-ratio: 1;
+  border-radius: 47% 53% 52% 48% / 54% 46% 54% 46%;
   background:
-    radial-gradient(120% 90% at 50% 0%,
-      color-mix(in srgb, var(--night) 88%, white) 0%,
-      var(--night) 42%, var(--night-deep) 100%);
-  border-radius: 2px;
+    radial-gradient(circle at 32% 26%,
+      color-mix(in srgb, var(--burgundy) 42%, white) 0%,
+      transparent 34%),
+    radial-gradient(circle at 70% 80%,
+      var(--night-deep) 0%,
+      transparent 55%),
+    radial-gradient(circle at 50% 45%,
+      var(--burgundy) 0%,
+      #4B1A22 55%,
+      #360F16 100%);
   box-shadow:
-    0 26px 52px rgba(12, 3, 6, .5),
-    0 6px 18px rgba(12, 3, 6, .35);
+    inset 0 2px 5px rgba(255, 236, 200, .2),
+    inset 0 -9px 18px rgba(10, 2, 4, .6),
+    inset 0 0 0 1px rgba(20, 4, 8, .5),
+    0 16px 30px rgba(10, 2, 4, .5),
+    0 4px 9px rgba(10, 2, 4, .42);
 }
-.details-keepsake::before {
+/* the impressed ring inside the wax */
+.details-reply__seal::before {
   content: "";
   position: absolute;
-  inset: .7rem;
-  border: 1px solid color-mix(in srgb, var(--champagne) 52%, transparent);
-  pointer-events: none;
+  inset: 15%;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--champagne) 48%, transparent);
+  box-shadow:
+    inset 0 2px 4px rgba(10, 2, 4, .5),
+    0 1px 1px rgba(255, 240, 210, .1);
 }
-.details-keepsake::after {
-  content: "";
-  position: absolute;
-  inset: .95rem;
-  border: 1px solid color-mix(in srgb, var(--champagne) 22%, transparent);
-  pointer-events: none;
+.details-reply__mono {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 1.8rem);
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: color-mix(in srgb, var(--champagne) 88%, white);
+  text-shadow:
+    0 1px 2px rgba(10, 2, 4, .65),
+    0 -1px 1px rgba(255, 244, 220, .18);
 }
-.details-keepsake__seal {
-  width: clamp(3.2rem, 7vw, 4rem);
+/* the seal presses into place as the composition reveals */
+.details-reply.in-view .details-reply__seal {
+  animation: seal-settle 1.1s cubic-bezier(.2, .9, .3, 1.18) .3s both;
+}
+@keyframes seal-settle {
+  from { transform: scale(1.16) rotate(-4deg); opacity: 0; }
+  55%  { opacity: 1; }
+  to   { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.details-reply__script {
+  margin: .3rem 0 0;
+  font-size: clamp(2.4rem, 5.5vw, 3.2rem);
+  line-height: 1;
+  color: var(--champagne);
+  text-shadow: 0 1px 14px color-mix(in srgb, var(--champagne) 30%, transparent);
+}
+.details-reply__divider {
+  width: clamp(8.5rem, 18vw, 11.5rem);
   height: auto;
   color: var(--champagne);
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.15;
-  filter: drop-shadow(0 2px 8px rgba(205, 187, 154, .28));
+  stroke-width: 1.35;
+  opacity: .8;
 }
-.details-keepsake__script {
-  margin: 0;
-  font-size: clamp(2.2rem, 5vw, 3rem);
-  line-height: 1;
-  color: var(--champagne);
-  text-shadow: 0 1px 14px color-mix(in srgb, var(--champagne) 32%, transparent);
-}
-.details-keepsake__rule {
-  width: 4.6rem;
-  height: 1px;
-  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--champagne) 72%, transparent), transparent);
-}
-.details-keepsake__note {
+.details-reply__note {
   margin: 0;
   max-width: 30ch;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 1.02rem;
-  line-height: 1.65;
-  color: color-mix(in srgb, var(--ivory) 88%, transparent);
+  font-size: 1.04rem;
+  line-height: 1.68;
+  color: color-mix(in srgb, var(--ivory) 86%, transparent);
 }
-.details-keepsake__deadline {
-  margin: 0;
+.details-reply__deadline {
+  margin: .1rem 0 0;
   font-family: var(--font-body);
   font-size: .62rem;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--champagne) 78%, transparent);
 }
-.details-keepsake__deadline span { color: var(--champagne); letter-spacing: .12em; }
-.details-keepsake__cta { margin-top: .4rem; }
+.details-reply__deadline span { color: var(--champagne); letter-spacing: .12em; }
+.details-reply__cta { margin-top: .45rem; }
 
 /* ═══════════════════════════════════════════════════════════════
    SCENE 05 — THE WEDDING PALETTE

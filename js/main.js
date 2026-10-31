@@ -220,7 +220,7 @@
     'envelope-seal': 'Wax seal',
     'opening-hint': 'Invitation hint',
     'open-button': 'Open button',
-    'details-keepsake': 'Keepsake card'
+    'details-reply': 'Reply seal'
   };
 
   function keyFor(element) {

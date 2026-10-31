@@ -490,21 +490,27 @@
                   <div>
                     <h3 data-content="content.kindlyReplyLabel">Kindly Reply</h3>
                     <p class="value">By <span data-content="rsvp.deadline">the first of August, 2027</span></p>
-                    <p class="note" data-content="content.kindlyReplyNote">Please send your response using the card below.</p>
+                    <p class="note" data-content="content.kindlyReplyNote">Please send your response using the reply below.</p>
                   </div>
                 </article>
               </div>
             </div>
 
-            <aside class="details-keepsake reveal reveal--media" aria-label="A note from the couple" data-element-key="details-keepsake">
-              <svg class="details-keepsake__seal" aria-hidden="true">
-                <use href="#ornament-seal" />
+            <!-- the sealed reply — an open composition, not a card:
+                 a hand-poured wax seal bearing the couple's monogram,
+                 set against a candlelit glow and a ghosted initial -->
+            <aside class="details-reply reveal reveal--media" aria-label="Kindly reply" data-element-key="details-reply">
+              <span class="details-reply__ghost script" aria-hidden="true" data-content="couple.initials">A · J</span>
+              <span class="details-reply__seal" aria-hidden="true">
+                <span class="details-reply__mono" data-content="couple.initials">A · J</span>
+              </span>
+              <p class="details-reply__script script" data-content="content.detailsKeepsakeTitle">with joy</p>
+              <svg class="details-reply__divider" aria-hidden="true">
+                <use href="#divider" />
               </svg>
-              <p class="details-keepsake__script script" data-content="content.detailsKeepsakeTitle">with joy</p>
-              <span class="details-keepsake__rule" aria-hidden="true"></span>
-              <p class="details-keepsake__note" data-content="content.detailsKeepsakeNote">A reply card is enclosed below — your words are the keepsake we shall treasure.</p>
-              <p class="details-keepsake__deadline">Kindly reply by <span data-content="rsvp.deadline">the first of August, 2027</span></p>
-              <a class="btn btn--light details-keepsake__cta" href="#rsvp" data-content="content.respondLabel">Respond to the invitation</a>
+              <p class="details-reply__note" data-content="content.detailsKeepsakeNote">No card to post, no stamp to find — the reply below is the first gift of our celebration.</p>
+              <p class="details-reply__deadline">Kindly reply by <span data-content="rsvp.deadline">the first of August, 2027</span></p>
+              <a class="btn btn--light details-reply__cta" href="#rsvp" data-content="content.respondLabel">Respond to the invitation</a>
             </aside>
           </div>
         </div>
