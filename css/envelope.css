@@ -186,6 +186,11 @@
   will-change: transform;
 }
 .envelope__letter-inner {
+  /* light stationery — re-scope the ink vars so text stays dark
+     whatever the surrounding scene does (same pattern as .invite-card) */
+  --ink: #292622;
+  --ink-soft: #4E4942;
+  --charcoal: #70695F;
   position: absolute;
   inset: 0;
   display: flex;
@@ -254,6 +259,9 @@
 
 /* address panel — a fine ivory plate on the burgundy pocket */
 .envelope__address {
+  --ink: #292622;
+  --ink-soft: #4E4942;
+  --charcoal: #70695F;
   position: absolute;
   left: 50%;
   top: 62%;
