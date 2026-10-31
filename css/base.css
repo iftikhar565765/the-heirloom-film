@@ -47,9 +47,12 @@ svg.sprig-top,
 svg.story-garland,
 svg.closing-garland,
 svg.envelope-lace,
+svg.venue-lace,
 svg.std-seal,
 svg.invite-card__seal,
+svg.closing-seal,
 svg.postmark,
+svg.footer-ornament,
 .ornament svg,
 .rsvp-ornament svg {
   fill: none;
@@ -65,6 +68,35 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 a { color: inherit; }
 :target { scroll-margin-top: 5.5rem; }
 section[id] { scroll-margin-top: 4.75rem; }
+
+/* ── The heirloom film grain ───────────────────────────────────
+   Two fixed veils give the flat night grounds the tactility of
+   analog film: a whisper of silver-nitrate grain and a gentle
+   lens vignette. Both ignore pointers and sit under the skip
+   link, so they never touch interaction or focus. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1399;
+  pointer-events: none;
+  background: radial-gradient(125% 95% at 50% 42%,
+    transparent 54%, rgba(8, 2, 4, .38) 100%);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+  opacity: .05;
+}
+
+/* selection in the house colours */
+::selection { background: var(--burgundy); color: var(--ivory); }
 
 /* ── Accessibility helpers ─────────────────────────────────────── */
 .visually-hidden {
@@ -495,6 +527,14 @@ html.js .reveal--media.in-view { transform: rotate(var(--tilt, 0deg)); }
   color: var(--champagne);
   text-align: center;
   padding: 2.4rem 1.5rem 2.6rem;
+}
+/* the colophon flourish that signs the suite off */
+.footer-ornament {
+  width: clamp(8rem, 20vw, 11rem);
+  height: auto;
+  margin: 0 auto 1.15rem;
+  color: var(--champagne);
+  opacity: .5;
 }
 .footer p { margin: 0; }
 .footer .small {

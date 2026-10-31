@@ -108,7 +108,10 @@
     'rsvp-ornament': 'RSVP ornament',
     'countdown-clock': 'Countdown clock',
     'closing-garland': 'Closing garland',
-    'closing-message': 'Closing message'
+    'closing-message': 'Closing message',
+    'closing-seal': 'Closing wax seal',
+    'venue-ornament': 'Venue ornament',
+    'footer-ornament': 'Footer ornament'
   };
 
   function labelForKey(key) {

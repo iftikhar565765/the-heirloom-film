@@ -663,22 +663,27 @@
                customizer to recolour or remove it individually. -->
           <ol class="palette-swatches" aria-label="Wedding colours" id="palette-swatches">
             <li class="palette-swatch reveal" data-element-key="palette-swatch-1" data-swatch-index="0">
+              <span class="palette-swatch__num" aria-hidden="true">I</span>
               <span class="palette-color" style="--swatch-color:#EFE7D8" aria-hidden="true"></span>
               <span class="palette-name" data-editor-path="palette.0.name">Ivory</span><span class="palette-value">#EFE7D8</span>
             </li>
             <li class="palette-swatch reveal" data-element-key="palette-swatch-2" data-swatch-index="1">
+              <span class="palette-swatch__num" aria-hidden="true">II</span>
               <span class="palette-color" style="--swatch-color:#777957" aria-hidden="true"></span>
               <span class="palette-name" data-editor-path="palette.1.name">Linden</span><span class="palette-value">#777957</span>
             </li>
             <li class="palette-swatch reveal" data-element-key="palette-swatch-3" data-swatch-index="2">
+              <span class="palette-swatch__num" aria-hidden="true">III</span>
               <span class="palette-color" style="--swatch-color:#C5A0A0" aria-hidden="true"></span>
               <span class="palette-name" data-editor-path="palette.2.name">Rose</span><span class="palette-value">#C5A0A0</span>
             </li>
             <li class="palette-swatch reveal" data-element-key="palette-swatch-4" data-swatch-index="3">
+              <span class="palette-swatch__num" aria-hidden="true">IV</span>
               <span class="palette-color" style="--swatch-color:#5D2029" aria-hidden="true"></span>
               <span class="palette-name" data-editor-path="palette.3.name">Oxblood</span><span class="palette-value">#5D2029</span>
             </li>
             <li class="palette-swatch reveal" data-element-key="palette-swatch-5" data-swatch-index="4">
+              <span class="palette-swatch__num" aria-hidden="true">V</span>
               <span class="palette-color" style="--swatch-color:#CDBB9A" aria-hidden="true"></span>
               <span class="palette-name" data-editor-path="palette.4.name">Champagne</span><span class="palette-value">#CDBB9A</span>
             </li>
@@ -726,6 +731,13 @@
             <div class="venue-head reveal">
               <p class="kicker kicker--light" data-content="content.venueKicker">№ 07 · The Place</p>
               <h2 id="venue-title" class="venue-name" data-content="venue.name">The Linden Estate</h2>
+              <svg class="venue-ornament" viewBox="0 0 200 22" aria-hidden="true" data-element-key="venue-ornament">
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 11h72M126 11h72" />
+                  <path d="M100 3l8 8-8 8-8-8Z" />
+                  <path d="M100 7.2 103.8 11 100 14.8 96.2 11Z" opacity=".55" />
+                </g>
+              </svg>
             </div>
 
             <div class="venue-grid">
@@ -914,10 +926,16 @@
             <span data-content="venue.name">The Linden Estate</span>
           </p>
           <p class="closing-message" data-content="content.closingMessage" data-element-key="closing-message">Thank you, from the bottom of our hearts, for being part of our story. We cannot wait to celebrate with you beneath the linden trees.</p>
+          <svg class="closing-seal" viewBox="0 0 100 100" aria-hidden="true" data-element-key="closing-seal">
+            <use href="#ornament-seal" />
+          </svg>
         </div>
       </section>
 
       <footer class="footer">
+        <svg class="footer-ornament" viewBox="0 0 240 40" aria-hidden="true" data-element-key="footer-ornament">
+          <use href="#divider" />
+        </svg>
         <p class="small"><span data-content="couple.names">Amelia &amp; Julien</span> · <span
             data-content="wedding.numerals">18 · 09 · 2027</span></p>
         <p class="small" data-content="content.footerTagline">A day together, forever held.</p>

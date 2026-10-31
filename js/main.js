@@ -269,7 +269,10 @@
     'rsvp-ornament': 'RSVP ornament',
     'countdown-clock': 'Countdown clock',
     'closing-garland': 'Closing garland',
-    'closing-message': 'Closing message'
+    'closing-message': 'Closing message',
+    'closing-seal': 'Closing wax seal',
+    'venue-ornament': 'Venue ornament',
+    'footer-ornament': 'Footer ornament'
   };
 
   function keyFor(element) {
@@ -712,11 +715,18 @@
       var name = typeof (swatch && swatch.name) === 'string' ? swatch.name : 'Colour ' + (index + 1);
       return '<li class="palette-swatch reveal in-view" data-element-key="palette-swatch-' + (index + 1) + '" ' +
         'data-swatch-index="' + index + '">' +
+        '<span class="palette-swatch__num" aria-hidden="true">' + romanNumeral(index) + '</span>' +
         '<span class="palette-color" style="--swatch-color:' + color + '" aria-hidden="true"></span>' +
         '<span class="palette-name" data-editor-path="palette.' + index + '.name">' + escapeHTML(name) + '</span>' +
         '<span class="palette-value">' + escapeHTML(color.toUpperCase()) + '</span>' +
         '</li>';
     }).join('');
+  }
+
+  /* plate numerals for the colour study — I, II, III … */
+  function romanNumeral(index) {
+    var numerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+    return index < numerals.length ? numerals[index] : String(index + 1);
   }
   injectContent();
   applyColorEdits();
@@ -831,6 +841,44 @@
   });
 
   /* ══ 3 · WEDDING-DAY WORD SPREAD ═════════════════════════════ */
+  /* A small programme of engraved line icons — one per moment,
+     cycled in order, all drawn to the same hairline weight so the
+     spread reads like the itinerary card of a printed programme. */
+  var MOMENT_ICONS = [
+    /* arrival — a chime bell */
+    '<path d="M16 7c-4.6 0-7.6 3.7-7.6 8.8V20h15.2v-4.2C23.6 10.7 20.6 7 16 7Z"/>' +
+    '<path d="M14.5 7a1.5 1.5 0 0 1 3 0"/><path d="M6.5 20h19"/>' +
+    '<circle cx="16" cy="22.9" r="1.3" fill="currentColor" stroke="none"/>',
+    /* vows — the rings, one crowned with a diamond */
+    '<circle cx="12.8" cy="18.2" r="6.8"/><circle cx="19.2" cy="13.8" r="6.8"/>' +
+    '<path d="M19.2 3.7l2.2 2.2-2.2 2.2-2.2-2.2Z"/>',
+    /* gathering — two coupes, raised */
+    '<path d="M6.5 7h9.5c0 4.1-2.1 6.8-4.75 6.8S6.5 11.1 6.5 7Z"/>' +
+    '<path d="M11.25 13.8V21M7.75 21h7"/>' +
+    '<path d="M16 4.5h9.5c0 4.1-2.1 6.8-4.75 6.8S16 8.6 16 4.5Z"/>' +
+    '<path d="M20.75 11.3V21M17.25 21h7"/>' +
+    '<path d="M15 1.6l1.7 1.7L15 5l-1.7-1.7Z"/>',
+    /* feast — the cloche */
+    '<path d="M7 19a9 9 0 0 1 18 0"/><circle cx="16" cy="8.9" r="1.5"/>' +
+    '<path d="M4.5 19h23"/>',
+    /* toasts — a flute, quietly bubbling */
+    '<path d="M13.2 4h5.6l-.9 10.6c-.1 1.2-1 2-1.9 2s-1.8-.8-1.9-2L13.2 4Z"/>' +
+    '<path d="M16 16.6V23M12.8 23h6.4"/>' +
+    '<circle cx="17.8" cy="7.4" r=".8"/><circle cx="14.9" cy="10.4" r=".7"/>',
+    /* cake — two tiers and a pennant */
+    '<path d="M16 3.6l2.3 1.2L16 6l-2.3-1.2Z"/><path d="M16 6v2.2"/>' +
+    '<path d="M12 16v-2.2c0-1.4 1.8-2.5 4-2.5s4 1.1 4 2.5V16"/>' +
+    '<path d="M9 21v-2.4c0-1.7 3.1-2.6 7-2.6s7 .9 7 2.6V21"/>' +
+    '<path d="M6 21h20"/>',
+    /* dancing — a pair of quavers */
+    '<circle cx="10.8" cy="21.6" r="2.6"/><path d="M13.4 21.6V7.2"/>' +
+    '<circle cx="21.2" cy="19.6" r="2.6"/><path d="M23.8 19.6V5.2"/>' +
+    '<path d="M13.4 7.2l10.4-2"/>',
+    /* further moments — the linden sprig */
+    '<path d="M16 27c0-6 1-10 5-14M16 22c-1-4-4-6-8-6 0 4 3 7 8 8m3-11c-2-4-1-7 2-10 4 3 4 6 1 10m-5 5c3-3 6-4 10-3-1 4-5 6-10 6"/>' +
+    '<path d="M21 13c-2-2-2-5 0-7 2 2 3 5 0 7Zm0 0c3-1 5 0 6 2-2 2-5 2-6-2Z"/>'
+  ];
+
   function renderMoments() {
     var list = document.getElementById('day-words');
     var scene = document.getElementById('itinerary');
@@ -846,11 +894,10 @@
     }
     if (scene) scene.hidden = false;
     list.innerHTML = items.map(function (item) {
+      var icon = MOMENT_ICONS[item.index % MOMENT_ICONS.length];
       return '<li class="day-word reveal">' +
-        '<svg class="day-word__icon" viewBox="0 0 32 32" aria-hidden="true">' +
-        '<path d="M16 27c0-6 1-10 5-14M16 22c-1-4-4-6-8-6 0 4 3 7 8 8m3-11c-2-4-1-7 2-10 4 3 4 6 1 10m-5 5c3-3 6-4 10-3-1 4-5 6-10 6" />' +
-        '<path d="M21 13c-2-2-2-5 0-7 2 2 3 5 0 7Zm0 0c3-1 5 0 6 2-2 2-5 2-6-2Z" />' +
-        '</svg><span class="day-word__text" data-editor-path="moments.' + item.index + '">' +
+        '<svg class="day-word__icon" viewBox="0 0 32 32" aria-hidden="true">' + icon + '</svg>' +
+        '<span class="day-word__text" data-editor-path="moments.' + item.index + '">' +
         escapeHTML(item.word.trim()) + '</span></li>';
     }).join('');
     if (window.parent !== window) {

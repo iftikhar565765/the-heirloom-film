@@ -412,6 +412,36 @@
    ═══════════════════════════════════════════════════════════════ */
 .scene--std { padding-block: clamp(5rem, 13vh, 8.5rem); overflow-x: clip; }
 
+/* the engraved plate frame — a fine hairline inset around the
+   burgundy pause, like the border of a letterpress plate; the
+   wax seal overlaps it lower right, pressing the plate shut */
+.scene--std::before {
+  content: "";
+  position: absolute;
+  inset: clamp(1.1rem, 2.6vw, 1.8rem);
+  border: 1px solid rgba(205, 187, 154, .22);
+  pointer-events: none;
+  z-index: 0;
+}
+.scene--std::after {
+  content: "";
+  position: absolute;
+  inset: clamp(1.1rem, 2.6vw, 1.8rem);
+  pointer-events: none;
+  z-index: 0;
+  --plate-tick: rgba(205, 187, 154, .55);
+  background:
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 0 / 11px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 0 / 1px 11px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 0 / 11px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 0 / 1px 11px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 100% / 11px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 100% / 1px 11px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 100% / 11px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 100% / 1px 11px;
+  background-repeat: no-repeat;
+}
+
 /* fine handwritten caption set just below the heading */
 .std-caption {
   position: relative;
@@ -792,9 +822,19 @@
 }
 .palette-swatch {
   display: grid;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto auto auto auto;
   align-content: start;
   min-width: 0;
+}
+/* the plate numeral above each chip — I · II · III … */
+.palette-swatch__num {
+  display: block;
+  margin-bottom: .6rem;
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: .6rem;
+  letter-spacing: .32em;
+  color: rgba(205, 187, 154, .58);
 }
 .palette-color {
   display: block;
@@ -982,6 +1022,14 @@
   margin-bottom: clamp(2rem, 5vw, 3.2rem);
 }
 .venue-head .kicker { margin-bottom: .9rem; justify-content: center; }
+/* a small engraved flourish under the name — hairline, diamond, hairline */
+.venue-ornament {
+  width: clamp(9rem, 22vw, 13rem);
+  height: auto;
+  margin: 1.3rem auto 0;
+  color: var(--champagne-soft);
+  opacity: .8;
+}
 .venue-name {
   font-family: var(--font-editorial);
   font-weight: 500;
@@ -1110,6 +1158,25 @@
   inset: .55rem;
   border: 1px solid rgba(205, 187, 154, .2);
   pointer-events: none;
+}
+/* engraved corner ticks on the outer plate — the same motif the
+   details crest carries, so the two plates converse */
+.scene--countdown .container::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  --plate-tick: rgba(205, 187, 154, .8);
+  background:
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 0 / 13px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 0 / 1px 13px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 0 / 13px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 0 / 1px 13px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 100% / 13px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 0 100% / 1px 13px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 100% / 13px 1px,
+    linear-gradient(var(--plate-tick), var(--plate-tick)) 100% 100% / 1px 13px;
+  background-repeat: no-repeat;
 }
 .scene--countdown .container > * {
   position: relative;
@@ -1246,6 +1313,8 @@
   z-index: 1;
   width: clamp(4.4rem, 12vw, 5.6rem);
   margin: 0 auto 2.6rem;
+  color: var(--gold);
+  transform: rotate(-8deg);
   filter: drop-shadow(0 5px 14px rgba(23, 8, 12, .55));
 }
 .closing-actions {
