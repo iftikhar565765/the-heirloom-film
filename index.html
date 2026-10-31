@@ -266,13 +266,12 @@
           <li><a href="#story"><span>№ 02</span><span data-content="content.menuStory">Our Story</span></a></li>
           <li><a href="#save-the-date"><span>№ 03</span><span data-content="content.menuSaveDate">Save the Date</span></a></li>
           <li><a href="#details"><span>№ 04</span><span data-content="content.menuDetails">The Details</span></a></li>
-          <li><a href="#evening"><span>№ 05</span><span data-content="content.menuEvening">The Evening</span></a></li>
-          <li><a href="#palette"><span>№ 06</span><span data-content="content.menuPalette">The Palette</span></a></li>
-          <li><a href="#itinerary"><span>№ 07</span><span data-content="content.menuWeddingDay">The Wedding Day</span></a></li>
-          <li><a href="#venue"><span>№ 08</span><span data-content="content.menuVenue">Venue &amp; Location</span></a></li>
-          <li><a href="#rsvp"><span>№ 09</span><span data-content="content.menuRsvp">Kindly Respond</span></a></li>
-          <li><a href="#countdown"><span>№ 10</span><span data-content="content.menuCountdown">The Countdown</span></a></li>
-          <li><a href="#closing"><span>№ 11</span><span data-content="content.menuClosing">A Closing Note</span></a></li>
+          <li><a href="#palette"><span>№ 05</span><span data-content="content.menuPalette">The Palette</span></a></li>
+          <li><a href="#itinerary"><span>№ 06</span><span data-content="content.menuWeddingDay">The Wedding Day</span></a></li>
+          <li><a href="#venue"><span>№ 07</span><span data-content="content.menuVenue">Venue &amp; Location</span></a></li>
+          <li><a href="#rsvp"><span>№ 08</span><span data-content="content.menuRsvp">Kindly Respond</span></a></li>
+          <li><a href="#countdown"><span>№ 09</span><span data-content="content.menuCountdown">The Countdown</span></a></li>
+          <li><a href="#closing"><span>№ 10</span><span data-content="content.menuClosing">A Closing Note</span></a></li>
         </ul>
       </nav>
       <button id="menu-close" class="icon-btn menu__close" type="button" aria-label="Close menu">
@@ -464,7 +463,8 @@
           <div class="details-grid">
             <div class="details-copy">
               <p class="kicker reveal" data-content="content.detailsKicker">№ 04 · The Particulars</p>
-              <h2 id="details-title" class="display display--h2 reveal"><span data-content="content.detailsTitleFirst">Wedding</span><br><em data-content="content.detailsTitleSecond">Details</em></h2>
+              <h2 id="details-title" class="display display--h2 reveal"><span data-content="content.detailsTitleFirst">Wedding</span>
+                <br><em data-content="content.detailsTitleSecond">Details</em></h2>
               <p class="details-intro reveal" data-content="content.detailsIntro">The day, at a glance.</p>
 
               <div class="details-list">
@@ -496,80 +496,72 @@
                 </article>
               </div>
             </div>
+
+            <!-- The engraved insert card — a letterpress “particulars”
+                 plate on ivory paper, sealed in wax. It carries the
+                 facts the ledger does not: the date, the place, the
+                 attire and the carriages. Every piece is editable,
+                 recolourable and removable in the customizer. -->
+            <aside class="particulars-card reveal" data-element-key="particulars-card" aria-label="The particulars">
+              <svg class="particulars-card__flourish particulars-card__flourish--tl" aria-hidden="true">
+                <use href="#flourish" />
+              </svg>
+              <svg class="particulars-card__flourish particulars-card__flourish--tr" aria-hidden="true">
+                <use href="#flourish" />
+              </svg>
+              <svg class="particulars-card__flourish particulars-card__flourish--bl" aria-hidden="true">
+                <use href="#flourish" />
+              </svg>
+              <svg class="particulars-card__flourish particulars-card__flourish--br" aria-hidden="true">
+                <use href="#flourish" />
+              </svg>
+              <span class="particulars-card__ghost script" aria-hidden="true" data-element-key="particulars-ghost">&amp;</span>
+
+              <p class="particulars-card__eyebrow" data-content="content.particularsEyebrow" data-element-key="particulars-eyebrow">The Particulars</p>
+              <span class="particulars-card__mono script" data-content="couple.initials" data-element-key="particulars-mono">A · J</span>
+              <span class="particulars-card__rule" aria-hidden="true"></span>
+
+              <div class="particulars-card__rows">
+                <div class="particulars-row" data-element-key="particulars-date">
+                  <span class="particulars-row__label" data-content="content.particularsDateLabel">The Date</span>
+                  <span class="particulars-row__value particulars-row__value--numerals" data-content="wedding.numerals">18 · 09 · 2027</span>
+                  <span class="particulars-row__note" data-content="wedding.words">Saturday · The Eighteenth of September</span>
+                </div>
+
+                <div class="particulars-row" data-element-key="particulars-place">
+                  <span class="particulars-row__label" data-content="content.particularsPlaceLabel">The Place</span>
+                  <span class="particulars-row__value" data-content="venue.name">The Linden Estate</span>
+                  <span class="particulars-row__note" data-content="venue.address">12 Linden Lane, Willowbrook</span>
+                </div>
+
+                <div class="particulars-row" data-element-key="particulars-attire">
+                  <span class="particulars-row__label" data-content="content.particularsAttireLabel">The Attire</span>
+                  <span class="particulars-row__value" data-content="content.particularsAttire">Garden formal</span>
+                  <span class="particulars-row__note" data-content="content.particularsAttireNote">Soft tones are welcome — wear what makes you feel wonderful.</span>
+                </div>
+
+                <div class="particulars-row" data-element-key="particulars-carriages">
+                  <span class="particulars-row__label" data-content="content.particularsCarriagesLabel">The Carriages</span>
+                  <span class="particulars-row__value" data-content="content.particularsCarriagesTime">At midnight</span>
+                  <span class="particulars-row__note" data-content="content.particularsCarriagesNote">The last dance ends as the clocks strike twelve.</span>
+                </div>
+              </div>
+
+              <span class="particulars-card__seal" aria-hidden="true" data-content="couple.initials" data-element-key="particulars-seal">A·J</span>
+            </aside>
           </div>
         </div>
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-         № 05 · THE EVENING — the celebration, hour by hour
-         A new scene: a candlelit timeline on a gold spine,
-         closing with the reply deadline and its call to action.
-         ══════════════════════════════════════════════════════════ -->
-      <section id="evening" class="scene scene--evening" aria-labelledby="evening-title">
-        <span class="watermark-script watermark-script--evening" aria-hidden="true" data-element-key="evening-watermark">soirée</span>
-        <div class="container">
-          <header class="evening-head">
-            <p class="kicker kicker--center reveal" data-content="content.eveningKicker">№ 05 · The Evening</p>
-            <h2 id="evening-title" class="display display--h2 display--center reveal">
-              <span data-content="content.eveningTitleFirst">The</span>
-              <em class="script" data-content="content.eveningTitleScript">evening unfolds</em>
-            </h2>
-            <p class="evening-intro reveal" data-content="content.eveningIntro">From the first vows to the last dance — the shape of our celebration, hour by hour.</p>
-          </header>
-
-          <ol class="evening-timeline" data-stagger>
-            <li class="evening-entry reveal" data-element-key="evening-entry-one">
-              <span class="evening-entry__time" data-content="content.eveningOneTime">Four o'clock</span>
-              <span class="evening-entry__mark" aria-hidden="true"></span>
-              <div class="evening-entry__body">
-                <h3 data-content="content.eveningOneTitle">The Ceremony</h3>
-                <p data-content="content.eveningOneNote">Vows beneath the linden trees.</p>
-              </div>
-            </li>
-            <li class="evening-entry reveal" data-element-key="evening-entry-two">
-              <span class="evening-entry__time" data-content="content.eveningTwoTime">Five o'clock</span>
-              <span class="evening-entry__mark" aria-hidden="true"></span>
-              <div class="evening-entry__body">
-                <h3 data-content="content.eveningTwoTitle">Cocktails in the Garden</h3>
-                <p data-content="content.eveningTwoNote">Champagne on the lawn while portraits are made.</p>
-              </div>
-            </li>
-            <li class="evening-entry reveal" data-element-key="evening-entry-three">
-              <span class="evening-entry__time" data-content="content.eveningThreeTime">Six thirty</span>
-              <span class="evening-entry__mark" aria-hidden="true"></span>
-              <div class="evening-entry__body">
-                <h3 data-content="content.eveningThreeTitle">Dinner &amp; Toasts</h3>
-                <p data-content="content.eveningThreeNote">A candlelit supper in the orangery.</p>
-              </div>
-            </li>
-            <li class="evening-entry reveal" data-element-key="evening-entry-four">
-              <span class="evening-entry__time" data-content="content.eveningFourTime">Nine o'clock</span>
-              <span class="evening-entry__mark" aria-hidden="true"></span>
-              <div class="evening-entry__body">
-                <h3 data-content="content.eveningFourTitle">Dancing &amp; Carriages</h3>
-                <p data-content="content.eveningFourNote">The first dance, then the floor is yours until midnight.</p>
-              </div>
-            </li>
-          </ol>
-
-          <div class="evening-respond reveal">
-            <p class="evening-respond__deadline">
-              <span data-content="content.eveningDeadlineLead">Kindly reply by</span>
-              <span data-content="rsvp.deadline">the first of August, 2027</span>
-            </p>
-            <a class="btn btn--light" href="#rsvp" data-content="content.respondLabel">Respond to the invitation</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ══════════════════════════════════════════════════════════
-         № 06 · THE PALETTE
+         № 05 · THE PALETTE
          ══════════════════════════════════════════════════════════ -->
       <section id="palette" class="scene scene--palette" aria-labelledby="palette-title">
         <div class="container palette-layout">
           <header class="palette-heading">
-            <p class="kicker reveal" data-content="content.paletteKicker">№ 06 · A Note on Colour</p>
-            <h2 id="palette-title" class="display display--h2 reveal"><span data-content="content.paletteTitleFirst">The wedding</span><br><em data-content="content.paletteTitleSecond">palette</em></h2>
+            <p class="kicker reveal" data-content="content.paletteKicker">№ 05 · A Note on Colour</p>
+            <h2 id="palette-title" class="display display--h2 reveal"><span data-content="content.paletteTitleFirst">The wedding</span>
+              <br><em data-content="content.paletteTitleSecond">palette</em></h2>
             <p class="palette-intro reveal" data-content="content.paletteIntro">A study in garden greens, softened rose and candlelit neutrals — chosen to feel at home beneath the linden trees.</p>
             <aside class="palette-dresscode reveal" aria-label="Dress code" data-element-key="palette-dresscode">
               <div class="palette-dresscode__top">
@@ -585,39 +577,42 @@
               <p class="palette-dresscode__note" data-content="content.dressCodeNote">A little dressed up, a little garden-ready. Soft tones are welcome, but the palette is only a suggestion — wear what makes you feel wonderful.</p>
             </aside>
           </header>
-          <ol class="palette-swatches" aria-label="Wedding colours" data-element-key="palette-swatches">
-            <li class="palette-swatch reveal">
+          <!-- Each swatch is its own element: click one in the
+               customizer to recolour or remove it individually. -->
+          <ol class="palette-swatches" aria-label="Wedding colours" id="palette-swatches">
+            <li class="palette-swatch reveal" data-element-key="palette-swatch-1" data-swatch-index="0">
               <span class="palette-color" style="--swatch-color:#EFE7D8" aria-hidden="true"></span>
-              <span class="palette-name">Ivory</span><span class="palette-value">#EFE7D8</span>
+              <span class="palette-name" data-editor-path="palette.0.name">Ivory</span><span class="palette-value">#EFE7D8</span>
             </li>
-            <li class="palette-swatch reveal">
+            <li class="palette-swatch reveal" data-element-key="palette-swatch-2" data-swatch-index="1">
               <span class="palette-color" style="--swatch-color:#777957" aria-hidden="true"></span>
-              <span class="palette-name">Linden</span><span class="palette-value">#777957</span>
+              <span class="palette-name" data-editor-path="palette.1.name">Linden</span><span class="palette-value">#777957</span>
             </li>
-            <li class="palette-swatch reveal">
+            <li class="palette-swatch reveal" data-element-key="palette-swatch-3" data-swatch-index="2">
               <span class="palette-color" style="--swatch-color:#C5A0A0" aria-hidden="true"></span>
-              <span class="palette-name">Rose</span><span class="palette-value">#C5A0A0</span>
+              <span class="palette-name" data-editor-path="palette.2.name">Rose</span><span class="palette-value">#C5A0A0</span>
             </li>
-            <li class="palette-swatch reveal">
+            <li class="palette-swatch reveal" data-element-key="palette-swatch-4" data-swatch-index="3">
               <span class="palette-color" style="--swatch-color:#5D2029" aria-hidden="true"></span>
-              <span class="palette-name">Oxblood</span><span class="palette-value">#5D2029</span>
+              <span class="palette-name" data-editor-path="palette.3.name">Oxblood</span><span class="palette-value">#5D2029</span>
             </li>
-            <li class="palette-swatch reveal">
+            <li class="palette-swatch reveal" data-element-key="palette-swatch-5" data-swatch-index="4">
               <span class="palette-color" style="--swatch-color:#CDBB9A" aria-hidden="true"></span>
-              <span class="palette-name">Champagne</span><span class="palette-value">#CDBB9A</span>
+              <span class="palette-name" data-editor-path="palette.4.name">Champagne</span><span class="palette-value">#CDBB9A</span>
             </li>
           </ol>
         </div>
       </section>
       <!-- ══════════════════════════════════════════════════════════
-         № 07 · THE WEDDING DAY
+         № 06 · THE WEDDING DAY
          (moments are rendered from HEIRLOOM.moments in js/config.js)
          ══════════════════════════════════════════════════════════ -->
       <section id="itinerary" class="scene scene--itinerary" aria-labelledby="itinerary-title">
         <div class="container">
           <div class="itinerary-head">
-            <p class="kicker reveal" data-content="content.weddingDayKicker">№ 07 · The Celebration</p>
-            <h2 id="itinerary-title" class="display display--h2 reveal"><span data-content="content.weddingDayTitleFirst">The Wedding</span><br><em data-content="content.weddingDayTitleSecond">Day</em></h2>
+            <p class="kicker reveal" data-content="content.weddingDayKicker">№ 06 · The Celebration</p>
+            <h2 id="itinerary-title" class="display display--h2 reveal"><span data-content="content.weddingDayTitleFirst">The Wedding</span>
+              <br><em data-content="content.weddingDayTitleSecond">Day</em></h2>
             <div class="itinerary-ornament reveal" aria-hidden="true">
               <svg viewBox="0 0 280 54" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -638,7 +633,7 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-         № 08 · VENUE & LOCATION
+         № 07 · VENUE & LOCATION
          ══════════════════════════════════════════════════════════ -->
       <section id="venue" class="scene scene--venue scene--night" aria-labelledby="venue-title">
         <svg class="venue-lace" aria-hidden="true" focusable="false">
@@ -687,17 +682,17 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-         № 09 · KINDLY RESPOND — the response card
+         № 08 · KINDLY RESPOND — the response card
          ══════════════════════════════════════════════════════════ -->
       <section id="rsvp" class="scene scene--rsvp" aria-labelledby="rsvp-title">
         <span class="watermark-script" aria-hidden="true" data-element-key="rsvp-watermark">répondez</span>
         <div class="container">
           <div class="rsvp-card reveal">
-            <p class="kicker kicker--center" data-content="content.rsvpKicker">№ 09 · Your Reply</p>
+            <p class="kicker kicker--center" data-content="content.rsvpKicker">№ 08 · Your Reply</p>
             <h2 id="rsvp-title" class="rsvp-title" data-content="content.rsvpTitle">Kindly Respond</h2>
             <p class="rsvp-deadline"><span data-content="content.rsvpLead">Kindly reply by</span> <span data-content="rsvp.deadline">the first of August, 2027</span>
             </p>
-            <div class="rsvp-ornament" aria-hidden="true">
+            <div class="rsvp-ornament" aria-hidden="true" data-element-key="rsvp-ornament">
               <svg viewBox="0 0 300 76" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M8 38h74c19 0 27-9 37-18m173 18h-74c-19 0-27-9-37-18" />
@@ -797,11 +792,11 @@
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-         № 10 · THE COUNTDOWN
+         № 09 · THE COUNTDOWN
          ══════════════════════════════════════════════════════════ -->
       <section id="countdown" class="scene scene--countdown" aria-labelledby="countdown-title">
         <div class="container">
-          <p class="kicker kicker--center reveal" data-content="content.countdownKicker">№ 10 · Counting the Moments</p>
+          <p class="kicker kicker--center reveal" data-content="content.countdownKicker">№ 09 · Counting the Moments</p>
           <h2 id="countdown-title" class="count-script reveal"><span data-content="content.countdownTitle">until we say</span> <em data-content="content.countdownPromise">“I&nbsp;do”</em></h2>
 
           <div class="count-row reveal" id="countdown-clock" role="timer" aria-label="Countdown to the wedding">

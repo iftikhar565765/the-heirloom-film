@@ -19,8 +19,9 @@
     gap: clamp(2.4rem, 6vw, 3.6rem);
   }
   .story-folio { padding-top: 3.5rem; }
-  .evening-timeline { max-width: 30rem; }
   .venue-head { margin-top: 0; }
+  /* the particulars card centres itself beneath the ledger */
+  .particulars-card { justify-self: center; transform: none; }
 }
 
 /* ── ≤ 880px — navigation condenses to its menu ─────────────────── */
@@ -155,6 +156,19 @@
     background: color-mix(in srgb, var(--paper-raised) 88%, var(--champagne) 12%);
   }
 
+  /* every keepsake signs off with a hand-set champagne diamond */
+  .story-folio .fc-note::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: .95rem;
+    width: .44rem;
+    height: .44rem;
+    transform: translateX(-50%) rotate(45deg);
+    border: 1px solid color-mix(in srgb, var(--champagne) 62%, transparent);
+    background: color-mix(in srgb, var(--champagne) 28%, transparent);
+  }
+
   .fc-quote { padding: 2.7rem 1.9rem 2.5rem; }
   .fc-quote blockquote {
     font-size: clamp(1.4rem, 6vw, 1.85rem);
@@ -232,10 +246,6 @@
 
   .details-copy > .display br,
   .palette-heading > .display br { display: none; }
-  .evening-entry { grid-template-columns: 1.35rem minmax(0, 1fr); column-gap: .9rem; }
-  .evening-entry__time { letter-spacing: .22em; }
-  .evening-timeline::before { left: .67rem; }
-  .evening-entry__mark { width: 1.05rem; height: 1.05rem; }
   .palette-layout { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
   .palette-swatches { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .venue-grid { gap: 2rem; }
@@ -294,6 +304,8 @@
   .std-crossing { font-size: clamp(1.55rem, 7vw, 2.25rem); }
   .std-venue { margin-top: 1rem; }
   .detail-item { grid-template-columns: 1.8rem minmax(0, 1fr); column-gap: .7rem; }
+  .particulars-card { width: min(100%, 24.5rem); }
+  .particulars-row__note { max-width: 26ch; }
   .palette-swatches { gap: .6rem; }
   .palette-value { font-size: .5rem; letter-spacing: .06em; }
   .venue-name { overflow-wrap: anywhere; }
@@ -332,6 +344,10 @@
   .fc-quote { padding: 2.4rem 1.55rem 2.25rem; }
   .fc-note { padding: 1.9rem 1.3rem 1.8rem; }
   .details-copy > .display { font-size: clamp(2.45rem, 11vw, 3.3rem); }
+  .particulars-card { padding: 2.2rem 1.5rem 2.7rem; }
+  .particulars-card__mono { font-size: 2.5rem; }
+  .particulars-row__value { font-size: 1.25rem; }
+  .particulars-row__value--numerals { font-size: 1.4rem; }
   .palette-heading .display { font-size: clamp(2rem, 9vw, 2.75rem); }
   .itinerary-head .display { font-size: clamp(2.35rem, 10vw, 3.2rem); }
   .day-words { padding: 1rem; }

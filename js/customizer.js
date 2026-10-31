@@ -11,6 +11,7 @@
   var textColorInput = document.getElementById('canvas-text-color');
   var bgColorInput = document.getElementById('canvas-bg-color');
   var textGroup = document.getElementById('canvas-text-group');
+  var bgGroup = document.getElementById('canvas-bg-group');
   var resetElementColorsButton = document.getElementById('reset-element-colors');
   var removeElementButton = document.getElementById('remove-element');
   var closeTooltipButton = document.getElementById('close-color-tooltip');
@@ -63,6 +64,8 @@
   var selectedColorSelector = '';
   var selectedColorDefaults = null;
   var selectedColorKey = '';
+  var selectedColorKeySelf = false;
+  var selectedColorSwatchIndex = null;
   var selectedColorRemovable = false;
   var elementLabels = {
     'opening-watermark': 'Opening watermark',
@@ -91,11 +94,15 @@
     'detail-ceremony': 'Details · ceremony',
     'detail-reception': 'Details · reception',
     'detail-reply': 'Details · kindly reply',
-    'evening-watermark': 'Evening watermark',
-    'evening-entry-one': 'Evening · ceremony moment',
-    'evening-entry-two': 'Evening · cocktails moment',
-    'evening-entry-three': 'Evening · dinner moment',
-    'evening-entry-four': 'Evening · dancing moment',
+    'particulars-card': 'Particulars card',
+    'particulars-ghost': 'Particulars watermark',
+    'particulars-eyebrow': 'Particulars · eyebrow',
+    'particulars-mono': 'Particulars monogram',
+    'particulars-date': 'Particulars · the date',
+    'particulars-place': 'Particulars · the place',
+    'particulars-attire': 'Particulars · the attire',
+    'particulars-carriages': 'Particulars · the carriages',
+    'particulars-seal': 'Particulars wax seal',
     'palette-dresscode': 'Dress code card',
     'palette-swatches': 'Palette swatches',
     'day-words': 'Wedding-day words',
@@ -696,12 +703,22 @@
     addSimpleField(grid, 'content.storyParagraphTwo', 'Story · second paragraph', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.storyQuote', 'Keepsake quote', { wide: true, multiline: true, rows: 2, hint: 'The quote pinned to the keepsake folio.' });
     addSimpleField(grid, 'content.storyQuoteLabel', 'Keepsake quote credit', { wide: true });
-    addSimpleField(grid, 'content.eveningIntro', 'Evening · introduction', { wide: true, multiline: true, rows: 2, hint: 'The line beneath the programme heading.' });
-    [['One', 'ceremony'], ['Two', 'cocktails'], ['Three', 'dinner'], ['Four', 'dancing']].forEach(function (entry) {
-      addSimpleField(grid, 'content.evening' + entry[0] + 'Time', 'Evening · ' + entry[1] + ' time', {});
-      addSimpleField(grid, 'content.evening' + entry[0] + 'Title', 'Evening · ' + entry[1] + ' title', {});
-      addSimpleField(grid, 'content.evening' + entry[0] + 'Note', 'Evening · ' + entry[1] + ' note', { wide: true });
-    });
+    addSimpleField(grid, 'content.detailsIntro', 'Details · introduction', { wide: true });
+    addSimpleField(grid, 'content.ceremonyLabel', 'Ceremony · heading', {});
+    addSimpleField(grid, 'content.ceremonyTime', 'Ceremony · time', {});
+    addSimpleField(grid, 'content.ceremonyNote', 'Ceremony · note', { wide: true });
+    addSimpleField(grid, 'content.receptionLabel', 'Reception · heading', {});
+    addSimpleField(grid, 'content.receptionTime', 'Reception · time', {});
+    addSimpleField(grid, 'content.receptionNote', 'Reception · note', { wide: true });
+    addSimpleField(grid, 'content.kindlyReplyLabel', 'Kindly reply · heading', {});
+    addSimpleField(grid, 'content.kindlyReplyNote', 'Kindly reply · note', { wide: true });
+    addSimpleField(grid, 'content.particularsEyebrow', 'Particulars card · eyebrow', {});
+    addSimpleField(grid, 'content.particularsAttireLabel', 'Particulars · attire label', {});
+    addSimpleField(grid, 'content.particularsAttire', 'Particulars · attire', {});
+    addSimpleField(grid, 'content.particularsAttireNote', 'Particulars · attire note', { wide: true });
+    addSimpleField(grid, 'content.particularsCarriagesLabel', 'Particulars · carriages label', {});
+    addSimpleField(grid, 'content.particularsCarriagesTime', 'Particulars · carriages time', {});
+    addSimpleField(grid, 'content.particularsCarriagesNote', 'Particulars · carriages note', { wide: true });
     addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
     addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
     section.appendChild(grid);
@@ -1060,7 +1077,24 @@
       item.appendChild(color);
       palette.appendChild(item);
     });
+    var addSwatchField = document.createElement('div');
+    addSwatchField.className = 'field field--wide';
+    var addSwatchButton = document.createElement('button');
+    addSwatchButton.type = 'button';
+    addSwatchButton.className = 'maps-button';
+    addSwatchButton.textContent = 'Add a colour swatch';
+    addSwatchButton.addEventListener('click', function () {
+      if (!Array.isArray(config.palette)) config.palette = [];
+      config.palette.push({
+        name: 'Colour ' + (config.palette.length + 1),
+        color: '#CDBB9A'
+      });
+      renderSidebar();
+      notify('A new swatch joined the palette — name it and pick its colour.');
+    });
+    addSwatchField.appendChild(addSwatchButton);
     section.appendChild(palette);
+    section.appendChild(addSwatchField);
     editor.appendChild(section);
   }
 
@@ -1137,17 +1171,25 @@
         Number.isFinite(message.anchor.height);
       var isBackground = message.element === 'background';
       var elementKind = message.element;
+      var swatchIndex = message.swatchIndex != null && Array.isArray(config.palette) &&
+        Number.isInteger(message.swatchIndex) && message.swatchIndex >= 0 &&
+        message.swatchIndex < config.palette.length ? message.swatchIndex : null;
       var hasColor = isBackground || /^#[0-9a-f]{6}$/i.test(message.color || '');
       if ((elementKind === 'color' || elementKind === 'text' || isBackground) &&
           validSelector && hasColor && validAnchor) {
         selectedColorSelector = message.selector;
         selectedColorKey = typeof message.key === 'string' ? message.key : '';
-        /* every keyed element can be removed — the skip link alone is
-           protected so guests can always reach the invitation */
-        selectedColorRemovable = !!selectedColorKey && selectedColorKey !== 'skip-intro';
+        selectedColorKeySelf = !!message.keySelf;
+        selectedColorSwatchIndex = swatchIndex;
+        /* every element on the canvas can be removed — backgrounds are
+           the exception (the scene itself always stays)               */
+        selectedColorRemovable = !isBackground && selectedColorKey !== 'skip-intro';
         var savedColors = config.colorEdits && config.colorEdits[selectedColorSelector];
         if (textColorInput) {
-          textColorInput.value = (savedColors && savedColors.color) || message.color || '#f7f4ee';
+          textColorInput.value = swatchIndex != null
+            ? (/^#[0-9a-f]{6}$/i.test(config.palette[swatchIndex].color || '')
+              ? config.palette[swatchIndex].color : '#cdbb9a')
+            : (savedColors && savedColors.color) || message.color || '#f7f4ee';
         }
         if (bgColorInput) {
           bgColorInput.value = (savedColors && savedColors.backgroundColor) ||
@@ -1158,13 +1200,22 @@
           backgroundColor: bgColorInput ? bgColorInput.value : ''
         };
         if (colorActionLabel) colorActionLabel.textContent = message.label || 'Selected element';
-        if (textGroup) textGroup.hidden = isBackground;
+        if (textGroup) {
+          textGroup.hidden = isBackground;
+          var textGroupLabel = textGroup.querySelector('span');
+          if (textGroupLabel) {
+            textGroupLabel.textContent = swatchIndex != null ? 'Colour' : 'Text';
+          }
+        }
+        if (bgGroup) bgGroup.hidden = swatchIndex != null;
         if (removeElementButton) removeElementButton.hidden = !selectedColorRemovable;
         if (colorAction) colorAction.hidden = false;
         positionColorTooltip(message.anchor);
         if (hint) hint.textContent = isBackground
           ? 'Background selected. Choose a colour to update it, then press Done.'
-          : 'Element selected. Recolour it, remove it, or press Done to keep editing.';
+          : swatchIndex != null
+            ? 'Palette swatch selected. Change this one colour or remove just this swatch — the rest stay untouched.'
+            : 'Element selected. Recolour it, remove it, or press Done to keep editing.';
       } else {
         hideColorTooltip(false);
         if (hint && message.element === 'text') {
@@ -1179,7 +1230,8 @@
        ['couple.namesLine', 'couple.initials', 'couple.partnerOne', 'couple.partnerTwo',
         'wedding.display', 'wedding.words', 'wedding.numerals', 'wedding.zoneLabel',
         'venue.name', 'venue.address', 'rsvp.deadline'].indexOf(message.path) !== -1 ||
-       /^moments\.\d+$/.test(message.path));
+       /^moments\.\d+$/.test(message.path) ||
+       /^palette\.\d+\.name$/.test(message.path));
     if (message.type !== 'heirloom:element-edited' || !allowedTextPath ||
         typeof message.value !== 'string') return;
 
@@ -1188,6 +1240,16 @@
       if (!Array.isArray(config.moments) || momentIndex >= config.moments.length) return;
       if (message.value.trim()) config.moments[momentIndex] = message.value.trim();
       else config.moments.splice(momentIndex, 1);
+    } else if (/^palette\.\d+\.name$/.test(message.path)) {
+      var swatchNamed = Number(message.path.split('.')[1]);
+      if (!Array.isArray(config.palette) || !config.palette[swatchNamed]) return;
+      if (message.value.trim()) {
+        config.palette[swatchNamed].name = message.value.trim();
+        notify('Palette swatch renamed.');
+      } else {
+        notify('The swatch keeps its name — give it at least one character.');
+      }
+      return;
     } else {
       if (typeof getPath(message.path) !== 'string') return;
       setPath(message.path, message.value);
@@ -1264,6 +1326,14 @@
 
   function updateSelectedColor(value) {
     if (!selectedColorSelector || !/^#[0-9a-f]{6}$/i.test(value)) return;
+    if (selectedColorSwatchIndex != null) {
+      /* a palette swatch recolours only itself — the array entry is
+         the single source of truth for that swatch                */
+      if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
+      config.palette[selectedColorSwatchIndex].color = value.toUpperCase();
+      notify('Swatch colour updated — only this swatch changed.');
+      return;
+    }
     if (!config.colorEdits || typeof config.colorEdits !== 'object') config.colorEdits = {};
     if (!config.colorEdits[selectedColorSelector]) config.colorEdits[selectedColorSelector] = {};
     config.colorEdits[selectedColorSelector].color = value.toUpperCase();
@@ -1272,6 +1342,7 @@
 
   function updateSelectedBackground(value) {
     if (!selectedColorSelector || !/^#[0-9a-f]{6}$/i.test(value)) return;
+    if (selectedColorSwatchIndex != null) return;
     if (!config.colorEdits || typeof config.colorEdits !== 'object') config.colorEdits = {};
     if (!config.colorEdits[selectedColorSelector]) config.colorEdits[selectedColorSelector] = {};
     config.colorEdits[selectedColorSelector].backgroundColor = value.toUpperCase();
@@ -1281,6 +1352,8 @@
   function hideColorTooltip(clearInPreview) {
     selectedColorSelector = '';
     selectedColorKey = '';
+    selectedColorKeySelf = false;
+    selectedColorSwatchIndex = null;
     selectedColorRemovable = false;
     if (colorAction) colorAction.hidden = true;
     if (clearInPreview !== false && frame && frame.contentWindow) {
@@ -1307,10 +1380,35 @@
   }
   if (removeElementButton) {
     removeElementButton.addEventListener('click', function () {
-      if (!selectedColorKey || selectedColorKey === 'skip-intro') return;
+      if (!selectedColorSelector || selectedColorKey === 'skip-intro') return;
+      var removedLabel = colorActionLabel && colorActionLabel.textContent
+        ? colorActionLabel.textContent : labelForKey(selectedColorKey);
+      /* a palette swatch comes out of the palette array itself —
+         the other colours keep their places                     */
+      if (selectedColorSwatchIndex != null) {
+        if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
+        config.palette.splice(selectedColorSwatchIndex, 1);
+        if (config.hiddenElements && typeof config.hiddenElements === 'object') {
+          Object.keys(config.hiddenElements).forEach(function (key) {
+            if (/^palette-swatch-\d+$/.test(key)) delete config.hiddenElements[key];
+          });
+        }
+        hideColorTooltip(true);
+        renderSidebar();
+        notify('"' + removedLabel + '" was taken out of the palette. The remaining colours keep their places.');
+        return;
+      }
       if (!config.hiddenElements || typeof config.hiddenElements !== 'object') config.hiddenElements = {};
-      config.hiddenElements[selectedColorKey] = true;
-      var removedLabel = labelForKey(selectedColorKey);
+      if (!config.hiddenSelectors || typeof config.hiddenSelectors !== 'object') config.hiddenSelectors = {};
+      /* keyed pieces come away by name; everything else by its own
+         structural selector — so every element can be removed     */
+      if (selectedColorKeySelf && selectedColorKey) {
+        config.hiddenElements[selectedColorKey] = true;
+      } else if (selectedColorKey && !selectedColorKeySelf) {
+        config.hiddenSelectors[selectedColorSelector] = true;
+      } else {
+        config.hiddenSelectors[selectedColorSelector] = true;
+      }
       hideColorTooltip(true);
       notify('"' + removedLabel + '" was removed from the invitation. Use “Restore removed elements” under the preview to bring it back.');
     });
@@ -1319,11 +1417,21 @@
   if (restoreRemovedButton) {
     restoreRemovedButton.addEventListener('click', function () {
       config.hiddenElements = {};
+      config.hiddenSelectors = {};
       notify('All removed elements are back in the invitation.');
     });
   }
   if (resetElementColorsButton) {
     resetElementColorsButton.addEventListener('click', function () {
+      if (selectedColorSwatchIndex != null) {
+        if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
+        if (selectedColorDefaults && /^#[0-9a-f]{6}$/i.test(selectedColorDefaults.color || '')) {
+          config.palette[selectedColorSwatchIndex].color = selectedColorDefaults.color.toUpperCase();
+        }
+        if (textColorInput && selectedColorDefaults) textColorInput.value = selectedColorDefaults.color;
+        notify('Swatch colour restored.');
+        return;
+      }
       if (!selectedColorSelector || !config.colorEdits) return;
       delete config.colorEdits[selectedColorSelector];
       if (textColorInput && selectedColorDefaults) textColorInput.value = selectedColorDefaults.color;

@@ -254,11 +254,15 @@
     'detail-ceremony': 'Details · ceremony',
     'detail-reception': 'Details · reception',
     'detail-reply': 'Details · kindly reply',
-    'evening-watermark': 'Evening watermark',
-    'evening-entry-one': 'Evening · ceremony moment',
-    'evening-entry-two': 'Evening · cocktails moment',
-    'evening-entry-three': 'Evening · dinner moment',
-    'evening-entry-four': 'Evening · dancing moment',
+    'particulars-card': 'Particulars card',
+    'particulars-ghost': 'Particulars watermark',
+    'particulars-eyebrow': 'Particulars · eyebrow',
+    'particulars-mono': 'Particulars monogram',
+    'particulars-date': 'Particulars · the date',
+    'particulars-place': 'Particulars · the place',
+    'particulars-attire': 'Particulars · the attire',
+    'particulars-carriages': 'Particulars · the carriages',
+    'particulars-seal': 'Particulars wax seal',
     'palette-dresscode': 'Dress code card',
     'palette-swatches': 'Palette swatches',
     'day-words': 'Wedding-day words',
@@ -281,20 +285,43 @@
       element.style.removeProperty('display');
     });
     appliedHiddenElements = [];
+    /* palette swatches are managed by the palette array itself
+       (adding & removing swatches re-renders them) — ignore any
+       stale swatch keys left in older saved configs            */
+    var isSwatchKey = /^palette-swatch-\d+$/;
     var hidden = cfg.hiddenElements;
-    if (!hidden || typeof hidden !== 'object' || Array.isArray(hidden)) return;
-    Object.keys(hidden).forEach(function (key) {
-      if (!hidden[key]) return;
-      var element;
-      try {
-        element = document.querySelector('[data-element-key="' + key + '"]');
-      } catch (error) {
-        return;
-      }
-      if (!element) return;
-      appliedHiddenElements.push(element);
-      element.style.setProperty('display', 'none', 'important');
-    });
+    if (hidden && typeof hidden === 'object' && !Array.isArray(hidden)) {
+      Object.keys(hidden).forEach(function (key) {
+        if (!hidden[key] || isSwatchKey.test(key)) return;
+        var element;
+        try {
+          element = document.querySelector('[data-element-key="' + key + '"]');
+        } catch (error) {
+          return;
+        }
+        if (!element) return;
+        appliedHiddenElements.push(element);
+        element.style.setProperty('display', 'none', 'important');
+      });
+    }
+    /* elements without a key are removed by their structural
+       selector, so every clickable element can be taken out     */
+    var hiddenSelectors = cfg.hiddenSelectors;
+    if (hiddenSelectors && typeof hiddenSelectors === 'object' && !Array.isArray(hiddenSelectors)) {
+      Object.keys(hiddenSelectors).forEach(function (selector) {
+        if (!hiddenSelectors[selector] || typeof selector !== 'string' ||
+            selector.indexOf('body > ') !== 0) return;
+        var element;
+        try {
+          element = document.querySelector(selector);
+        } catch (error) {
+          return;
+        }
+        if (!element) return;
+        appliedHiddenElements.push(element);
+        element.style.setProperty('display', 'none', 'important');
+      });
+    }
   }
 
   function labelFor(element) {
@@ -317,19 +344,34 @@
     return element.tagName.toLowerCase();
   }
 
-  function sendColorSelection(element) {
+  function sendColorSelection(element, removeKey) {
     var selector = colorSelectorFor(element);
     if (!selector) return;
     var styles = window.getComputedStyle(element);
     var rect = element.getBoundingClientRect();
-    var key = keyFor(element);
+    var ownKey = (element.getAttribute && element.getAttribute('data-element-key')) || '';
+    var key = removeKey || ownKey || keyFor(element);
+    var swatch = element.closest ? element.closest('.palette-swatch') : null;
+    var swatchIndex = -1;
+    var paletteLabel = '';
+    if (swatch) {
+      var listed = document.querySelectorAll('.palette-swatch');
+      for (var i = 0; i < listed.length; i++) {
+        if (listed[i] === swatch) swatchIndex = i;
+      }
+      if (Array.isArray(cfg.palette) && cfg.palette[swatchIndex]) {
+        paletteLabel = 'Palette · ' + (cfg.palette[swatchIndex].name || 'swatch ' + (swatchIndex + 1));
+      }
+    }
     previewMessage({
       type: 'heirloom:element-selected',
       element: 'color',
       selector: selector,
       key: key,
-      removable: !!key,
-      label: labelFor(element),
+      keySelf: !!(removeKey || ownKey),
+      swatchIndex: swatchIndex >= 0 ? swatchIndex : null,
+      removable: true,
+      label: paletteLabel || labelFor(element),
       color: colorToHex(styles.color) || '#f7f4ee',
       backgroundColor: backgroundToHex(styles),
       anchor: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
@@ -486,14 +528,26 @@
           }
         }
         var keyedOwner = keyFor(textElement);
+        /* a palette swatch name reports its swatch so the editor's
+           Remove can take the whole swatch out of the palette      */
+        var swatchOwner = textElement.closest ? textElement.closest('.palette-swatch') : null;
+        var swatchOwnerIndex = -1;
+        if (swatchOwner) {
+          var swatchList = document.querySelectorAll('.palette-swatch');
+          for (var s = 0; s < swatchList.length; s++) {
+            if (swatchList[s] === swatchOwner) swatchOwnerIndex = s;
+          }
+        }
         previewMessage({
           type: 'heirloom:element-selected',
           element: 'text',
           path: textPath,
           selector: colorSelectorFor(textElement),
           key: keyedOwner,
+          keySelf: textElement.hasAttribute('data-element-key'),
+          swatchIndex: swatchOwnerIndex >= 0 ? swatchOwnerIndex : null,
           removable: !!keyedOwner,
-          label: (textElement.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40),
+          label: labelFor(textElement),
           color: colorToHex(window.getComputedStyle(textElement).color) || '#f7f4ee',
           backgroundColor: backgroundToHex(window.getComputedStyle(textElement)),
           anchor: (function () {
@@ -505,8 +559,8 @@
       }
 
       /* envelope faces paint over their keyed wrappers — select the
-         face itself for recolouring; Remove still targets the keyed
-         parent (keyFor walks up) so the whole piece comes away      */
+         face itself for recolouring; Remove targets the keyed
+         parent (passed as removeKey) so the whole piece comes away */
       var envelopeFace = event.target.closest('.envelope__flap-face, .envelope__pocket-face, ' +
         '.envelope__flap-liner, .envelope__back, .envelope__letter-inner');
       if (envelopeFace) {
@@ -515,7 +569,7 @@
         clearActive();
         activeColorElement = envelopeFace;
         envelopeFace.classList.add('heirloom-editor-color-selected');
-        sendColorSelection(envelopeFace);
+        sendColorSelection(envelopeFace, keyFor(envelopeFace));
         return;
       }
 
@@ -644,17 +698,22 @@
   }
 
   function applyPalette() {
-    if (!Array.isArray(cfg.palette)) return;
-    document.querySelectorAll('.palette-swatch').forEach(function (item, index) {
-      var swatch = cfg.palette[index];
-      if (!swatch) return;
-      var color = item.querySelector('.palette-color');
-      var name = item.querySelector('.palette-name');
-      var value = item.querySelector('.palette-value');
-      if (color && /^#[0-9a-f]{6}$/i.test(swatch.color || '')) color.style.setProperty('--swatch-color', swatch.color);
-      if (name && typeof swatch.name === 'string') name.textContent = swatch.name;
-      if (value && typeof swatch.color === 'string') value.textContent = swatch.color.toUpperCase();
-    });
+    var list = document.getElementById('palette-swatches') ||
+      document.querySelector('.palette-swatches');
+    if (!list || !Array.isArray(cfg.palette)) return;
+    /* the swatch list is re-rendered from the palette array so
+       recolouring, renaming, adding and removing a swatch all
+       stay perfectly in sync — one source of truth              */
+    list.innerHTML = cfg.palette.map(function (swatch, index) {
+      var color = /^#[0-9a-f]{6}$/i.test(swatch && swatch.color || '') ? swatch.color : '#CDBB9A';
+      var name = typeof (swatch && swatch.name) === 'string' ? swatch.name : 'Colour ' + (index + 1);
+      return '<li class="palette-swatch reveal in-view" data-element-key="palette-swatch-' + (index + 1) + '" ' +
+        'data-swatch-index="' + index + '">' +
+        '<span class="palette-color" style="--swatch-color:' + color + '" aria-hidden="true"></span>' +
+        '<span class="palette-name" data-editor-path="palette.' + index + '.name">' + escapeHTML(name) + '</span>' +
+        '<span class="palette-value">' + escapeHTML(color.toUpperCase()) + '</span>' +
+        '</li>';
+    }).join('');
   }
   injectContent();
   applyColorEdits();
