@@ -279,6 +279,38 @@ h1 em {
   cursor: pointer;
 }
 
+/* the wedding-day swatch rows: name + colour + per-swatch remove */
+.palette-editor--swatches {
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+.palette-editor__item--swatch {
+  grid-template-columns: minmax(0, 1fr) 44px 30px;
+  align-items: stretch;
+}
+
+.swatch-remove {
+  min-height: 37px;
+  padding: 0;
+  border: 1px solid rgba(215,193,157,.24);
+  border-radius: 2px;
+  background: #211316;
+  color: var(--atelier-copy);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color .2s ease, color .2s ease, background .2s ease;
+}
+
+.swatch-remove:hover,
+.swatch-remove:focus-visible {
+  border-color: rgba(215,193,157,.65);
+  background: #35181d;
+  color: #f7f4ee;
+  outline: none;
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

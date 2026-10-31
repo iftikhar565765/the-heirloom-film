@@ -64,7 +64,6 @@
   var selectedColorSelector = '';
   var selectedColorDefaults = null;
   var selectedColorKey = '';
-  var selectedColorKeySelf = false;
   var selectedColorSwatchIndex = null;
   var selectedColorRemovable = false;
   var elementLabels = {
@@ -1054,9 +1053,17 @@
     var swatchHeading = document.createElement('h4');
     swatchHeading.textContent = 'Wedding-day palette swatches';
     section.appendChild(swatchHeading);
+    var swatchHint = document.createElement('p');
+    swatchHint.className = 'field-hint';
+    swatchHint.textContent = 'Each colour is its own swatch — rename it, recolour it or remove it without touching the others. The same swatches are selectable one by one on the invitation itself.';
+    section.appendChild(swatchHint);
+    /* the swatch rows live in their own grid so they never mix with
+       the website theme colours above                             */
+    var swatchList = document.createElement('div');
+    swatchList.className = 'palette-editor palette-editor--swatches';
     (config.palette || []).forEach(function (swatch, index) {
       var item = document.createElement('div');
-      item.className = 'palette-editor__item';
+      item.className = 'palette-editor__item palette-editor__item--swatch';
       var name = document.createElement('input');
       name.type = 'text';
       name.value = swatch.name || '';
@@ -1073,10 +1080,38 @@
         config.palette[index].color = color.value.toUpperCase();
         notify();
       });
+      var removeSwatch = document.createElement('button');
+      removeSwatch.type = 'button';
+      removeSwatch.className = 'swatch-remove';
+      removeSwatch.textContent = '×';
+      removeSwatch.setAttribute('aria-label',
+        'Remove swatch ' + (index + 1) + (swatch.name ? ' (' + swatch.name + ')' : '') + ' only');
+      removeSwatch.addEventListener('click', function () {
+        if (!Array.isArray(config.palette) || !config.palette[index]) return;
+        var removedName = config.palette[index].name || 'swatch ' + (index + 1);
+        config.palette.splice(index, 1);
+        /* stale swatch keys never hide anything — the array is the
+           single source of truth                                */
+        if (config.hiddenElements && typeof config.hiddenElements === 'object') {
+          Object.keys(config.hiddenElements).forEach(function (key) {
+            if (/^palette-swatch-\d+$/.test(key)) delete config.hiddenElements[key];
+          });
+        }
+        renderSidebar();
+        notify('"' + removedName + '" was taken out of the palette. The other colours keep their places.');
+      });
       item.appendChild(name);
       item.appendChild(color);
-      palette.appendChild(item);
+      item.appendChild(removeSwatch);
+      swatchList.appendChild(item);
     });
+    if (!config.palette || !config.palette.length) {
+      var emptySwatches = document.createElement('p');
+      emptySwatches.className = 'field-hint';
+      emptySwatches.textContent = 'No swatches yet — add one below.';
+      section.appendChild(emptySwatches);
+    }
+    section.appendChild(swatchList);
     var addSwatchField = document.createElement('div');
     addSwatchField.className = 'field field--wide';
     var addSwatchButton = document.createElement('button');
@@ -1093,7 +1128,6 @@
       notify('A new swatch joined the palette — name it and pick its colour.');
     });
     addSwatchField.appendChild(addSwatchButton);
-    section.appendChild(palette);
     section.appendChild(addSwatchField);
     editor.appendChild(section);
   }
@@ -1179,7 +1213,6 @@
           validSelector && hasColor && validAnchor) {
         selectedColorSelector = message.selector;
         selectedColorKey = typeof message.key === 'string' ? message.key : '';
-        selectedColorKeySelf = !!message.keySelf;
         selectedColorSwatchIndex = swatchIndex;
         /* every element on the canvas can be removed — backgrounds are
            the exception (the scene itself always stays)               */
@@ -1352,7 +1385,6 @@
   function hideColorTooltip(clearInPreview) {
     selectedColorSelector = '';
     selectedColorKey = '';
-    selectedColorKeySelf = false;
     selectedColorSwatchIndex = null;
     selectedColorRemovable = false;
     if (colorAction) colorAction.hidden = true;
@@ -1400,12 +1432,13 @@
       }
       if (!config.hiddenElements || typeof config.hiddenElements !== 'object') config.hiddenElements = {};
       if (!config.hiddenSelectors || typeof config.hiddenSelectors !== 'object') config.hiddenSelectors = {};
-      /* keyed pieces come away by name; everything else by its own
-         structural selector — so every element can be removed     */
-      if (selectedColorKeySelf && selectedColorKey) {
+      /* a key names the labelled catalogue piece — a click on text
+         inside it (a row label, a heading) removes the whole piece,
+         exactly what the tooltip promised. Pieces without a key come
+         away by their own structural selector, so every clickable
+         element can still be removed                             */
+      if (selectedColorKey) {
         config.hiddenElements[selectedColorKey] = true;
-      } else if (selectedColorKey && !selectedColorKeySelf) {
-        config.hiddenSelectors[selectedColorSelector] = true;
       } else {
         config.hiddenSelectors[selectedColorSelector] = true;
       }
