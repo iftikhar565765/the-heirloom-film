@@ -51,8 +51,7 @@ export function validConfig(config) {
     config.couple && typeof config.couple === "object" &&
     config.wedding && typeof config.wedding === "object" &&
     config.venue && typeof config.venue === "object" &&
-    config.content && typeof config.content === "object" &&
-    config.images && typeof config.images === "object";
+    config.content && typeof config.content === "object";
 }
 
 export async function loadInvitation(env, id) {

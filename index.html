@@ -31,15 +31,12 @@
   <meta property="og:title" content="Amelia &amp; Julien — An Invitation · 18.09.2027" data-meta-property="og:title" data-meta-content="content.socialTitle">
   <meta property="og:description" data-meta-property="og:description" data-meta-content="content.socialDescription"
     content="An heirloom envelope, a wax seal, and a love story — you are cordially invited.">
-  <meta property="og:image" content="assets/images/og-image.jpg" data-meta-property="og:image" data-meta-content="images.social">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Amelia &amp; Julien — An Invitation" data-meta-name="twitter:title" data-meta-content="content.socialTitle">
   <meta name="twitter:description" content="Open your invitation — Saturday, 18 September 2027, The Linden Estate." data-meta-name="twitter:description" data-meta-content="content.socialDescription">
-  <meta name="twitter:image" content="assets/images/og-image.jpg" data-meta-name="twitter:image" data-meta-content="images.social">
   <meta name="theme-color" content="#18070B">
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="assets/images/og-image.jpg">
 
   <!-- Typography: Bodoni Moda (editorial) · Cormorant Garamond (romantic serif) · Pinyon Script (names only) · La Belle Aurore (handwriting) · Jost (functional) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +51,6 @@
   <link rel="stylesheet" href="css/sections.css">
   <link rel="stylesheet" href="css/rsvp.css">
   <link rel="stylesheet" href="css/responsive.css">
-  <link rel="stylesheet" href="css/gallery.css">
 
 
   <script>
@@ -242,7 +238,6 @@
         <nav class="nav__links" aria-label="Sections">
           <ul>
             <li><a href="#story" data-content="content.navStory">Story</a></li>
-            <li><a href="#heirloom-gallery" data-content="content.navPhotos">Photos</a></li>
             <li><a href="#details" data-content="content.navDetails">Details</a></li>
             <li><a href="#venue" data-content="content.navVenue">Venue</a></li>
             <li><a href="#rsvp" data-content="content.navRsvp">RSVP</a></li>
@@ -269,7 +264,6 @@
         <ul>
           <li><a href="#invitation"><span>№ 01</span><span data-content="content.menuInvitation">The Invitation</span></a></li>
           <li><a href="#story"><span>№ 02</span><span data-content="content.menuStory">Our Story</span></a></li>
-          <li><a href="#heirloom-gallery"><span>PHOTOS</span><span data-content="content.menuPhotos">The Visual Diary</span></a></li>
           <li><a href="#save-the-date"><span>№ 03</span><span data-content="content.menuSaveDate">Save the Date</span></a></li>
           <li><a href="#details"><span>№ 04</span><span data-content="content.menuDetails">The Details</span></a></li>
           <li><a href="#palette"><span>№ 05</span><span data-content="content.menuPalette">The Palette</span></a></li>
@@ -345,14 +339,12 @@
               <a class="btn" href="#rsvp">Kindly reply</a>
               <a class="btn btn--ghost" href="#venue">View directions</a>
             </div>
-
-         
           </article>
         </div>
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-         № 02 · OUR STORY — a scrapbook collage
+         № 02 · OUR STORY — a keepsake folio of words & keepsakes
          ══════════════════════════════════════════════════════════ -->
       <section id="story" class="scene scene--story" aria-labelledby="story-title">
         <div class="container story-grid">
@@ -367,56 +359,40 @@
             <p class="story-note"><span data-content="content.storyNote">somewhere between hello &amp; forever</span><small data-content="content.storyNoteCredit">— a note we keep returning to</small></p>
           </div>
 
-          <div class="story-collage" data-stagger>
+          <div class="story-folio" data-stagger>
             <svg class="story-garland" aria-hidden="true">
               <use href="#garland" />
             </svg>
 
-            <div class="story-photo sp-a reveal reveal--media">
-              <figure class="polaroid">
-                <picture>
-                  <img src="assets/images/story-01.jpg" data-image="images.storyOne" data-alt="content.storyAltOne" width="870" height="1152"
-                    alt="Illustrative close-up of a bride's lace-sleeved hand resting in the groom's hand"
-                    loading="lazy" decoding="async">
-                </picture>
-                <figcaption data-content="content.storyCaptionOne">the first chapter</figcaption>
-              </figure>
+            <!-- a keepsake quote card, pinned like a page from a notebook -->
+            <figure class="folio-card fc-quote reveal reveal--media">
+              <svg class="flourish flourish--tl" aria-hidden="true">
+                <use href="#flourish" />
+              </svg>
+              <svg class="flourish flourish--br" aria-hidden="true">
+                <use href="#flourish" />
+              </svg>
+              <blockquote data-content="content.storyQuote">“To love and be loved is to feel the sun from both sides.”</blockquote>
+              <figcaption data-content="content.storyQuoteLabel">— a page from our notebook</figcaption>
+              <span class="tape tape--top" aria-hidden="true"></span>
+            </figure>
+
+            <div class="folio-card fc-note fc-note--one reveal reveal--media">
+              <span class="folio-card__num" aria-hidden="true">i</span>
+              <p class="folio-card__hand" data-content="content.storyCaptionOne">the first chapter</p>
               <span class="tape tape--topleft" aria-hidden="true"></span>
             </div>
 
-            <div class="story-photo sp-b reveal reveal--media">
-              <figure class="polaroid">
-                <picture>
-                  <img src="assets/images/story-02.jpg" data-image="images.storyTwo" data-alt="content.storyAltTwo" width="875" height="1152"
-                    alt="Illustrative reception photograph of a bride celebrating with her guests"
-                    loading="lazy" decoding="async">
-                </picture>
-                <figcaption data-content="content.storyCaptionTwo">always, us</figcaption>
-              </figure>
+            <div class="folio-card fc-note fc-note--two reveal reveal--media">
+              <span class="folio-card__num" aria-hidden="true">ii</span>
+              <p class="folio-card__hand" data-content="content.storyCaptionTwo">always, us</p>
               <span class="tape tape--toright" aria-hidden="true"></span>
             </div>
 
-            <div class="story-photo sp-c reveal reveal--media">
-              <figure class="photo photo--arch">
-                <picture>
-                  <img src="assets/images/story-03.jpg" data-image="images.storyThree" data-alt="content.storyAltThree" width="995" height="1152"
-                    alt="Illustrative wedding table with a small floral arrangement and place settings"
-                    loading="lazy" decoding="async">
-                </picture>
-              </figure>
+            <div class="folio-card fc-note fc-note--three reveal reveal--media">
+              <span class="folio-card__num" aria-hidden="true">iii</span>
+              <p class="folio-card__hand" data-content="content.storyCaptionFour">the long way home</p>
               <span class="tape tape--top" aria-hidden="true"></span>
-            </div>
-
-            <div class="story-photo sp-d reveal reveal--media">
-              <figure class="polaroid">
-                <picture>
-                  <img src="assets/images/diary-07.jpg" data-image="images.storyFour" data-alt="content.storyAltFour" width="900" height="1200"
-                    alt="A newlywed couple walking together through a mountain meadow at sunset"
-                    loading="lazy" decoding="async">
-                </picture>
-                <figcaption data-content="content.storyCaptionFour">the long way home</figcaption>
-              </figure>
-              <span class="tape tape--topleft" aria-hidden="true"></span>
             </div>
 
             <span class="story-caption" aria-hidden="true" data-content="content.storyAside">the beginning of always</span>
@@ -435,155 +411,6 @@
           <use href="#garland" />
         </svg>
       </section>
-
-
-  <!-- ══════════════════════════════════════════════════════════
-         № 03 · Gallery
-         ══════════════════════════════════════════════════════════ -->
-
-
-<section class="hg" id="heirloom-gallery" aria-labelledby="hg-title">
-
-  <div class="hg-inner">
-
-    <!-- ── A · Editorial introduction ─────────────────────────────── -->
-    <header class="hg-intro">
-      <p class="hg-eyebrow" data-content="content.visualDiaryEyebrow">The Visual Diary</p>
-      <h2 class="hg-heading" id="hg-title">
-        <span class="hg-heading-line" data-content="content.visualDiaryTitle">A story told in</span>
-        <span class="hg-heading-script" data-content="content.visualDiaryScript">quiet stills</span>
-      </h2>
-      <p class="hg-lead" data-content="content.visualDiaryLead">Some moments are too soft for words — they live best in photographs. Move through them slowly, the way you would turn the pages of a family album.</p>
-    </header>
-
-    <!-- handwritten hints; one is shown per interaction mode -->
-    <p class="hg-hint hg-hint-swipe" aria-hidden="true" data-content="content.visualDiarySwipeHint">swipe them gently, either way</p>
-    <p class="hg-hint hg-hint-scroll" aria-hidden="true" data-content="content.visualDiaryScrollHint">keep scrolling — the album turns itself</p>
-
-    <!-- ── B · Image stage ──────────────────────────────────────────
-         The photograph collection. TO EDIT THE COLLECTION:
-         add, remove or reorder a <figure class="hg-plate"> block.
-         · src    — your photograph (portrait 3:4 crops best)
-         · alt    — describe the image for screen readers
-         · data-caption — small handwritten line shown under the stage
-         · data-meta    — tiny folio label (no fabricated places/dates)
-         Keep the first two images loading="eager"; use "lazy" after. -->
-    <div class="hg-scrollwrap">
-      <div class="hg-stage" id="hg-stage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Heirloom photographs">
-
-        <span class="hg-folio" id="hg-folio" aria-hidden="true">01</span>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 1 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-01.jpg" data-image="images.diary01" data-alt="content.diaryAlt01" width="900" height="1200"
-            alt="A bride holding a bouquet of white and blush flowers"
-            data-caption="a bouquet gathered before the vows" data-caption-content="content.diaryCaption01" data-meta="no. i" data-meta-content="content.diaryFolio01"
-            loading="eager" fetchpriority="high" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 2 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-02.jpg" data-image="images.diary02" data-alt="content.diaryAlt02" width="900" height="1200"
-            alt="A newlywed couple releasing balloons as guests gather around a pool"
-            data-caption="the whole gathering sent them into the sky" data-caption-content="content.diaryCaption02" data-meta="no. ii" data-meta-content="content.diaryFolio02"
-            loading="eager" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 3 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-03.jpg" data-image="images.diary03" data-alt="content.diaryAlt03" width="900" height="1200"
-            alt="A bride and groom embracing on a pebble beach"
-            data-caption="the shoreline held their quiet portrait" data-caption-content="content.diaryCaption03" data-meta="no. iii" data-meta-content="content.diaryFolio03"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 4 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-04.jpg" data-image="images.diary04" data-alt="content.diaryAlt04" width="900" height="1200"
-            alt="A bride's bouquet of pink and cream roses against her wedding dress"
-            data-caption="the bouquet, just before the walk" data-caption-content="content.diaryCaption04" data-meta="no. iv" data-meta-content="content.diaryFolio04"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 5 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-05.jpg" data-image="images.diary05" data-alt="content.diaryAlt05" width="900" height="1200"
-            alt="A wedding table set with flowers, candles, and crystal glasses"
-            data-caption="summer flowers gathered around the table" data-caption-content="content.diaryCaption05" data-meta="no. v" data-meta-content="content.diaryFolio05"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 6 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-06.jpg" data-image="images.diary06" data-alt="content.diaryAlt06" width="900" height="1200"
-            alt="An outdoor wedding ceremony set beneath a flower-decorated gazebo"
-            data-caption="the aisle before anyone arrived" data-caption-content="content.diaryCaption06" data-meta="no. vi" data-meta-content="content.diaryFolio06"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 7 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-07.jpg" data-image="images.diary07" data-alt="content.diaryAlt07" width="900" height="1200"
-            alt="A bride and groom walking together through a mountain meadow at sunset"
-            data-caption="one last walk through the hills" data-caption-content="content.diaryCaption07" data-meta="no. vii" data-meta-content="content.diaryFolio07"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 8 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-08.jpg" data-image="images.diary08" data-alt="content.diaryAlt08" width="900" height="1200"
-            alt="Two wedding rings resting among soft pink and white flowers"
-            data-caption="two rings, tucked among the petals" data-caption-content="content.diaryCaption08" data-meta="no. viii" data-meta-content="content.diaryFolio08"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <figure class="hg-plate" role="group" aria-roledescription="slide" aria-label="Photograph 9 of 9">
-          <div class="hg-media"><img
-            src="assets/images/diary-09.jpg" data-image="images.diary09" data-alt="content.diaryAlt09" width="900" height="1200"
-            alt="A garden wedding aisle framed by a bouquet of roses"
-             data-caption-content="content.diaryCaption09" data-meta="no. ix" data-meta-content="content.diaryFolio09"
-            loading="lazy" decoding="async"></div>
-        </figure>
-
-        <p class="hg-empty-note" aria-hidden="true">…to be continued at the reception…</p>
-      </div>
-    </div>
-
-    <!-- ── C · Caption + minimal controls ───────────────────────────
-         (this block re-parents itself into the sticky stage on
-         desktop — the JS handles it; keep it after the scrollwrap) -->
-    <div class="hg-chrome" id="hg-chrome">
-      <figure class="hg-captionbox">
-        <blockquote class="hg-caption" id="hg-caption">
-          <span class="hg-caption-a is-front"></span>
-          <span class="hg-caption-b"></span>
-        </blockquote>
-        <figcaption class="hg-caption-meta" id="hg-caption-meta"></figcaption>
-      </figure>
-      <div class="hg-controls">
-        <button class="hg-btn" type="button" id="hg-prev" aria-label="Previous photograph">
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 2.5 4.5 8 10 13.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="hg-progress">
-          <span class="hg-progress-num" aria-hidden="true"><span id="hg-progress-cur">01</span><span class="hg-progress-sep">—</span><span id="hg-progress-total">09</span></span>
-          <span class="hg-progress-bar"><span class="hg-progress-fill" id="hg-progress-fill"></span></span>
-        </div>
-        <button class="hg-btn" type="button" id="hg-next" aria-label="Next photograph">
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 2.5 11.5 8 6 13.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <p class="hg-sr" id="hg-live" aria-live="polite"></p>
-    </div>
-
-    <!-- ── D · End state ──────────────────────────────────────────── -->
-    <div class="hg-end" id="hg-end">
-      <p class="hg-end-note" data-content="content.visualDiaryEndNote">the rest is still unfolding —</p>
-      <button class="hg-end-restart" type="button" id="hg-restart" data-content="content.visualDiaryRestart">begin again</button>
-    </div>
-
-  </div>
-</section>
-
 
       <!-- ══════════════════════════════════════════════════════════
          № 03 · SAVE THE DATE — a burgundy pause
@@ -669,14 +496,16 @@
               </div>
             </div>
 
-            <figure class="details-portrait reveal reveal--media" data-drift>
-              <picture>
-                <img src="assets/images/details-table.jpg" data-image="images.details" width="1344" height="768"
-                  alt="Illustrative wedding reception table with a bright floral centerpiece and crystal glasses"
-                  loading="lazy" decoding="async">
-              </picture>
-             
-            </figure>
+            <aside class="details-keepsake reveal reveal--media" aria-label="A note from the couple">
+              <svg class="details-keepsake__seal" aria-hidden="true">
+                <use href="#ornament-seal" />
+              </svg>
+              <p class="details-keepsake__script script" data-content="content.detailsKeepsakeTitle">with joy</p>
+              <span class="details-keepsake__rule" aria-hidden="true"></span>
+              <p class="details-keepsake__note" data-content="content.kindlyReplyNote">Please send your response using the card below.</p>
+              <p class="details-keepsake__deadline">Kindly reply by <span data-content="rsvp.deadline">the first of August, 2027</span></p>
+              <a class="btn btn--light details-keepsake__cta" href="#rsvp" data-content="content.respondLabel">Respond to the invitation</a>
+            </aside>
           </div>
         </div>
       </section>
@@ -760,14 +589,9 @@
          № 07 · VENUE & LOCATION
          ══════════════════════════════════════════════════════════ -->
       <section id="venue" class="scene scene--venue scene--night" aria-labelledby="venue-title">
-        <figure class="venue-feature reveal reveal--media">
-          <picture>
-            <img src="assets/images/venue-feature.jpg" data-image="images.venue" width="1344" height="768"
-              alt="Illustrative reception table with small flowers, glassware, and patterned napkins"
-              loading="lazy" decoding="async" fetchpriority="low">
-          </picture>
-        </figure>
-
+        <svg class="venue-lace" aria-hidden="true" focusable="false">
+          <use href="#lace" />
+        </svg>
         <div class="venue-body">
           <div class="container">
             <div class="venue-head reveal">
@@ -968,10 +792,6 @@
             <span data-content="venue.name">The Linden Estate</span>
           </p>
           <p class="closing-message" data-content="content.closingMessage">Thank you, from the bottom of our hearts, for being part of our story. We cannot wait to celebrate with you beneath the linden trees.</p>
-
-       
-
-         
         </div>
       </section>
 

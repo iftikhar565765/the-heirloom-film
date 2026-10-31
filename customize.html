@@ -49,7 +49,14 @@
           </div>
             <span class="step-number">YOUR EDITOR</span>
         </div>
-        <p class="editor-intro">Open a chapter to refine shared details. You can also select text and photographs in the preview to edit them in place.</p>
+        <p class="editor-intro">Open a chapter to refine shared details. You can also click any text or colour in the live preview to edit it in place.</p>
+
+        <div class="access-code-row" id="access-code-row" hidden>
+          <label for="access-code">Access code</label>
+          <input id="access-code" type="password" autocomplete="off" spellcheck="false"
+            placeholder="Paste the code from your purchase">
+          <span class="field-hint">This editor is protected by an access code. Paste it once — it stays in this browser for the session.</span>
+        </div>
         <div class="editor-actions">
           <span class="editor-actions__label">YOUR DETAILS</span>
           <button type="button" class="text-button" id="reset-config">Restore sample</button>
@@ -79,10 +86,6 @@
         <div class="preview-frame">
           <iframe id="invitation-preview" title="Live preview of your wedding invitation" src="index.html"></iframe>
           <div class="preview-loading" id="preview-loading">Preparing your invitation…</div>
-          <div class="canvas-image-action" id="canvas-image-action" hidden>
-            <span id="canvas-image-label">Selected image</span>
-            <button type="button" id="replace-selected-image">Replace image</button>
-          </div>
           <div class="canvas-color-action" id="canvas-color-action" hidden>
             <span class="canvas-color-action__title" id="canvas-color-label">Selected element</span>
             <label>
@@ -91,11 +94,10 @@
             </label>
             <button type="button" id="reset-element-colors">Reset</button>
           </div>
-          <input id="canvas-image-file" type="file" accept="image/*" hidden>
         </div>
         <div class="preview-footer">
           <span><i></i> Preview updates as you edit</span>
-          <span>Select text to edit or recolour · select a photo to replace</span>
+          <span>Select text to edit · click elements to recolour</span>
         </div>
       </div>
     </section>
@@ -104,7 +106,7 @@
       <div class="finish-copy">
         <p class="eyebrow">The final touch</p>
         <h2 id="finish-title">Share your invitation</h2>
-        <p>When you’re happy with your invitation, publish to create a shareable link. After that, edits save automatically and update the live invitation.</p>
+        <p>When you’re happy with your invitation, publish to receive your own shareable link — every invitation gets its own unique link. After that, edits save automatically and update the live invitation within seconds.</p>
       </div>
       <div class="download-actions">
         <div class="published-link" id="published-link" hidden>

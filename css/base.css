@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    THE HEIRLOOM FILM · base.css
    Reset · document typography · shared stationery primitives.
-   Everything physical — paper, photos, polaroids, buttons,
+   Everything physical — paper, keepsakes, tape, buttons,
    hairlines, ornaments — is defined once here.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -160,7 +160,7 @@ section[id] { scroll-margin-top: 4.75rem; }
 .display em { font-style: italic; font-weight: 400; }
 .invite-card,
 .rsvp-card,
-.polaroid,
+.folio-card,
 .dm-palette {
   --ink: #292622;
   --ink-soft: #4E4942;
@@ -170,7 +170,7 @@ section[id] { scroll-margin-top: 4.75rem; }
 .rsvp-card .display { color: var(--ink); }
 .invite-card .kicker,
 .rsvp-card .kicker { color: var(--olive-deep); }
-.polaroid { color: var(--ink); }
+.folio-card { color: var(--ink); }
 
 /* ── Section scaffolding ───────────────────────────────────────── */
 .scene {
@@ -330,46 +330,7 @@ html.no-js .nav {
   visibility: visible;
 }
 
-/* ── Photograph primitives ────────────────────────────────────── */
-.photo {
-  position: relative;
-  overflow: hidden;
-  background: var(--parchment);
-  box-shadow: var(--shadow-paper);
-}
-.photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-/* consistent cinematic grade across all photography */
-.photo img,
-.polaroid img,
-.stamp img { filter: none; }
-
-/* arched print — the vintage European frame */
-.photo--arch { border-radius: 999px 999px 6px 6px; }
-
-/* polaroid with a handwriting strip */
-.polaroid {
-  position: relative;
-  display: block;
-  padding: .55rem .55rem 2.6rem;
-  background: linear-gradient(178deg,
-    color-mix(in srgb, var(--paper-raised) 96%, white),
-    color-mix(in srgb, var(--ivory) 90%, var(--parchment)));
-  box-shadow: var(--shadow-paper);
-}
-.polaroid img { width: 100%; object-fit: cover; }
-.polaroid figcaption { --ink-soft: #4E4942; }
-.polaroid figcaption {
-  position: absolute;
-  left: 0; right: 0; bottom: .55rem;
-  text-align: center;
-  font-family: var(--font-hand);
-  font-size: clamp(.95rem, 2.4vw, 1.25rem);
-  color: var(--ink-soft);
-}
+/* ── Keepsake paper primitives ────────────────────────────────── */
 
 /* washi tape — a small piece of translucent paper */
 .tape {

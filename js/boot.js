@@ -104,8 +104,6 @@
     }).then(function () {
       return loadScript('js/rsvp.js');
     }).then(function () {
-      return loadScript('js/gallery.js');
-    }).then(function () {
       pollPublishedConfig();
       announcePreviewReady();
     });

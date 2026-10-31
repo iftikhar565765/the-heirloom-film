@@ -6,16 +6,15 @@
   var frame = document.getElementById('invitation-preview');
   var loading = document.getElementById('preview-loading');
   var hint = document.getElementById('save-hint');
-  var imageAction = document.getElementById('canvas-image-action');
-  var imageActionLabel = document.getElementById('canvas-image-label');
-  var replaceImageButton = document.getElementById('replace-selected-image');
-  var imageFileInput = document.getElementById('canvas-image-file');
   var colorAction = document.getElementById('canvas-color-action');
   var colorActionLabel = document.getElementById('canvas-color-label');
   var textColorInput = document.getElementById('canvas-text-color');
   var resetElementColorsButton = document.getElementById('reset-element-colors');
   var headerSaveStatus = document.getElementById('header-save-status');
   var headerSaveLabel = document.getElementById('header-save-label');
+  var accessCodeRow = document.getElementById('access-code-row');
+  var accessCodeInput = document.getElementById('access-code');
+  var pendingPublishAfterCode = false;
   if (!sourceConfig || !editor || !frame) {
     if (hint) hint.textContent = 'The editor could not load its configuration or preview.';
     return;
@@ -56,7 +55,6 @@
   var config = clone(sourceConfig);
   var previewReady = false;
   var hintTimer = null;
-  var selectedImagePath = '';
   var selectedColorSelector = '';
   var selectedColorDefaults = null;
   var adminEmail = '';
@@ -104,7 +102,6 @@
     var target = config;
     for (var i = 0; i < keys.length - 1; i++) target = target[keys[i]];
     target[keys[keys.length - 1]] = value;
-    if (path.indexOf('images.') === 0) syncImage(path, value);
   }
 
   function syncGlobalField(path, value) {
@@ -186,27 +183,13 @@
     }
   }
 
-  function syncImage(path, value) {
-    editor.querySelectorAll('[data-image-path]').forEach(function (element) {
-      if (element.dataset.imagePath !== path) return;
-      if (element.tagName === 'IMG') {
-        element.src = value;
-        element.classList.remove('is-unavailable');
-      } else if (element.tagName === 'INPUT') {
-        element.value = value.indexOf('data:image/') === 0 ? 'Uploaded photo' : value;
-      } else {
-        element.textContent = value.indexOf('data:image/') === 0 ? 'Uploaded photo' : value.split('/').pop();
-      }
-    });
-  }
-
   function notify(message) {
-    if (hint) hint.textContent = message || 'Click text in the preview to edit it; click an image to replace it.';
+    if (hint) hint.textContent = message || 'Click any text in the preview to edit it in place; click an element to recolour it.';
     setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Editing · changes save automatically' : 'Preview ready · changes are not published');
     if (hintTimer) window.clearTimeout(hintTimer);
     if (message) {
       hintTimer = window.setTimeout(function () {
-        if (hint) hint.textContent = 'Click text in the preview to edit it; click an image to replace it.';
+        if (hint) hint.textContent = 'Click any text in the preview to edit it in place; click an element to recolour it.';
       }, 5000);
     }
     sendPreview();
@@ -258,7 +241,11 @@
             response.status + ').' + (detail ? ' Server response: ' + detail : '') +
             ' Check that the Pages Function at /api/publish is deployed.');
         }
-        if (!response.ok) throw new Error(result.error || 'The invitation could not be saved.');
+        if (!response.ok) {
+          var publishError = new Error(result.error || 'The invitation could not be saved.');
+          if (result && result.codeRequired) publishError.codeRequired = true;
+          throw publishError;
+        }
         return result;
       });
     });
@@ -268,42 +255,9 @@
   }
 
   function prepareConfigForPublish() {
-    var prepared = clone(config);
-    var imagePaths = Object.keys(prepared.images || {}).filter(function (path) {
-      return typeof prepared.images[path] === 'string' &&
-        prepared.images[path].indexOf('data:image/') === 0;
-    });
-
-    return imagePaths.reduce(function (chain, path) {
-      return chain.then(function () {
-        return fetch(prepared.images[path]).then(function (response) {
-          if (!response.ok) throw new Error('A replacement photo could not be prepared for publishing.');
-          return response.blob();
-        }).then(function (blob) {
-          if (blob.size > 5 * 1024 * 1024) {
-            throw new Error('A replacement photo is over 5 MB. Choose a smaller image.');
-          }
-          var form = new FormData();
-          form.append('image', blob, path.split('.').pop() + '.jpg');
-          return fetch('/api/images', { method: 'POST', body: form });
-        }).then(function (response) {
-          return response.json().catch(function () {
-            throw new Error('The image service returned an unreadable response.');
-          }).then(function (result) {
-            if (!response.ok) throw new Error(result.error || 'A replacement photo could not be uploaded.');
-            prepared.images[path] = result.url;
-            if (getPath('images.' + path) === config.images[path]) {
-              config.images[path] = result.url;
-              syncImage('images.' + path, result.url);
-            }
-          });
-        });
-      });
-    }, Promise.resolve()).then(function () {
-      config.templateId = config.templateId || 'heirloom-film';
-      sendPreview();
-      return clone(config);
-    });
+    config.templateId = config.templateId || 'heirloom-film';
+    sendPreview();
+    return Promise.resolve(clone(config));
   }
 
   function updatePublishedLink(url) {
@@ -319,8 +273,6 @@
   function scheduleRemoteSave() {
     if (!publishId || !ownerToken || snapshot() === lastSavedSnapshot ||
         snapshot() === blockedSnapshot) return;
-    var emailInput = document.getElementById('rsvp-admin-email');
-    if (!adminEmail.trim() || !emailInput || !emailInput.checkValidity()) return;
     if (saveTimer) window.clearTimeout(saveTimer);
     saveTimer = window.setTimeout(savePublishedChanges, 700);
   }
@@ -364,11 +316,11 @@
   function publishInvitation() {
     if (managedLoading || saveInFlight) return;
     var emailInput = document.getElementById('rsvp-admin-email');
-    if (!adminEmail.trim() || !emailInput.checkValidity()) {
-      emailInput.setCustomValidity('Enter a valid admin email to receive RSVP replies.');
+    if (adminEmail.trim() && emailInput && !emailInput.checkValidity()) {
+      emailInput.setCustomValidity('Enter a valid email address, or leave it empty.');
       emailInput.reportValidity();
       emailInput.focus();
-      notify('Enter a valid admin email before publishing.');
+      notify('The RSVP email looks incomplete — correct it or leave it empty.');
       return;
     }
 
@@ -381,13 +333,17 @@
     var publishingSnapshot = '';
     prepareConfigForPublish().then(function (publishingConfig) {
       publishingSnapshot = snapshot();
-      return requestPublish({
+      var payload = {
         action: 'publish',
         id: publishId,
         config: publishingConfig,
         adminEmail: publishingEmail
-      }, ownerToken);
+      };
+      if (getAccessCode()) payload.accessCode = getAccessCode();
+      return requestPublish(payload, ownerToken);
     }).then(function (result) {
+      pendingPublishAfterCode = false;
+      if (accessCodeRow) accessCodeRow.hidden = true;
       publishId = result.id;
       if (result.token) {
         ownerToken = result.token;
@@ -408,8 +364,18 @@
       renderRsvpResponses(result.responses || []);
       scheduleRemoteSave();
     }).catch(function (error) {
-      notify('Could not publish the invitation: ' + error.message);
-      setSaveStatus('error', 'Publishing needs attention');
+      if (error && error.codeRequired) {
+        pendingPublishAfterCode = true;
+        if (accessCodeRow) {
+          accessCodeRow.hidden = false;
+          if (accessCodeInput) accessCodeInput.focus();
+        }
+        notify('This editor is protected by an access code. Paste the code from your purchase to continue.');
+        setSaveStatus('preview', 'Access code required');
+      } else {
+        notify('Could not publish the invitation: ' + (error && error.message ? error.message : 'unexpected error'));
+        setSaveStatus('error', 'Publishing needs attention');
+      }
     }).finally(function () {
       if (publishButton) {
         publishButton.disabled = false;
@@ -449,12 +415,13 @@
       publishId = result.id;
       publishRevision = result.revision;
       config = result.config;
-      adminEmail = result.adminEmail;
+      adminEmail = typeof result.adminEmail === 'string' ? result.adminEmail : '';
       lastSavedSnapshot = snapshot();
       blockedSnapshot = '';
       renderSidebar();
       updatePublishedLink(window.location.origin + window.location.pathname.replace(/customize\.html$/, '') +
         'index.html?invite=' + encodeURIComponent(publishId));
+      renderRsvpResponses(result.responses || []);
       if (publishButton) publishButton.textContent = 'Publish latest changes';
       sendPreview();
       notify('Published invitation loaded. Changes save automatically.');
@@ -609,18 +576,128 @@
     editor.appendChild(calendarNote);
   }
 
+  function addSimpleField(parent, path, label, opts) {
+    opts = opts || {};
+    var value = getPath(path);
+    if (typeof value !== 'string' && typeof value !== 'number') return;
+    var field = document.createElement('div');
+    field.className = 'field' + (opts.wide ? ' field--wide' : '');
+    var labelEl = document.createElement('label');
+    labelEl.textContent = label;
+    var input = document.createElement(opts.options ? 'select' : (opts.multiline ? 'textarea' : 'input'));
+    input.id = 'f-' + path.replace(/[^a-z0-9]/gi, '-');
+    labelEl.htmlFor = input.id;
+    if (!opts.options && !opts.multiline) input.type = opts.type || 'text';
+    if (opts.multiline) input.rows = opts.rows || 3;
+    if (opts.options) {
+      opts.options.forEach(function (option) {
+        var el = document.createElement('option');
+        el.value = option[0];
+        el.textContent = option[1];
+        input.appendChild(el);
+      });
+      input.value = String(value);
+    } else {
+      input.value = String(value == null ? '' : value);
+      if (opts.placeholder) input.placeholder = opts.placeholder;
+    }
+    input.addEventListener('input', function () {
+      var next = input.value;
+      if (opts.type === 'number') {
+        var parsed = parseInt(input.value, 10);
+        if (!isFinite(parsed)) return;
+        next = Math.min(opts.max || 20, Math.max(opts.min || 1, parsed));
+      }
+      setPath(path, next);
+      if (opts.after) opts.after(next);
+      notify();
+    });
+    field.appendChild(labelEl);
+    field.appendChild(input);
+    if (opts.hint) {
+      var hintEl = document.createElement('span');
+      hintEl.className = 'field-hint';
+      hintEl.textContent = opts.hint;
+      field.appendChild(hintEl);
+    }
+    parent.appendChild(field);
+  }
+
+  function addWordingSettings() {
+    var section = document.createElement('section');
+    section.className = 'global-settings-group';
+    var heading = document.createElement('h3');
+    heading.textContent = 'Story & wording';
+    section.appendChild(heading);
+    var description = document.createElement('p');
+    description.className = 'field-hint';
+    description.textContent = 'The words that carry your invitation. Every field also edits in place — click the matching text in the preview.';
+    section.appendChild(description);
+    var grid = document.createElement('div');
+    grid.className = 'field-grid';
+    addSimpleField(grid, 'content.storyTitle', 'Story heading', { hint: 'The large editorial word, e.g. “Our”.' });
+    addSimpleField(grid, 'content.storyTitleScript', 'Story heading script', { hint: 'The script word beneath it, e.g. “Story”.' });
+    addSimpleField(grid, 'content.storyParagraphOne', 'Story · first paragraph', { wide: true, multiline: true, rows: 3 });
+    addSimpleField(grid, 'content.storyParagraphTwo', 'Story · second paragraph', { wide: true, multiline: true, rows: 3 });
+    addSimpleField(grid, 'content.storyQuote', 'Keepsake quote', { wide: true, multiline: true, rows: 2, hint: 'The quote pinned to the keepsake folio.' });
+    addSimpleField(grid, 'content.storyQuoteLabel', 'Keepsake quote credit', { wide: true });
+    addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
+    addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
+    section.appendChild(grid);
+    editor.appendChild(section);
+  }
+
+  function addMomentsSettings() {
+    var section = document.createElement('section');
+    section.className = 'global-settings-group';
+    var heading = document.createElement('h3');
+    heading.textContent = 'Wedding-day words';
+    section.appendChild(heading);
+    var description = document.createElement('p');
+    description.className = 'field-hint';
+    description.textContent = 'One word per line — the moments of your day, shown in the framed programme. Clear every line to hide that section entirely.';
+    section.appendChild(description);
+    var field = document.createElement('div');
+    field.className = 'field field--wide';
+    var label = document.createElement('label');
+    label.htmlFor = 'moments-lines';
+    label.textContent = 'Moments of the day';
+    var textarea = document.createElement('textarea');
+    textarea.id = label.htmlFor;
+    textarea.rows = 6;
+    textarea.value = (Array.isArray(config.moments) ? config.moments : []).join('\n');
+    textarea.addEventListener('input', function () {
+      config.moments = textarea.value.split('\n')
+        .map(function (line) { return line.trim(); })
+        .filter(function (line) { return line.length > 0; });
+      notify('Wedding-day words updated.');
+    });
+    field.appendChild(label);
+    field.appendChild(textarea);
+    section.appendChild(field);
+    editor.appendChild(section);
+  }
+
   function addRsvpSettings() {
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'RSVP email delivery';
+    heading.textContent = 'RSVP & replies';
     section.appendChild(heading);
+
+    var grid = document.createElement('div');
+    grid.className = 'field-grid';
+    addSimpleField(grid, 'rsvp.deadline', 'Reply-by date shown to guests', { wide: true, hint: 'Written as you would like guests to read it, e.g. “the first of August, 2027”.' });
+    addSimpleField(grid, 'rsvp.maxGuests', 'Largest party size per reply', {
+      type: 'number', min: 1, max: 20, wide: true,
+      hint: 'Guests can reserve 1 up to this many seats. The limit is enforced again on the server.'
+    });
 
     var field = document.createElement('div');
     field.className = 'field field--wide';
     var label = document.createElement('label');
     label.htmlFor = 'rsvp-admin-email';
-    label.textContent = 'Admin email receiving replies';
+    label.textContent = 'Email for reply notifications (optional)';
     var input = document.createElement('input');
     input.id = label.htmlFor;
     input.type = 'email';
@@ -630,15 +707,16 @@
     input.addEventListener('input', function () {
       adminEmail = input.value.trim();
       input.setCustomValidity('');
-      notify('Saving your RSVP recipient with the published invitation…');
+      notify('Saving your RSVP settings with the published invitation…');
     });
     field.appendChild(label);
     field.appendChild(input);
 
     var note = document.createElement('span');
     note.className = 'field-hint';
-    note.textContent = 'The recipient is saved privately on the server when you publish; it is never included in the public invitation.';
+    note.textContent = 'Optional — every reply is always listed under “Guest replies” when you reopen your edit link. Add an email and the platform also forwards each reply by email when notifications are configured.';
     field.appendChild(note);
+    section.appendChild(grid);
     section.appendChild(field);
     editor.appendChild(section);
   }
@@ -892,7 +970,9 @@
     });
     editor.textContent = '';
     addSharedFields();
+    addWordingSettings();
     addOpeningSettings();
+    addMomentsSettings();
     addRsvpSettings();
     addAppearanceSettings();
     addTypographySettings();
@@ -934,35 +1014,6 @@
     });
   }
 
-  function embedImageFile(file, path) {
-    if (!file || !file.type || file.type.indexOf('image/') !== 0) {
-      notify('Choose an image file to replace this photograph.');
-      return;
-    }
-    var reader = new FileReader();
-    reader.onerror = function () { notify('This photo could not be read. Please try another file.'); };
-    reader.onload = function () {
-      var image = new Image();
-      image.onerror = function () { notify('This image could not be opened. Please try another file.'); };
-      image.onload = function () {
-        var scale = Math.min(1, 2000 / Math.max(image.naturalWidth, image.naturalHeight));
-        var canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
-        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
-        var context = canvas.getContext('2d');
-        if (!context) {
-          notify('Your browser could not prepare this image. Try another browser or image.');
-          return;
-        }
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        setPath(path, canvas.toDataURL('image/jpeg', 0.84));
-        notify('Photo replaced. It will be included in the next live save.');
-      };
-      image.src = String(reader.result);
-    };
-    reader.readAsDataURL(file);
-  }
-
   function handlePreviewMessage(event) {
     if (event.source !== frame.contentWindow || event.origin !== window.location.origin || !event.data) return;
     var message = event.data;
@@ -978,33 +1029,21 @@
       return;
     }
     if (message.type === 'heirloom:element-selected') {
-      if (message.element === 'image' && typeof message.path === 'string' &&
-          message.path.indexOf('images.') === 0 && typeof getPath(message.path) === 'string') {
-        selectedImagePath = message.path;
-        selectedColorSelector = '';
-        if (imageActionLabel) imageActionLabel.textContent = 'Selected: ' + (message.label || 'image');
-        if (imageAction) imageAction.hidden = false;
-        if (colorAction) colorAction.hidden = true;
-        if (hint) hint.textContent = 'Image selected. Choose Replace image to upload its replacement.';
-      } else if ((message.element === 'color' || message.element === 'text') &&
+      if ((message.element === 'color' || message.element === 'text') &&
           typeof message.selector === 'string' && message.selector.indexOf('body > ') === 0 &&
           /^#[0-9a-f]{6}$/i.test(message.color || '') &&
           message.anchor && Number.isFinite(message.anchor.left) &&
           Number.isFinite(message.anchor.top) && Number.isFinite(message.anchor.width) &&
           Number.isFinite(message.anchor.height)) {
-        selectedImagePath = '';
         selectedColorSelector = message.selector;
         selectedColorDefaults = { color: message.color };
         var savedColors = config.colorEdits && config.colorEdits[selectedColorSelector];
         if (textColorInput) textColorInput.value = savedColors && savedColors.color || message.color;
         if (colorActionLabel) colorActionLabel.textContent = message.label || 'Selected element';
         if (colorAction) colorAction.hidden = false;
-        if (imageAction) imageAction.hidden = true;
         positionColorTooltip(message.anchor);
         if (hint) hint.textContent = 'Element selected. Choose a text colour to update it in the preview.';
       } else {
-        selectedImagePath = '';
-        if (imageAction) imageAction.hidden = true;
         selectedColorSelector = '';
         if (colorAction) colorAction.hidden = true;
         if (hint && message.element === 'text') {
@@ -1053,20 +1092,36 @@
 
   function validConfig(value) {
     return value && typeof value === 'object' && !Array.isArray(value) &&
-      value.couple && value.wedding && value.venue && value.content && value.images &&
+      value.couple && value.wedding && value.venue && value.content &&
       (value.palette == null || Array.isArray(value.palette)) &&
       (value.moments == null || Array.isArray(value.moments));
   }
 
   window.addEventListener('message', handlePreviewMessage);
-  if (replaceImageButton && imageFileInput) {
-    replaceImageButton.addEventListener('click', function () {
-      if (selectedImagePath) imageFileInput.click();
-    });
-    imageFileInput.addEventListener('change', function () {
-      var file = imageFileInput.files && imageFileInput.files[0];
-      if (file && selectedImagePath) embedImageFile(file, selectedImagePath);
-      imageFileInput.value = '';
+
+  /* ── access code (optional seller gate) ─────────────────────── */
+  function getAccessCode() {
+    if (accessCodeInput && accessCodeInput.value.trim()) return accessCodeInput.value.trim();
+    try { return window.sessionStorage.getItem('heirloom-access-code') || ''; }
+    catch (error) { return ''; }
+  }
+  if (accessCodeInput) {
+    try {
+      var storedCode = window.sessionStorage.getItem('heirloom-access-code');
+      if (storedCode) accessCodeInput.value = storedCode;
+    } catch (error) { /* session storage unavailable — the field still works */ }
+    accessCodeInput.addEventListener('input', function () {
+      try {
+        if (accessCodeInput.value.trim()) {
+          window.sessionStorage.setItem('heirloom-access-code', accessCodeInput.value.trim());
+        } else {
+          window.sessionStorage.removeItem('heirloom-access-code');
+        }
+      } catch (error) { /* private mode — keep the code in memory only */ }
+      if (pendingPublishAfterCode && accessCodeInput.value.trim()) {
+        pendingPublishAfterCode = false;
+        publishInvitation();
+      }
     });
   }
   function positionColorTooltip(anchor) {

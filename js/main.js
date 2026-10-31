@@ -54,22 +54,6 @@
       var value = getConfigValue(el.getAttribute('data-content'));
       if (value != null) el.textContent = value;
     });
-    document.querySelectorAll('[data-image]').forEach(function (el) {
-      var value = getConfigValue(el.getAttribute('data-image'));
-      if (typeof value === 'string' && value) el.setAttribute('src', value);
-    });
-    document.querySelectorAll('[data-alt]').forEach(function (el) {
-      var value = getConfigValue(el.getAttribute('data-alt'));
-      if (typeof value === 'string' && value) el.setAttribute('alt', value);
-    });
-    document.querySelectorAll('[data-caption-content]').forEach(function (el) {
-      var value = getConfigValue(el.getAttribute('data-caption-content'));
-      if (value != null) el.setAttribute('data-caption', value);
-    });
-    document.querySelectorAll('[data-meta-content]').forEach(function (el) {
-      var value = getConfigValue(el.getAttribute('data-meta-content'));
-      if (value != null) el.setAttribute('data-meta', value);
-    });
     document.querySelectorAll('[data-placeholder-content]').forEach(function (el) {
       var value = getConfigValue(el.getAttribute('data-placeholder-content'));
       if (value != null) el.setAttribute('placeholder', value);
@@ -269,12 +253,6 @@
         'outline:1px dashed rgba(205,187,154,.95)!important;' +
         'outline-offset:4px!important;cursor:text!important;' +
       '}' +
-      'img[data-image]{cursor:pointer!important;pointer-events:auto!important;}' +
-      '#heirloom-gallery .hg-plate{pointer-events:auto!important;}' +
-      'img[data-image].heirloom-editor-image-selected{' +
-        'outline:2px solid rgba(205,187,154,.95)!important;' +
-        'outline-offset:3px!important;' +
-      '}' +
       '.heirloom-editor-color-selected{' +
         'outline:1px dashed rgba(205,187,154,.9)!important;' +
         'outline-offset:3px!important;' +
@@ -295,9 +273,6 @@
       if (textElement && textPath && typeof getConfigValue(textPath) === 'string') {
         event.stopPropagation();
         if (textElement === activeText) return;
-        document.querySelectorAll('.heirloom-editor-image-selected').forEach(function (item) {
-          item.classList.remove('heirloom-editor-image-selected');
-        });
         if (textElement.closest('a, button')) event.preventDefault();
         if (activeText && activeText !== textElement) activeText.blur();
         if (activeColorElement && activeColorElement !== textElement) {
@@ -336,28 +311,7 @@
         return;
       }
 
-      var image = event.target.closest('img[data-image]');
-      if (image) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (activeText) activeText.blur();
-        activeText = null;
-        if (activeColorElement) activeColorElement.classList.remove('heirloom-editor-color-selected');
-        activeColorElement = null;
-        document.querySelectorAll('.heirloom-editor-image-selected').forEach(function (item) {
-          item.classList.remove('heirloom-editor-image-selected');
-        });
-        image.classList.add('heirloom-editor-image-selected');
-        previewMessage({
-          type: 'heirloom:element-selected',
-          element: 'image',
-          path: image.getAttribute('data-image'),
-          label: image.alt || image.getAttribute('data-image')
-        });
-        return;
-      }
-
-      var colorElement = event.target.closest('a, button, p, h1, h2, h3, h4, li, span, strong, em');
+      var colorElement = event.target.closest('a, button, p, h1, h2, h3, h4, li, span, strong, em, blockquote');
       if (colorElement && !colorElement.closest('[data-nav], #mobile-menu')) {
         event.preventDefault();
         event.stopPropagation();
@@ -371,9 +325,6 @@
       }
 
       previewMessage({ type: 'heirloom:element-selected', element: 'none' });
-      document.querySelectorAll('.heirloom-editor-image-selected').forEach(function (item) {
-        item.classList.remove('heirloom-editor-image-selected');
-      });
       if (activeColorElement) activeColorElement.classList.remove('heirloom-editor-color-selected');
       activeColorElement = null;
       if (activeText) activeText.blur();
@@ -549,7 +500,7 @@
 
   /* Active-section highlighting in the nav */
   (function initActiveLinks() {
-    var ids = ['story', 'heirloom-gallery', 'details', 'venue', 'rsvp'];
+    var ids = ['story', 'details', 'venue', 'rsvp'];
     var links = {};
     document.querySelectorAll('.nav__links a').forEach(function (a) {
       var id = (a.getAttribute('href') || '').replace('#', '');

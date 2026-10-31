@@ -13,6 +13,7 @@ function cleanText(value, maxLength) {
 }
 
 async function sendNotification(env, record, reply) {
+  if (!record.recipient) return false;
   if (!env.RESEND_API_KEY || !env.RSVP_FROM) return false;
   const attendance = reply.attendance === "attending" ? "Attending" : "Declining";
   const text = [
