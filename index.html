@@ -5,27 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <!-- ============================================================
-       THE HEIRLOOM FILM — a burgundy-heirloom wedding invitation
-       ------------------------------------------------------------
-       EDIT BEFORE PUBLICATION — values marked "EDIT" throughout:
-       · Couple names & monogram   · Wedding date & time
-       · Venue, address, map link  · Story & closing copy (sample)
-       · Itinerary (js/config.js)  · Canonical / OG URLs
-       Dynamic values load from js/config.js or a published invitation.
-       Full guide: README.md
-       ============================================================ -->
-
-  <!-- EDIT: page title -->
   <title>Amelia &amp; Julien · 18 September 2027 — A Love Letter</title>
-  <!-- EDIT: meta description -->
   <meta name="description"
     content="Amelia and Julien request the pleasure of your company at The Linden Estate, Willowbrook, on Saturday the eighteenth of September 2027. Open your invitation.">
-  <!-- Keep the sample invite out of search until its details and URLs are personalised. -->
   <meta name="robots" content="noindex, nofollow">
-  <!-- Add canonical and social URLs when publishing the personalised invitation. -->
 
-  <!-- Open Graph / social sharing — EDIT: use absolute URLs when published -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Heirloom Film">
   <meta property="og:title" content="Amelia &amp; Julien — An Invitation · 18.09.2027" data-meta-property="og:title" data-meta-content="content.socialTitle">
@@ -38,7 +22,6 @@
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
-  <!-- Typography: Bodoni Moda (editorial) · Cormorant Garamond (romantic serif) · Pinyon Script (names only) · La Belle Aurore (handwriting) · Jost (functional) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -245,7 +228,7 @@
         </nav>
 
         <div class="nav__controls">
-          <!-- Optional ambient music — appears only when js/config.js provides a file -->
+          <!-- Optional ambient music -->
           <button id="audio-toggle" class="icon-btn" type="button" aria-pressed="false" aria-label="Play ambient music"
             hidden></button>
           <button id="menu-toggle" class="icon-btn menu-toggle" type="button" aria-expanded="false"
@@ -352,7 +335,7 @@
             <p class="kicker" data-content="content.storyKicker">№ 02 · Their Story</p>
             <h2 id="story-title" class="story-title"><span data-content="content.storyTitle">Our</span> <span class="script-inline" data-content="content.storyTitleScript">Story</span></h2>
             <div class="prose">
-              <!-- EDIT: replace with your own love story -->
+              <!-- the couple's story -->
               <p data-content="content.storyParagraphOne">Every love story deserves a beautiful beginning, and ours started in the most ordinary of places — a crowded bookshop, a shared table, and one conversation neither of us wanted to end.</p>
               <p data-content="content.storyParagraphTwo">Three cities, a thousand small adventures and one borrowed umbrella later, we are finally writing the chapter we always dreamed of. We would love nothing more than to have you beside us as we turn the page.</p>
             </div>
@@ -862,8 +845,8 @@
                   <span data-content="content.rsvpSubmitLabel">Send Response</span>
                 </button>
                 <p class="rsvp-note" id="rsvp-demo-note">
-                  <strong>Demonstration mode</strong> — replies are checked here but never sent or stored.
-                  Publish this invitation to save guest replies.
+                  <strong>Sample invitation</strong> — this is the template, so replies are not collected yet.
+                  On your own invitation, every reply is gathered here and saved for you automatically.
                 </p>
                 <p class="rsvp-status" id="rsvp-status"><span id="rsvp-live" role="status" aria-live="polite"></span>
                 </p>
@@ -874,8 +857,8 @@
               <p class="script-intro">with gratitude, we have your reply</p>
               <dl class="rsvp__summary rsvp-summary"></dl>
               <p class="rsvp-note rsvp__demo-note">
-                This is a preview of your reply. <strong>Nothing has been sent or stored</strong> —
-                this invitation is currently running in demonstration mode.
+                This is a preview of your reply. <strong>Nothing has been sent</strong> —
+                the sample invitation is simply showing you how it will work.
               </p>
               <div class="rsvp-actions">
                 <button id="rsvp-edit" class="btn btn--ghost" type="button" data-content="content.rsvpAmendLabel">Amend the reply</button>

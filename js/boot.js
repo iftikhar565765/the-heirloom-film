@@ -92,6 +92,18 @@
 
   function startSite() {
     return loadScript('js/config.js').then(function () {
+      /* The editor's "See it as a guest" link opens this page with
+         ?preview=1 — show the couple's latest edits from this browser
+         instead of the sample, so the preview is always honest.      */
+      if (!inviteId && new URLSearchParams(window.location.search).get('preview')) {
+        try {
+          var stored = window.localStorage.getItem('heirloom-preview-config');
+          if (stored) {
+            var parsed = JSON.parse(stored);
+            if (parsed && typeof parsed === 'object') window.HEIRLOOM = parsed;
+          }
+        } catch (error) { /* fall back to the sample invitation */ }
+      }
       if (!inviteId) return null;
       return requestPublishedConfig().then(function (result) {
         revision = result.revision;

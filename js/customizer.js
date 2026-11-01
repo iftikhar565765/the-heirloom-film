@@ -129,6 +129,7 @@
   var saveInFlight = false;
   var managedLoading = false;
   var publishButton = document.getElementById('publish-invitation');
+  var finishPublishButton = document.getElementById('publish-invitation-finish');
   var publishedLink = document.getElementById('published-link');
   var publishedUrl = document.getElementById('published-url');
   var copyPublishedUrl = document.getElementById('copy-published-url');
@@ -143,18 +144,18 @@
   var headerCopyPublishedUrl = document.getElementById('header-copy-published-url');
   var headerSubmissionsButton = document.getElementById('header-submissions-button');
   var globalFields = [
-    { path: 'couple.partnerOne', label: 'First partner', group: 'couple' },
-    { path: 'couple.partnerTwo', label: 'Second partner', group: 'couple' },
-    { path: 'couple.namesLine', label: 'Couple names across the invitation', group: 'couple' },
-    { path: 'couple.initials', label: 'Shared monogram', group: 'couple' },
-    { path: 'venue.name', label: 'Venue name repeated in the invitation', group: 'couple' },
-    { path: 'wedding.iso', label: 'Wedding date & time · event start', group: 'date', type: 'datetime-local', wide: true },
-    { path: 'wedding.endIso', label: 'Event end date & time', group: 'date', type: 'datetime-local', wide: true },
-    { path: 'wedding.numerals', label: 'Date in numerals', group: 'date', type: 'date' },
-    { path: 'wedding.zoneLabel', label: 'Venue time-zone label', group: 'date' },
+    { path: 'couple.partnerOne', label: 'First partner name', group: 'couple' },
+    { path: 'couple.partnerTwo', label: 'Second partner name', group: 'couple' },
+    { path: 'couple.namesLine', label: 'Names as they appear together', group: 'couple' },
+    { path: 'couple.initials', label: 'Monogram initials · e.g. A·J', group: 'couple' },
+    { path: 'venue.name', label: 'Venue name', group: 'couple' },
+    { path: 'wedding.iso', label: 'Ceremony start · date & time', group: 'date', type: 'datetime-local', wide: true },
+    { path: 'wedding.endIso', label: 'Celebration end · date & time', group: 'date', type: 'datetime-local', wide: true },
+    { path: 'wedding.numerals', label: 'Date shown in numerals', group: 'date', type: 'date' },
+    { path: 'wedding.zoneLabel', label: 'Time-zone label for guests', group: 'date' },
     { path: 'wedding.eventTitle', label: 'Calendar event title', group: 'date', wide: true },
-    { path: 'venue.mapsQuery', label: 'Location name or address', group: 'venue', wide: true },
-    { path: 'venue.mapUrl', label: 'Google Maps URL (optional)', group: 'venue', type: 'url', wide: true }
+    { path: 'venue.mapsQuery', label: 'Venue name or address for Maps', group: 'venue', wide: true },
+    { path: 'venue.mapUrl', label: 'Exact map link · optional', group: 'venue', type: 'url', wide: true }
   ];
 
   function clone(value) {
@@ -254,16 +255,18 @@
   }
 
   function notify(message) {
-    if (hint) hint.textContent = message || 'Click any text in the preview to edit it in place; click an element to recolour it.';
-    setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Editing · changes save automatically' : 'Preview ready · changes are not published');
+    if (hint) hint.textContent = message || 'Tip · click any text on the invitation to edit it right there, or click a colour to change it.';
+    setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live · saving your changes as you edit' : 'Draft · only you can see this');
     if (hintTimer) window.clearTimeout(hintTimer);
     if (message) {
       hintTimer = window.setTimeout(function () {
-        if (hint) hint.textContent = 'Click any text in the preview to edit it in place; click an element to recolour it.';
+        if (hint) hint.textContent = 'Tip · click any text on the invitation to edit it right there, or click a colour to change it.';
       }, 5000);
     }
     sendPreview();
     scheduleRemoteSave();
+    storePreviewConfig();
+    updateSetupChecklist();
   }
 
   function setSaveStatus(state, message) {
@@ -276,6 +279,14 @@
 
   function snapshot() {
     return JSON.stringify({ config: config });
+  }
+
+  /* The full-page guest preview (?preview=1) reads the latest edits
+     straight from this browser, so “See it as a guest” is always
+     honest — even before publishing.                               */
+  function storePreviewConfig() {
+    try { window.localStorage.setItem('heirloom-preview-config', JSON.stringify(config)); }
+    catch (error) { /* private mode — the in-editor preview still works */ }
   }
 
   function requestPublish(data, token) {
@@ -301,9 +312,9 @@
           result = JSON.parse(body);
         } catch (error) {
           if (response.status === 405) {
-            throw new Error('The invitation could not be saved. The publishing service is not responding as expected — please try again in a moment.');
+            throw new Error('The studio is having a brief moment — please try again in a minute.');
           }
-          throw new Error('The invitation could not be saved. The publishing service replied unexpectedly — please try again in a moment.');
+          throw new Error('We could not reach the studio just then — please try again in a moment.');
         }
         if (!response.ok) {
           var publishError = new Error(result.error || 'The invitation could not be saved.');
@@ -370,13 +381,13 @@
       updatePublishedLink(result.url);
       if (snapshot() !== lastSavedSnapshot) scheduleRemoteSave();
       else {
-        if (hint) hint.textContent = 'All changes saved · your live invitation is up to date.';
-        setSaveStatus('saved', 'All changes saved');
+        if (hint) hint.textContent = 'All changes saved · your link is up to date.';
+        setSaveStatus('saved', 'All changes saved · your link is up to date');
       }
     }).catch(function (error) {
       blockedSnapshot = savedSnapshot || snapshot();
-      notify('Could not update the live invitation: ' + error.message);
-      setSaveStatus('error', 'Could not save changes');
+      notify('We could not save that last change: ' + error.message);
+      setSaveStatus('error', 'Needs your attention');
     }).finally(function () {
       saveInFlight = false;
       if (publishButton && !managedLoading) publishButton.disabled = false;
@@ -409,7 +420,7 @@
       if (result.token) {
         ownerToken = result.token;
         try { window.localStorage.setItem('heirloom-owner:' + publishId, ownerToken); }
-        catch (error) { notify('Published, but this browser could not save the private edit key. Keep this editor tab open to retain access.'); }
+        catch (error) { notify('Your invitation is live. This device is in private mode, so it cannot remember your edit link — please keep this tab open.'); }
       }
       publishRevision = result.revision;
       lastSavedSnapshot = publishingSnapshot;
@@ -417,11 +428,12 @@
       updatePublishedLink(result.url);
       renderRsvpResponses([]);
       if (publishButton) publishButton.textContent = 'Publish latest changes';
+      if (finishPublishButton) finishPublishButton.hidden = true;
       var url = new URL(window.location.href);
       url.searchParams.set('edit', publishId);
       window.history.replaceState({}, '', url.toString());
-      notify('Published. This link is live, and future changes save automatically.');
-      setSaveStatus('saved', 'Published · edits stay in sync');
+      notify('Your invitation is live! Send the link below to your guests — every change you make from now on saves by itself.');
+      setSaveStatus('saved', 'Live · every change saves by itself');
       renderRsvpResponses(result.responses || []);
       scheduleRemoteSave();
     }).catch(function (error) {
@@ -432,10 +444,10 @@
           if (accessCodeInput) accessCodeInput.focus();
         }
         notify('This editor is protected by an access code. Paste the code from your purchase to continue.');
-        setSaveStatus('preview', 'Access code required');
+        setSaveStatus('preview', 'Access code needed');
       } else {
-        notify('Could not publish the invitation: ' + (error && error.message ? error.message : 'unexpected error'));
-        setSaveStatus('error', 'Publishing needs attention');
+        notify('We could not publish your invitation: ' + (error && error.message ? error.message : 'please try again in a moment.'));
+        setSaveStatus('error', 'Needs your attention');
       }
     }).finally(function () {
       if (publishButton) {
@@ -454,13 +466,13 @@
     catch (error) {
       managedLoading = false;
       if (publishButton) publishButton.disabled = false;
-      notify('This browser blocked access to the saved invitation edit key.');
+      notify('This device is in private mode, so your saved edit link could not be opened. You can still make changes — please keep this tab open.');
       return;
     }
     if (!ownerToken) {
       managedLoading = false;
       if (publishButton) publishButton.disabled = false;
-      notify('This browser does not have the private edit key for that invitation.');
+      notify('This invitation opens on the device where it was created. Open the editor there, or load a saved copy from your files.');
       return;
     }
     fetch('/api/publish?action=manage&id=' + encodeURIComponent(editId), {
@@ -482,11 +494,12 @@
       updatePublishedLink(window.location.origin + '/?invite=' + encodeURIComponent(publishId));
       renderRsvpResponses(result.responses || []);
       if (publishButton) publishButton.textContent = 'Publish latest changes';
+      if (finishPublishButton) finishPublishButton.hidden = true;
       sendPreview();
-      notify('Published invitation loaded. Changes save automatically.');
-      setSaveStatus('saved', 'Published · edits stay in sync');
+      notify('Your invitation is open. Edit anything — every change saves by itself.');
+      setSaveStatus('saved', 'Live · every change saves by itself');
     }).catch(function (error) {
-      notify('Could not load the published invitation: ' + error.message);
+      notify('We could not open your invitation: ' + error.message);
     }).finally(function () {
       managedLoading = false;
       if (publishButton) publishButton.disabled = false;
@@ -575,12 +588,12 @@
     if (field.path === 'wedding.iso' || field.path === 'wedding.endIso') {
       var hintText = document.createElement('span');
       hintText.className = 'field-hint';
-      hintText.textContent = 'Choose the local venue time. Its configured UTC offset is preserved for calendars.';
+      hintText.textContent = 'Set when your ceremony begins, in the venue\u2019s own time \u2014 the countdown and calendar buttons follow automatically.';
       wrapper.appendChild(hintText);
     } else if (field.path === 'venue.mapUrl') {
       var mapHint = document.createElement('span');
       mapHint.className = 'field-hint';
-      mapHint.textContent = 'Paste a Google Maps or Apple Maps link to use that exact location.';
+      mapHint.textContent = 'Have an exact spot in mind? Paste its Google Maps or Apple Maps link and guests will land right on it.';
       wrapper.appendChild(mapHint);
     }
     parent.appendChild(wrapper);
@@ -591,8 +604,8 @@
       var section = document.createElement('section');
       section.className = 'global-settings-group';
       var heading = document.createElement('h3');
-      heading.textContent = group === 'couple' ? 'Names used throughout' :
-        group === 'date' ? 'Wedding date & calendar' : 'Location';
+      heading.textContent = group === 'couple' ? 'The two of you' :
+        group === 'date' ? 'The day' : 'The place';
       section.appendChild(heading);
       var grid = document.createElement('div');
       grid.className = 'field-grid';
@@ -621,7 +634,7 @@
         chooseField.appendChild(chooseButton);
         var chooseHint = document.createElement('span');
         chooseHint.className = 'field-hint';
-        chooseHint.textContent = 'Enter a place name above to update View Location, then use this button to find or confirm it on Maps.';
+        chooseHint.textContent = 'Type the venue\u2019s name or address above, then use this button to double-check the pin on Maps.';
         chooseField.appendChild(chooseHint);
         grid.appendChild(chooseField);
       }
@@ -631,7 +644,7 @@
 
     var calendarNote = document.createElement('p');
     calendarNote.className = 'editor-note';
-    calendarNote.textContent = 'The date in numerals follows the event start date. Changing the start date shifts the event end date by the same number of days. Calendar links use these times; View Location uses the location name or the Maps URL.';
+    calendarNote.textContent = 'Everything updates itself \u2014 change when the day begins, and the numerals, the ending time and every calendar button follow along.';
     editor.appendChild(calendarNote);
   }
 
@@ -686,11 +699,11 @@
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'Story & wording';
+    heading.textContent = 'Your words';
     section.appendChild(heading);
     var description = document.createElement('p');
     description.className = 'field-hint';
-    description.textContent = 'The words that carry your invitation. Every field also edits in place — click the matching text in the preview.';
+    description.textContent = 'Every sentence of your invitation lives here. Shortcut: click the words on the invitation itself and type over them.';
     section.appendChild(description);
     var grid = document.createElement('div');
     grid.className = 'field-grid';
@@ -719,11 +732,11 @@
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'Wedding-day words';
+    heading.textContent = 'The moments of the day';
     section.appendChild(heading);
     var description = document.createElement('p');
     description.className = 'field-hint';
-    description.textContent = 'One word per line — the moments of your day, shown in the framed programme. Clear every line to hide that section entirely.';
+    description.textContent = 'One line per moment — they appear in the framed programme on your invitation. Leave it empty and that part quietly disappears.';
     section.appendChild(description);
     var field = document.createElement('div');
     field.className = 'field field--wide';
@@ -750,15 +763,15 @@
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'RSVP & replies';
+    heading.textContent = 'Guest replies';
     section.appendChild(heading);
 
     var grid = document.createElement('div');
     grid.className = 'field-grid';
-    addSimpleField(grid, 'rsvp.deadline', 'Reply-by date shown to guests', { wide: true, hint: 'Written as you would like guests to read it, e.g. “the first of August, 2027”.' });
-    addSimpleField(grid, 'rsvp.maxGuests', 'Largest party size per reply', {
+    addSimpleField(grid, 'rsvp.deadline', 'Reply-by date', { wide: true, hint: 'Written exactly as guests should read it, e.g. “the first of August, 2027”.' });
+    addSimpleField(grid, 'rsvp.maxGuests', 'Most seats one reply can claim', {
       type: 'number', min: 1, max: 20, wide: true,
-      hint: 'Guests can reserve 1 up to this many seats.'
+      hint: 'For example, 2 lets a guest reply for themselves and their plus-one.'
     });
 
     var note = document.createElement('span');
@@ -773,7 +786,7 @@
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'Opening envelope';
+    heading.textContent = 'The opening envelope';
     section.appendChild(heading);
     var description = document.createElement('p');
     description.className = 'field-hint';
@@ -814,7 +827,7 @@
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'Typography';
+    heading.textContent = 'Typefaces';
     section.appendChild(heading);
     var description = document.createElement('p');
     description.className = 'field-hint';
@@ -940,7 +953,7 @@
     var section = document.createElement('section');
     section.className = 'global-settings-group';
     var heading = document.createElement('h3');
-    heading.textContent = 'Shared look & feel';
+    heading.textContent = 'Colours';
     section.appendChild(heading);
 
     var themeField = document.createElement('div');
@@ -1103,6 +1116,20 @@
     editor.appendChild(section);
   }
 
+  /* Chapters read like a story: a number, a title, one plain line
+     about what lives inside. The setup list links straight here.   */
+  var CHAPTER_META = {
+    'the two of you': { number: '01', blurb: 'Your names and monogram — they appear on the envelope, the wax seal and throughout.' },
+    'the day': { number: '02', blurb: 'Date and ceremony time. The countdown, the dates and every calendar button update themselves.' },
+    'the place': { number: '03', blurb: 'Where to find you, with a map pin guests can tap.' },
+    'the opening envelope': { number: '04', blurb: 'The first words your guests read, before the envelope opens.' },
+    'your words': { number: '05', blurb: 'The story, the details and the closing line — all in your voice.' },
+    'the moments of the day': { number: '06', blurb: 'One line per moment for the framed programme. Leave it empty and this part quietly disappears.' },
+    'guest replies': { number: '07', blurb: 'Set the reply-by date and party size. Replies arrive in your Guest replies list automatically.' },
+    'colours': { number: '08', blurb: 'Pick a mood, then fine-tune every colour and swatch.' },
+    'typefaces': { number: '09', blurb: 'Five considered voices — every menu shows each font in its own style.' }
+  };
+
   function renderSidebar() {
     var openSections = {};
     editor.querySelectorAll('details[data-editor-section]').forEach(function (details) {
@@ -1110,8 +1137,8 @@
     });
     editor.textContent = '';
     addSharedFields();
-    addWordingSettings();
     addOpeningSettings();
+    addWordingSettings();
     addMomentsSettings();
     addRsvpSettings();
     addAppearanceSettings();
@@ -1130,9 +1157,23 @@
         : index === 0;
       var summary = document.createElement('summary');
       summary.appendChild(heading);
+      var chapterMeta = CHAPTER_META[key] || null;
+      if (chapterMeta) {
+        var chapterNumber = document.createElement('span');
+        chapterNumber.className = 'chapter-number';
+        chapterNumber.textContent = chapterMeta.number;
+        chapterNumber.setAttribute('aria-hidden', 'true');
+        summary.insertBefore(chapterNumber, heading);
+      }
       var content = document.createElement('div');
       content.className = 'editor-accordion__content';
       while (section.firstChild) content.appendChild(section.firstChild);
+      if (chapterMeta && chapterMeta.blurb) {
+        var chapterBlurb = document.createElement('p');
+        chapterBlurb.className = 'chapter-blurb';
+        chapterBlurb.textContent = chapterMeta.blurb;
+        content.insertBefore(chapterBlurb, content.firstChild);
+      }
       details.appendChild(summary);
       details.appendChild(content);
       section.replaceWith(details);
@@ -1311,6 +1352,100 @@
       }
     });
   }
+
+  /* ── setup list — what still shows the sample ─────────────── */
+  function sampleValue(value) {
+    return String(value == null ? '' : value).trim().toLowerCase();
+  }
+  var setupChecks = [
+    { key: 'names', label: 'Your names', section: 'the two of you',
+      isDone: function () {
+        return sampleValue(config.couple.partnerOne) !== sampleValue(defaults.couple.partnerOne) ||
+          sampleValue(config.couple.partnerTwo) !== sampleValue(defaults.couple.partnerTwo);
+      } },
+    { key: 'day', label: 'Your date & time', section: 'the day',
+      isDone: function () {
+        return sampleValue(config.wedding.iso) !== sampleValue(defaults.wedding.iso);
+      } },
+    { key: 'place', label: 'Your venue', section: 'the place',
+      isDone: function () {
+        return sampleValue(config.venue.name) !== sampleValue(defaults.venue.name) ||
+          sampleValue(config.venue.mapsQuery) !== sampleValue(defaults.venue.mapsQuery);
+      } },
+    { key: 'words', label: 'Your story', section: 'your words',
+      isDone: function () {
+        return sampleValue(config.content.storyParagraphOne) !== sampleValue(defaults.content.storyParagraphOne) ||
+          sampleValue(config.content.closingMessage) !== sampleValue(defaults.content.closingMessage);
+      } },
+    { key: 'replies', label: 'Your reply-by date', section: 'guest replies',
+      isDone: function () {
+        return sampleValue(config.rsvp && config.rsvp.deadline) !==
+          sampleValue(defaults.rsvp && defaults.rsvp.deadline);
+      } }
+  ];
+  var setupList = document.getElementById('setup-list');
+  var setupProgress = document.getElementById('setup-progress');
+  var finishReadiness = document.getElementById('finish-readiness');
+
+  function openChapter(sectionKey) {
+    if (!editor) return;
+    var target = null;
+    editor.querySelectorAll('details[data-editor-section]').forEach(function (details) {
+      if (details.dataset.editorSection === sectionKey) target = details;
+    });
+    if (!target) return;
+    target.open = true;
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function updateSetupChecklist() {
+    if (!setupList) return;
+    var doneCount = 0;
+    var pending = [];
+    setupChecks.forEach(function (check) {
+      var done = false;
+      try { done = check.isDone(); } catch (error) { done = false; }
+      if (done) doneCount += 1;
+      else pending.push(check.label.toLowerCase());
+      var item = setupList.querySelector('[data-setup-key="' + check.key + '"]');
+      if (!item) {
+        item = document.createElement('li');
+        item.dataset.setupKey = check.key;
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'setup-item';
+        button.addEventListener('click', function () { openChapter(check.section); });
+        var dot = document.createElement('span');
+        dot.className = 'setup-item__dot';
+        dot.setAttribute('aria-hidden', 'true');
+        var label = document.createElement('span');
+        label.className = 'setup-item__label';
+        label.textContent = check.label;
+        var action = document.createElement('span');
+        action.className = 'setup-item__action';
+        action.textContent = 'Open';
+        button.appendChild(dot);
+        button.appendChild(label);
+        button.appendChild(action);
+        item.appendChild(button);
+        setupList.appendChild(item);
+        item._dot = dot;
+      }
+      item.classList.toggle('setup-item--done', done);
+      item._dot.textContent = done ? '✓' : '';
+    });
+    if (setupProgress) {
+      setupProgress.textContent = doneCount === setupChecks.length
+        ? 'All set ✓'
+        : doneCount + ' of ' + setupChecks.length + ' done';
+    }
+    if (finishReadiness) {
+      finishReadiness.textContent = pending.length
+        ? 'Still showing the sample: ' + pending.join(', ') + '. Tap a step above to make it yours.'
+        : 'Every essential is yours — this invitation is ready to share.';
+    }
+  }
+
   function positionColorTooltip(anchor) {
     if (!colorAction || !frame) return;
     var frameWidth = frame.clientWidth;
@@ -1465,7 +1600,7 @@
         if (!validConfig(imported)) throw new Error('This file does not look like a wedding invitation configuration.');
         config = imported;
         renderSidebar();
-        notify('Backup imported. Review the preview before publishing.');
+        notify('Saved copy loaded. Check the preview, then publish when it feels right.');
       } catch (error) {
         notify(error.message || 'This file is not valid configuration JSON.');
       }
@@ -1475,11 +1610,12 @@
   });
 
   document.getElementById('download-json').addEventListener('click', function () {
-    download('heirloom-config.json', JSON.stringify(config, null, 2) + '\n', 'application/json;charset=utf-8');
-    notify('Your JSON backup is ready.');
+    download('heirloom-invitation-copy.json', JSON.stringify(config, null, 2) + '\n', 'application/json;charset=utf-8');
+    notify('A copy of your invitation is saved to your device. Keep it safe — you can load it here any time.');
   });
 
   if (publishButton) publishButton.addEventListener('click', publishInvitation);
+  if (finishPublishButton) finishPublishButton.addEventListener('click', publishInvitation);
   function copyInvitationLink(input) {
     if (!input || !input.value) return;
     if (navigator.clipboard && window.isSecureContext) {
@@ -1499,5 +1635,6 @@
   if (headerCopyPublishedUrl) headerCopyPublishedUrl.addEventListener('click', function () { copyInvitationLink(headerPublishedUrl); });
 
   renderSidebar();
+  updateSetupChecklist();
   loadManagedInvitation();
 })();

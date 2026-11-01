@@ -175,7 +175,7 @@
     /* ── Demo mode — honest, local, no network calls at all ── */
     if (!endpoint) {
       renderPreview(reply, true);
-      announce('Reply preview ready. Nothing has been sent or stored — this is a demonstration.');
+      announce('Reply preview ready — this is the sample invitation, so nothing has been sent.');
       return;
     }
 

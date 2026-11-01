@@ -915,3 +915,163 @@ button, a, input, textarea, select, summary { outline-offset: 3px; }
 .preview-heading__links { display: inline-flex; align-items: center; gap: 16px; }
 .open-preview[hidden], .published-link a[hidden], .rsvp-responses-panel a[hidden] { display: none; }
 .published-link a + a { margin-left: 14px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Setup list & chapters — the guided journey
+   ═══════════════════════════════════════════════════════════════ */
+
+.setup-card {
+  margin-top: 18px;
+  padding: 16px 18px 14px;
+  background: linear-gradient(180deg, rgba(215, 193, 157, .08), rgba(215, 193, 157, .03));
+  border: 1px solid var(--atelier-line);
+  border-radius: 12px;
+}
+
+.setup-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.setup-card__title {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--atelier-copy);
+}
+
+.setup-card__progress {
+  color: var(--atelier-gold);
+  font-size: 10.5px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.setup-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.setup-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--atelier-copy);
+  background: rgba(20, 9, 12, .38);
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 300;
+  font-size: 14.5px;
+  transition: border-color .2s ease, background .2s ease;
+}
+.setup-item:hover { border-color: var(--atelier-line); background: rgba(20, 9, 12, .55); }
+
+.setup-item__dot {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--atelier-gold);
+  border-radius: 50%;
+  color: #1c0d10;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.setup-item--done { color: var(--atelier-muted); }
+.setup-item--done .setup-item__dot { background: var(--atelier-gold); }
+
+.setup-item__action {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: var(--atelier-gold);
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.setup-item:hover .setup-item__action,
+.setup-item--done .setup-item__action { opacity: .9; }
+.setup-item--done .setup-item__action { color: var(--atelier-muted); }
+
+.setup-card__note {
+  margin: 10px 0 0;
+  color: var(--atelier-muted);
+  font-size: 12.5px;
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+.editor-accordion > summary h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chapter-number {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--atelier-line);
+  border-radius: 999px;
+  color: var(--atelier-gold);
+  font-family: "Jost", sans-serif;
+  font-size: 10.5px;
+  letter-spacing: .08em;
+}
+
+.chapter-blurb {
+  margin: 2px 0 14px;
+  color: var(--atelier-muted);
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+.finish-readiness {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  background: rgba(215, 193, 157, .07);
+  border: 1px solid var(--atelier-line);
+  border-radius: 9px;
+  color: var(--atelier-copy);
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+.finish-publish {
+  margin-bottom: 14px;
+  padding: 14px 26px;
+  background: linear-gradient(180deg, #d8c6a2, var(--atelier-gold));
+  color: #241014;
+  border: 0;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: filter .25s ease, transform .25s ease;
+}
+.finish-publish:hover { filter: brightness(1.06); }
+.finish-publish:active { transform: translateY(1px); }
+.finish-publish[hidden] { display: none; }
