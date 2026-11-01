@@ -23,7 +23,7 @@
     <div class="header-actions">
       <div class="header-note" id="header-save-status" role="status" aria-live="polite">
         <span class="status-dot" id="header-save-dot"></span>
-        <span id="header-save-label">Draft · only you can see this</span>
+        <span id="header-save-label">Draft — only you can see this</span>
       </div>
       <div class="header-menu" id="header-menu">
         <button type="button" class="header-menu__toggle" id="header-menu-toggle"
@@ -63,10 +63,9 @@
     <section class="atelier-intro" aria-labelledby="atelier-title">
       <div class="atelier-intro__inner">
         <div>
-          <p class="eyebrow">Invitation atelier</p>
-          <h1 id="atelier-title">Make it <em>yours.</em></h1>
+          <h1 id="atelier-title">Make it yours.</h1>
         </div>
-        <p class="intro-copy">Seven short steps, watched over by a live proof that updates with every keystroke. Your work saves itself as you go — publish when it feels just right.</p>
+        <p class="intro-copy">The proof follows every keystroke, and your work saves itself as you go.</p>
       </div>
     </section>
 
@@ -89,22 +88,12 @@
               <span class="flow-step__number">07</span>
               <div>
                 <h2>Share your invitation</h2>
-                <p class="flow-step__blurb">A last look at the readiness, then your own private link.</p>
+                <p class="flow-step__blurb">A last check, then your private link.</p>
               </div>
             </header>
             <div class="share-readiness" id="share-readiness"></div>
             <div class="share-actions">
               <button type="button" class="backup-button finish-publish" id="publish-invitation-finish">Publish &amp; get my link</button>
-              <div class="published-link" id="published-link" hidden>
-                <label for="published-url">Live invitation link</label>
-                <div class="published-link__row">
-                  <input id="published-url" type="url" readonly>
-                  <button type="button" id="copy-published-url">Copy link</button>
-                  <a id="submissions-button" class="submissions-button" href="replies.html" hidden>View submissions</a>
-                </div>
-                <a id="manage-invitation" href="customize.html">Edit this invitation</a>
-                <a id="view-replies-panel" href="replies.html" hidden>View submissions</a>
-              </div>
               <button type="button" class="backup-button backup-quiet" id="download-json">Save a copy to your device</button>
             </div>
             <div class="access-code-row" id="access-code-row" hidden>
@@ -119,7 +108,7 @@
                 <span id="rsvp-responses-count">0</span>
               </div>
               <ol id="rsvp-responses-list" class="rsvp-responses-list"></ol>
-              <p class="field-hint">The latest 100 replies are shown here. Reopen this edit link to refresh the list.</p>
+              <p class="field-hint">New replies appear here the next time you open this page.</p>
               <a class="text-button" id="open-replies-page" href="replies.html" hidden>Open the full submissions page ↗</a>
             </section>
           </section>
@@ -129,7 +118,7 @@
           <button type="button" class="flow-nav__back" id="flow-back">Back</button>
           <button type="button" class="flow-nav__next" id="flow-next">Continue</button>
         </nav>
-        <p class="save-hint" id="save-hint" role="status" aria-live="polite">Your invitation is ready to make yours. The steps above show exactly what to do next.</p>
+        <p class="save-hint" id="save-hint" role="status" aria-live="polite">Your edits save automatically as you go.</p>
       </div>
 
       <div class="preview-panel">
@@ -179,8 +168,8 @@
   </main>
 
   <footer class="atelier-footer">
-    <span>THE HEIRLOOM FILM</span>
-    <span>Made for your once-in-a-lifetime</span>
+    <span>The Heirloom Film</span>
+    <span>Invitation Atelier</span>
   </footer>
 </body>
 </html>

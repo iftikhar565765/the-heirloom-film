@@ -29,7 +29,7 @@ window.HEIRLOOM = {
     iso: "2027-09-18T16:00:00+02:00",                              // EDIT
     endIso: "2027-09-19T00:00:00+02:00",                           // EDIT — end of the celebration
     display: "Saturday, 18 September 2027 · 4:00 PM",              // EDIT
-    zoneLabel: "GMT+2",                                            // EDIT
+    zoneLabel: "",                                                 // EDIT — optional note for guests abroad, e.g. "CET"
     words: "Saturday · The Eighteenth of September · Two Thousand Twenty-Seven", // EDIT
     numerals: "18 · 09 · 2027",                                    // EDIT
     eventTitle: "Amelia & Julien — Wedding"                        // EDIT (calendar entry)

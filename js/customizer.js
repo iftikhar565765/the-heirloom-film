@@ -252,12 +252,12 @@
   /* ── status & notification ─────────────────────────────────── */
 
   function notify(message) {
-    if (hint) hint.textContent = message || 'Tip · click any text on the invitation to edit it right there.';
-    setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live · saving your changes as you edit' : 'Draft · only you can see this');
+    if (hint) hint.textContent = message || 'Tip — click any text on the invitation to edit it right there.';
+    setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live — saving your changes as you edit' : 'Draft — only you can see this');
     if (hintTimer) window.clearTimeout(hintTimer);
     if (message) {
       hintTimer = window.setTimeout(function () {
-        if (hint) hint.textContent = 'Tip · click any text on the invitation to edit it right there.';
+        if (hint) hint.textContent = 'Tip — click any text on the invitation to edit it right there.';
       }, 5000);
     }
     sendPreview();
@@ -366,7 +366,7 @@
     saveInFlight = true;
     if (publishButton) publishButton.disabled = true;
     setSaveStatus('saving', 'Saving your changes…');
-    if (hint) hint.textContent = 'Saving your latest changes to the live invitation…';
+    if (hint) hint.textContent = 'Saving your changes…';
     var savedSnapshot = '';
     prepareConfigForPublish().then(function (preparedConfig) {
       savedSnapshot = snapshot();
@@ -382,8 +382,8 @@
       updatePublishedLink(result.url);
       if (snapshot() !== lastSavedSnapshot) scheduleRemoteSave();
       else {
-        if (hint) hint.textContent = 'All changes saved · your link is up to date.';
-        setSaveStatus('saved', 'All changes saved · your link is up to date');
+        if (hint) hint.textContent = 'All changes saved — your invitation is up to date.';
+        setSaveStatus('saved', 'All changes saved — your link is up to date');
       }
     }).catch(function (error) {
       blockedSnapshot = savedSnapshot || snapshot();
@@ -434,7 +434,7 @@
       url.searchParams.set('edit', publishId);
       window.history.replaceState({}, '', url.toString());
       notify('Your invitation is live! Send the link below to your guests — every change you make from now on saves by itself.');
-      setSaveStatus('saved', 'Live · every change saves by itself');
+      setSaveStatus('saved', 'Live — every change saves by itself');
       renderRsvpResponses(result.responses || []);
       goStep(7);
       scheduleRemoteSave();
@@ -500,7 +500,7 @@
       if (finishPublishButton) finishPublishButton.hidden = true;
       sendPreview();
       notify('Your invitation is open. Edit anything — every change saves by itself.');
-      setSaveStatus('saved', 'Live · every change saves by itself');
+      setSaveStatus('saved', 'Live — every change saves by itself');
     }).catch(function (error) {
       notify('We could not open your invitation: ' + error.message);
     }).finally(function () {
@@ -610,10 +610,9 @@
 
     dateWrap.appendChild(fieldLabel('The date', dateInput.id));
     dateWrap.appendChild(dateInput);
-    dateWrap.appendChild(el('span', 'field-hint', 'The day itself — everything on the page follows it.'));
     timeWrap.appendChild(fieldLabel('The ceremony begins', timeInput.id));
     timeWrap.appendChild(timeInput);
-    timeWrap.appendChild(el('span', 'field-hint', 'In the venue\u2019s own time.'));
+    timeWrap.appendChild(el('span', 'field-hint', 'At the venue, in the venue\u2019s own time zone.'));
     row.appendChild(dateWrap);
     row.appendChild(timeWrap);
     parent.appendChild(row);
@@ -812,7 +811,7 @@
       inner.appendChild(endWrap);
       addTextField(inner, {
         path: 'wedding.zoneLabel', label: 'Time-zone note for guests',
-        hint: 'Shown beside the time — for example GMT+2, or CET.'
+        hint: 'Only if guests abroad need it — for example “CET”.'
       });
       addTextField(inner, {
         path: 'wedding.eventTitle', label: 'Calendar event title',
@@ -1011,7 +1010,7 @@
 
   function buildDesignStep(body) {
     var themeLabel = el('p', 'field-label', 'A colour mood for the whole invitation');
-    themeLabel.style.cssText = 'margin:0 0 10px;color:var(--muted);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;';
+    themeLabel.style.cssText = 'margin:0 0 10px;color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;';
     body.appendChild(themeLabel);
     var themeGrid = el('div', 'choice-grid');
     THEME_META.forEach(function (theme) {
@@ -1041,7 +1040,7 @@
     body.appendChild(themeGrid);
 
     var typeLabel = el('p', 'field-label', 'A typographic voice');
-    typeLabel.style.cssText = 'margin:22px 0 10px;color:var(--muted);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;';
+    typeLabel.style.cssText = 'margin:22px 0 10px;color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;';
     body.appendChild(typeLabel);
     var typeGrid = el('div', 'choice-grid');
     TYPE_PAIRINGS.forEach(function (pairing) {
@@ -1241,28 +1240,28 @@
 
   var STEPS = [
     { key: 'couple', number: '01', title: 'The two of you', check: 'names',
-      blurb: 'Your names carry the whole invitation — the envelope, the wax seal and every page.',
-      tip: 'On the proof, the names are clickable — type straight over them.',
+      blurb: 'The names on the envelope, the seal and every page.',
+      tip: 'On the proof, the names are clickable — type over them directly.',
       build: buildCoupleStep },
     { key: 'day', number: '02', title: 'The day', check: 'day',
-      blurb: 'One date, one hour. The countdown, the numerals and every calendar file look after themselves.',
-      tip: 'Click the date on the invitation itself to edit how it reads.',
+      blurb: 'One date and one hour; everything on the page follows.',
+      tip: 'Click the date on the proof itself to edit how it reads.',
       build: buildDayStep },
     { key: 'place', number: '03', title: 'The place', check: 'place',
-      blurb: 'Where to find you — with a map pin your guests can tap.',
+      blurb: 'Where to find you, with a map pin for guests.',
       tip: 'The venue name on the proof is editable too, exactly where it sits.',
       build: buildPlaceStep },
     { key: 'words', number: '04', title: 'Your words', check: 'words',
-      blurb: 'The story, the closing line — all in your voice. The sample words are lovely; make them yours.',
+      blurb: 'Your story and closing line, in your own words.',
       tip: 'Click any sentence on the proof to edit it exactly where it sits.',
       build: buildWordsStep },
     { key: 'design', number: '05', title: 'Colour & type',
-      blurb: 'One mood, one voice. Each option below is a complete, considered pairing.',
-      tip: 'Colours on the invitation itself are clickable as well — select one to change it.',
+      blurb: 'A complete pairing — typography and colour chosen together.',
+      tip: 'Colours on the invitation are clickable too — select one to change it.',
       build: buildDesignStep },
     { key: 'replies', number: '06', title: 'Guest replies', check: 'replies',
-      blurb: 'When to reply by, and how many seats one reply may bring.',
-      tip: 'Replies are kept for you automatically — the list waits on the sharing step.',
+      blurb: 'When to reply by, and how many seats a reply may bring.',
+      tip: 'Replies are kept for you — they appear in the sharing step.',
       build: buildRepliesStep }
   ];
   var SHARE_STEP = 7;
@@ -1450,7 +1449,7 @@
     }
     if (message.type === 'heirloom:load-error') {
       if (loading) loading.hidden = true;
-      if (hint) hint.textContent = 'The live preview could not load: ' + message.message;
+      if (hint) hint.textContent = 'The preview could not load — ' + message.message;
       return;
     }
     if (message.type === 'heirloom:element-selected') {
@@ -1506,7 +1505,7 @@
       } else {
         hideColorTooltip(false);
         if (hint && message.element === 'text') {
-          hint.textContent = 'Edit the selected text in the preview. Click elsewhere when you are done.';
+          hint.textContent = 'Edit the selected text in the preview — click elsewhere when you are done.';
         }
       }
       return;
@@ -1618,7 +1617,7 @@
   if (closeTooltipButton) {
     closeTooltipButton.addEventListener('click', function () {
       hideColorTooltip(true);
-      if (hint) hint.textContent = 'Tooltip closed. Click any element or the background to keep styling your invitation.';
+      if (hint) hint.textContent = 'Done. Click any element or the background to keep styling your invitation.';
     });
   }
   if (removeElementButton) {
