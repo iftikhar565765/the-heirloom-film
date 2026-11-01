@@ -1,8 +1,21 @@
 (function () {
   'use strict';
 
+  /* ═══════════════════════════════════════════════════════════════
+     THE HEIRLOOM FILM · customizer.js
+     ---------------------------------------------------------------
+     A guided seven-step studio. One decision at a time, a live
+     proof beside every field, and everything saved automatically.
+     Research notes behind the shape of this file:
+       · staged disclosure (one chapter visible, NN/g) — the flow
+       · ≤ 2 disclosure levels — each step keeps one “fine-tune”
+       · curated choices, not catalogues — theme & typeface cards
+       · derived fields are computed, never asked (dates)
+       · status is always visible (NN/g heuristic I)
+     ═══════════════════════════════════════════════════════════════ */
+
   var sourceConfig = window.HEIRLOOM;
-  var editor = document.getElementById('editor-sections');
+  var stepsHost = document.getElementById('flow-steps');
   var frame = document.getElementById('invitation-preview');
   var loading = document.getElementById('preview-loading');
   var hint = document.getElementById('save-hint');
@@ -20,47 +33,21 @@
   var accessCodeRow = document.getElementById('access-code-row');
   var accessCodeInput = document.getElementById('access-code');
   var pendingPublishAfterCode = false;
-  if (!sourceConfig || !editor || !frame) {
+  if (!sourceConfig || !stepsHost || !frame) {
     if (hint) hint.textContent = 'The editor could not load its configuration or preview.';
     return;
   }
 
-  function renderRsvpResponses(responses) {
-    var panel = document.getElementById('rsvp-responses');
-    var list = document.getElementById('rsvp-responses-list');
-    var count = document.getElementById('rsvp-responses-count');
-    if (!panel || !list || !count) return;
-    list.textContent = '';
-    count.textContent = String(responses.length);
-    panel.hidden = !publishId;
-    if (!responses.length) {
-      var empty = document.createElement('li');
-      empty.className = 'rsvp-response-empty';
-      empty.textContent = 'No replies received yet.';
-      list.appendChild(empty);
-      return;
-    }
-    responses.forEach(function (reply) {
-      var item = document.createElement('li');
-      item.className = 'rsvp-response';
-      var title = document.createElement('strong');
-      title.textContent = reply.name + ' · ' + (reply.attendance === 'attending' ? 'Attending' : 'Declining');
-      var details = document.createElement('span');
-      details.textContent = (reply.email ? reply.email + ' · ' : '') +
-        reply.guests + (reply.guests === 1 ? ' guest' : ' guests');
-      var note = document.createElement('span');
-      note.textContent = [reply.dietary, reply.message].filter(Boolean).join(' · ');
-      item.appendChild(title);
-      item.appendChild(details);
-      if (note.textContent) item.appendChild(note);
-      list.appendChild(item);
-    });
-  }
+  /* ── state ─────────────────────────────────────────────────── */
 
   var defaults = clone(sourceConfig);
   var config = clone(sourceConfig);
   var previewReady = false;
   var hintTimer = null;
+  var currentStep = 1;
+  var fineTuneOpen = {};
+  var fieldSyncs = [];
+
   var selectedColorSelector = '';
   var selectedColorDefaults = null;
   var selectedColorKey = '';
@@ -116,10 +103,9 @@
 
   function labelForKey(key) {
     return elementLabels[key] ||
-      (key ? key.replace(/-/g, ' ').replace(/\b\w/g, function (ch) { return ch.toUpperCase(); })
-           .replace(/\b\w/, function (ch) { return ch.toUpperCase(); })
-      : 'Selected element');
+      (key ? key.replace(/-/g, ' ').replace(/\b\w/g, function (ch) { return ch.toUpperCase(); }) : 'Selected element');
   }
+
   var publishId = '';
   var ownerToken = '';
   var publishRevision = 0;
@@ -143,23 +129,19 @@
   var headerPublishedUrl = document.getElementById('header-published-url');
   var headerCopyPublishedUrl = document.getElementById('header-copy-published-url');
   var headerSubmissionsButton = document.getElementById('header-submissions-button');
-  var globalFields = [
-    { path: 'couple.partnerOne', label: 'First partner name', group: 'couple' },
-    { path: 'couple.partnerTwo', label: 'Second partner name', group: 'couple' },
-    { path: 'couple.namesLine', label: 'Names as they appear together', group: 'couple' },
-    { path: 'couple.initials', label: 'Monogram initials · e.g. A·J', group: 'couple' },
-    { path: 'venue.name', label: 'Venue name', group: 'couple' },
-    { path: 'wedding.iso', label: 'Ceremony start · date & time', group: 'date', type: 'datetime-local', wide: true },
-    { path: 'wedding.endIso', label: 'Celebration end · date & time', group: 'date', type: 'datetime-local', wide: true },
-    { path: 'wedding.numerals', label: 'Date shown in numerals', group: 'date', type: 'date' },
-    { path: 'wedding.zoneLabel', label: 'Time-zone label for guests', group: 'date' },
-    { path: 'wedding.eventTitle', label: 'Calendar event title', group: 'date', wide: true },
-    { path: 'venue.mapsQuery', label: 'Venue name or address for Maps', group: 'venue', wide: true },
-    { path: 'venue.mapUrl', label: 'Exact map link · optional', group: 'venue', type: 'url', wide: true }
-  ];
+  var restoreRemovedButton = document.getElementById('restore-removed');
+
+  /* ── small helpers ─────────────────────────────────────────── */
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
+  }
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
   }
 
   function getPath(path) {
@@ -175,17 +157,19 @@
     target[keys[keys.length - 1]] = value;
   }
 
+  /* Every field registers a sync function, so an edit made on the
+     invitation itself updates the matching control in the flow.    */
+  function registerSync(path, fn) {
+    fieldSyncs.push({ path: path, fn: fn });
+  }
+
   function syncGlobalField(path, value) {
-    editor.querySelectorAll('[data-config-path]').forEach(function (input) {
-      if (input.dataset.configPath === path) {
-        input.value = input.dataset.inputType === 'date'
-          ? datePart(config.wedding.iso)
-          : input.dataset.inputType === 'datetime-local'
-            ? localDateTime(value)
-            : value;
-      }
+    fieldSyncs.forEach(function (entry) {
+      if (entry.path === path) entry.fn(value);
     });
   }
+
+  /* ── date helpers ──────────────────────────────────────────── */
 
   function localDateTime(value) {
     var match = typeof value === 'string' &&
@@ -196,6 +180,11 @@
   function datePart(value) {
     var match = typeof value === 'string' && value.match(/^(\d{4}-\d{2}-\d{2})/);
     return match ? match[1] : '';
+  }
+
+  function timePart(value) {
+    var local = localDateTime(value);
+    return local ? local.slice(11) : '';
   }
 
   function offsetPart(value) {
@@ -227,6 +216,13 @@
     return storedDateTime(date + local.slice(10), value);
   }
 
+  function todayLocal() {
+    var now = new Date();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    return now.getFullYear() + '-' + month + '-' + day;
+  }
+
   function updateDerivedDateFields() {
     var local = localDateTime(config.wedding.iso);
     if (!local) return;
@@ -242,7 +238,6 @@
     config.wedding.numerals = String(parts[2]).padStart(2, '0') + ' · ' +
       String(parts[1]).padStart(2, '0') + ' · ' + parts[0];
     config.wedding.words = weekday + ' · ' + parts[2] + ' ' + month + ' · ' + parts[0];
-    syncGlobalField('wedding.numerals', config.wedding.numerals);
   }
 
   function isMapUrl(value) {
@@ -254,19 +249,23 @@
     }
   }
 
+  /* ── status & notification ─────────────────────────────────── */
+
   function notify(message) {
-    if (hint) hint.textContent = message || 'Tip · click any text on the invitation to edit it right there, or click a colour to change it.';
+    if (hint) hint.textContent = message || 'Tip · click any text on the invitation to edit it right there.';
     setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live · saving your changes as you edit' : 'Draft · only you can see this');
     if (hintTimer) window.clearTimeout(hintTimer);
     if (message) {
       hintTimer = window.setTimeout(function () {
-        if (hint) hint.textContent = 'Tip · click any text on the invitation to edit it right there, or click a colour to change it.';
+        if (hint) hint.textContent = 'Tip · click any text on the invitation to edit it right there.';
       }, 5000);
     }
     sendPreview();
     scheduleRemoteSave();
     storePreviewConfig();
-    updateSetupChecklist();
+    updateStepStates();
+    updateShareReadiness();
+    updateRestoreVisibility();
   }
 
   function setSaveStatus(state, message) {
@@ -288,6 +287,8 @@
     try { window.localStorage.setItem('heirloom-preview-config', JSON.stringify(config)); }
     catch (error) { /* private mode — the in-editor preview still works */ }
   }
+
+  /* ── publishing & saving ───────────────────────────────────── */
 
   function requestPublish(data, token) {
     var headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
@@ -370,9 +371,9 @@
     prepareConfigForPublish().then(function (preparedConfig) {
       savedSnapshot = snapshot();
       return requestPublish({
-      action: 'save',
-      id: publishId,
-      config: preparedConfig
+        action: 'save',
+        id: publishId,
+        config: preparedConfig
       }, ownerToken);
     }).then(function (result) {
       publishRevision = result.revision;
@@ -435,10 +436,12 @@
       notify('Your invitation is live! Send the link below to your guests — every change you make from now on saves by itself.');
       setSaveStatus('saved', 'Live · every change saves by itself');
       renderRsvpResponses(result.responses || []);
+      goStep(7);
       scheduleRemoteSave();
     }).catch(function (error) {
       if (error && error.codeRequired) {
         pendingPublishAfterCode = true;
+        goStep(7);
         if (accessCodeRow) {
           accessCodeRow.hidden = false;
           if (accessCodeInput) accessCodeInput.focus();
@@ -490,7 +493,7 @@
       config = result.config;
       lastSavedSnapshot = snapshot();
       blockedSnapshot = '';
-      renderSidebar();
+      renderFlow();
       updatePublishedLink(window.location.origin + '/?invite=' + encodeURIComponent(publishId));
       renderRsvpResponses(result.responses || []);
       if (publishButton) publishButton.textContent = 'Publish latest changes';
@@ -514,398 +517,444 @@
     }, window.location.origin === 'null' ? '*' : window.location.origin);
   }
 
-  function addTextField(parent, field) {
-    var value = getPath(field.path);
-    if (typeof value !== 'string') return;
-    if (field.path === 'venue.mapsQuery' && !value) {
-      value = [config.venue.name, config.venue.address].filter(Boolean).join(', ');
+  function renderRsvpResponses(responses) {
+    var panel = document.getElementById('rsvp-responses');
+    var list = document.getElementById('rsvp-responses-list');
+    var count = document.getElementById('rsvp-responses-count');
+    if (!panel || !list || !count) return;
+    list.textContent = '';
+    count.textContent = String(responses.length);
+    panel.hidden = !publishId;
+    if (!responses.length) {
+      var empty = document.createElement('li');
+      empty.className = 'rsvp-response-empty';
+      empty.textContent = 'No replies received yet.';
+      list.appendChild(empty);
+      return;
     }
-    var wrapper = document.createElement('div');
-    wrapper.className = 'field' + (field.wide ? ' field--wide' : '');
-    var label = document.createElement('label');
-    label.textContent = field.label;
-    label.htmlFor = 'global-' + field.path.replace(/[^a-z0-9]/gi, '-');
-    var input = document.createElement('input');
-    input.type = field.type || 'text';
-    input.id = label.htmlFor;
-    input.dataset.inputType = input.type;
-    input.value = input.type === 'datetime-local'
-      ? localDateTime(value)
-      : input.type === 'date'
-        ? datePart(config.wedding.iso)
-        : value;
-    input.dataset.configPath = field.path;
+    responses.forEach(function (reply) {
+      var item = document.createElement('li');
+      item.className = 'rsvp-response';
+      var title = document.createElement('strong');
+      title.textContent = reply.name + ' · ' + (reply.attendance === 'attending' ? 'Attending' : 'Declining');
+      var details = document.createElement('span');
+      details.textContent = (reply.email ? reply.email + ' · ' : '') +
+        reply.guests + (reply.guests === 1 ? ' guest' : ' guests');
+      var note = document.createElement('span');
+      note.textContent = [reply.dietary, reply.message].filter(Boolean).join(' · ');
+      item.appendChild(title);
+      item.appendChild(details);
+      if (note.textContent) item.appendChild(note);
+      list.appendChild(item);
+    });
+  }
+
+  /* ── field builders ────────────────────────────────────────── */
+
+  function fieldLabel(text, id) {
+    var label = el('label', null, text);
+    if (id) label.htmlFor = id;
+    return label;
+  }
+
+  function fieldId(path) {
+    return 'f-' + path.replace(/[^a-z0-9]/gi, '-');
+  }
+
+  /* A single-line or multi-line text field bound to a config path. */
+  function addTextField(parent, opts) {
+    var value = getPath(opts.path);
+    if (typeof value !== 'string' && typeof value !== 'number') return null;
+    var wrapper = el('div', 'field');
+    var id = fieldId(opts.path);
+    var label = fieldLabel(opts.label, id);
+    var input = document.createElement(opts.multiline ? 'textarea' : 'input');
+    if (!opts.multiline) input.type = opts.type || 'text';
+    if (opts.multiline) input.rows = opts.rows || 3;
+    input.id = id;
+    input.value = String(value == null ? '' : value);
     input.autocomplete = 'off';
+    input.dataset.configPath = opts.path;
+    if (opts.placeholder) input.placeholder = opts.placeholder;
     input.addEventListener('input', function () {
-      if (field.path === 'venue.mapUrl') {
+      setPath(opts.path, input.value);
+      if (opts.after) opts.after(input.value);
+      notify();
+    });
+    registerSync(opts.path, function (next) {
+      if (document.activeElement !== input) input.value = String(next == null ? '' : next);
+    });
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    if (opts.hint) wrapper.appendChild(el('span', 'field-hint', opts.hint));
+    parent.appendChild(wrapper);
+    return input;
+  }
+
+  /* The date & time of the ceremony — two small, familiar controls.
+     The written forms (display, numerals, words) are derived, and
+     the celebration end follows any change of day automatically.  */
+  function addStartDateTime(parent) {
+    var row = el('div', 'field--row');
+    var dateWrap = el('div', 'field');
+    var timeWrap = el('div', 'field');
+    var dateInput = el('input');
+    dateInput.type = 'date';
+    dateInput.id = 'f-wedding-date';
+    dateInput.min = todayLocal();
+    dateInput.autocomplete = 'off';
+    var timeInput = el('input');
+    timeInput.type = 'time';
+    timeInput.id = 'f-wedding-time';
+    timeInput.autocomplete = 'off';
+
+    dateWrap.appendChild(fieldLabel('The date', dateInput.id));
+    dateWrap.appendChild(dateInput);
+    dateWrap.appendChild(el('span', 'field-hint', 'The day itself — everything on the page follows it.'));
+    timeWrap.appendChild(fieldLabel('The ceremony begins', timeInput.id));
+    timeWrap.appendChild(timeInput);
+    timeWrap.appendChild(el('span', 'field-hint', 'In the venue\u2019s own time.'));
+    row.appendChild(dateWrap);
+    row.appendChild(timeWrap);
+    parent.appendChild(row);
+
+    function readBack() {
+      if (!dateInput.value || !timeInput.value) return;
+      var previousStart = config.wedding.iso;
+      var nextStart = storedDateTime(dateInput.value + 'T' + timeInput.value, previousStart);
+      var dayDelta = dateDeltaDays(previousStart, nextStart);
+      config.wedding.iso = nextStart;
+      config.wedding.endIso = shiftDateTime(config.wedding.endIso, dayDelta);
+      updateDerivedDateFields();
+      updateReadsAs();
+      notify();
+    }
+    dateInput.addEventListener('change', readBack);
+    timeInput.addEventListener('change', readBack);
+
+    function syncDate() {
+      dateInput.value = datePart(config.wedding.iso);
+      timeInput.value = timePart(config.wedding.iso);
+      updateReadsAs();
+    }
+    registerSync('wedding.iso', syncDate);
+    syncDate();
+    return { dateInput: dateInput, timeInput: timeInput };
+  }
+
+  var readsAsValue = null;
+  function updateReadsAs() {
+    if (!readsAsValue) return;
+    var label = config.wedding.display || '';
+    var zone = config.wedding.zoneLabel || '';
+    readsAsValue.textContent = zone ? label + ' · ' + zone : label;
+  }
+
+  function addReadsAs(parent) {
+    var box = el('p', 'reads-as', 'Your guests will read');
+    var value = el('b');
+    box.appendChild(value);
+    readsAsValue = value;
+    parent.appendChild(box);
+    updateReadsAs();
+  }
+
+  /* A numeric choice presented as − [n] + — a stepper, because a
+     bare number input invites typing surprises.                    */
+  function addStepper(parent, opts) {
+    var wrap = el('div', 'field');
+    wrap.appendChild(fieldLabel(opts.label, fieldId(opts.path)));
+    var stepper = el('div', 'stepper');
+    var minus = el('button', null, '−');
+    minus.type = 'button';
+    minus.setAttribute('aria-label', 'One seat fewer');
+    var input = el('input');
+    input.type = 'text';
+    input.readOnly = true;
+    input.setAttribute('aria-live', 'polite');
+    input.id = fieldId(opts.path);
+    var plus = el('button', null, '+');
+    plus.type = 'button';
+    plus.setAttribute('aria-label', 'One seat more');
+
+    function current() {
+      var parsed = parseInt(getPath(opts.path), 10);
+      return isFinite(parsed) ? parsed : (opts.min || 1);
+    }
+    function render() {
+      var value = current();
+      input.value = String(value);
+      minus.disabled = value <= (opts.min || 1);
+      plus.disabled = value >= (opts.max || 20);
+    }
+    function move(delta) {
+      var next = Math.min(opts.max || 20, Math.max(opts.min || 1, current() + delta));
+      if (next === current()) return;
+      setPath(opts.path, next);
+      render();
+      notify();
+    }
+    minus.addEventListener('click', function () { move(-1); });
+    plus.addEventListener('click', function () { move(1); });
+    stepper.appendChild(minus);
+    stepper.appendChild(input);
+    stepper.appendChild(plus);
+    wrap.appendChild(stepper);
+    if (opts.hint) wrap.appendChild(el('span', 'field-hint', opts.hint));
+    registerSync(opts.path, render);
+    render();
+    parent.appendChild(wrap);
+  }
+
+  /* ── fine-tune disclosure (level two — the only one) ───────── */
+
+  function addFineTune(parent, id, label, buildInner) {
+    var wrap = el('div', 'finetune');
+    wrap.dataset.finetune = id;
+    var toggle = el('button', 'finetune__toggle');
+    toggle.type = 'button';
+    toggle.setAttribute('aria-expanded', fineTuneOpen[id] ? 'true' : 'false');
+    toggle.appendChild(el('span', null, label));
+    var chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('viewBox', '0 0 12 12');
+    chevron.setAttribute('aria-hidden', 'true');
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M2 4l4 4 4-4');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '1.4');
+    chevron.appendChild(path);
+    toggle.appendChild(chevron);
+    var body = el('div', 'finetune__body');
+    var inner = el('div', 'finetune__inner');
+    var clip = el('div');
+    clip.appendChild(inner);
+    body.appendChild(clip);
+    if (fineTuneOpen[id]) wrap.classList.add('is-open');
+    toggle.addEventListener('click', function () {
+      var open = !wrap.classList.contains('is-open');
+      wrap.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      fineTuneOpen[id] = open;
+    });
+    buildInner(inner);
+    wrap.appendChild(toggle);
+    wrap.appendChild(body);
+    parent.appendChild(wrap);
+  }
+
+  function groupLabel(parent, text) {
+    parent.appendChild(el('p', 'finetune__group-label', text));
+  }
+
+  /* ── chapter builders ──────────────────────────────────────── */
+
+  function buildCoupleStep(body) {
+    /* the combined line follows the two names — a derivation, so
+       the couple never writes their names twice               */
+    function recombine() {
+      var one = sampleValue(config.couple.partnerOne) ? config.couple.partnerOne : '';
+      var two = sampleValue(config.couple.partnerTwo) ? config.couple.partnerTwo : '';
+      config.couple.namesLine = [one, two].filter(Boolean).join(' & ');
+      syncGlobalField('couple.namesLine', config.couple.namesLine);
+    }
+    var grid = el('div', 'field-grid');
+    addTextField(grid, { path: 'couple.partnerOne', label: 'Partner one', after: recombine });
+    addTextField(grid, { path: 'couple.partnerTwo', label: 'Partner two', after: recombine });
+    body.appendChild(grid);
+    var derived = el('p', 'derived-line', 'Together they read as');
+    var combined = el('b');
+    combined.id = 'derived-names-line';
+    derived.appendChild(combined);
+    body.appendChild(derived);
+    function syncDerived() {
+      combined.textContent = config.couple.namesLine || '';
+    }
+    registerSync('couple.namesLine', syncDerived);
+    ['couple.partnerOne', 'couple.partnerTwo'].forEach(function (path) {
+      registerSync(path, function () {
+        combined.textContent = config.couple.namesLine || '';
+      });
+    });
+    syncDerived();
+    addFineTune(body, 'names', 'Fine-tune · how the names read', function (inner) {
+      addTextField(inner, {
+        path: 'couple.namesLine', label: 'Combined names line',
+        hint: 'Shown across the invitation. It follows the two names above whenever they change.'
+      });
+      addTextField(inner, {
+        path: 'couple.initials', label: 'Monogram initials',
+        hint: 'Two or three letters for the wax seal — for example A·J.'
+      });
+    });
+  }
+
+  function buildDayStep(body) {
+    addStartDateTime(body);
+    addReadsAs(body);
+    addFineTune(body, 'day', 'Fine-tune · the celebration end & details', function (inner) {
+      var endWrap = el('div', 'field');
+      endWrap.appendChild(fieldLabel('Celebration end · date & time', 'f-end-iso'));
+      var endInput = el('input');
+      endInput.type = 'datetime-local';
+      endInput.id = 'f-end-iso';
+      endInput.autocomplete = 'off';
+      endInput.value = localDateTime(config.wedding.endIso);
+      endInput.addEventListener('change', function () {
+        config.wedding.endIso = storedDateTime(endInput.value, config.wedding.endIso);
+        notify();
+      });
+      registerSync('wedding.endIso', function (next) {
+        if (document.activeElement !== endInput) endInput.value = localDateTime(next);
+      });
+      endWrap.appendChild(endInput);
+      endWrap.appendChild(el('span', 'field-hint', 'When the last dance winds down — the calendar file ends here.'));
+      inner.appendChild(endWrap);
+      addTextField(inner, {
+        path: 'wedding.zoneLabel', label: 'Time-zone note for guests',
+        hint: 'Shown beside the time — for example GMT+2, or CET.'
+      });
+      addTextField(inner, {
+        path: 'wedding.eventTitle', label: 'Calendar event title',
+        hint: 'The name of the event when a guest saves the date.'
+      });
+    });
+  }
+
+  function buildPlaceStep(body) {
+    var grid = el('div', 'field-grid');
+    addTextField(grid, { path: 'venue.name', label: 'The venue' });
+    addTextField(grid, {
+      path: 'venue.mapsQuery', label: 'Address or area',
+      hint: 'Enough for a map search — the street, the district, the town.'
+    });
+    body.appendChild(grid);
+    var check = el('div', 'field');
+    check.style.marginTop = '4px';
+    var checkButton = el('button', 'maps-button', 'Check the pin on Maps');
+    checkButton.type = 'button';
+    checkButton.addEventListener('click', function () {
+      var query = config.venue.mapsQuery ||
+        [config.venue.name, config.venue.address].filter(Boolean).join(', ');
+      var url = 'https://www.google.com/maps/search/?api=1&query=' +
+        encodeURIComponent(query);
+      var mapLink = document.createElement('a');
+      mapLink.href = url;
+      mapLink.target = '_blank';
+      mapLink.rel = 'noopener noreferrer';
+      document.body.appendChild(mapLink);
+      mapLink.click();
+      mapLink.remove();
+    });
+    check.appendChild(checkButton);
+    check.appendChild(el('span', 'field-hint', 'A quiet reassurance — this is exactly what your guests will find.'));
+    body.appendChild(check);
+    addFineTune(body, 'place', 'Fine-tune · an exact map link', function (inner) {
+      var url = getPath('venue.mapUrl');
+      var wrap = el('div', 'field');
+      wrap.appendChild(fieldLabel('Exact map link · optional', 'f-map-url'));
+      var input = el('input');
+      input.type = 'url';
+      input.id = 'f-map-url';
+      input.autocomplete = 'off';
+      input.value = typeof url === 'string' ? url : '';
+      input.placeholder = 'https://…';
+      input.addEventListener('input', function () {
         if (input.value && !isMapUrl(input.value)) {
-          input.setCustomValidity('Paste a complete Google Maps or Apple Maps URL.');
+          input.setCustomValidity('Paste a complete Google Maps or Apple Maps link.');
           return;
         }
         input.setCustomValidity('');
-      }
-      if (field.path === 'wedding.iso') {
-        var previousStart = config.wedding.iso;
-        var nextStart = storedDateTime(input.value, previousStart);
-        var dayDelta = dateDeltaDays(previousStart, nextStart);
-        setPath(field.path, nextStart);
-        config.wedding.endIso = shiftDateTime(config.wedding.endIso, dayDelta);
-        syncGlobalField('wedding.endIso', config.wedding.endIso);
-        updateDerivedDateFields();
-      } else if (field.path === 'wedding.numerals') {
-        var currentLocal = localDateTime(config.wedding.iso);
-        var nextLocal = input.value + currentLocal.slice(10);
-        var startBeforeDateChange = config.wedding.iso;
-        var startAfterDateChange = storedDateTime(nextLocal, startBeforeDateChange);
-        var numeralsDayDelta = dateDeltaDays(startBeforeDateChange, startAfterDateChange);
-        config.wedding.iso = startAfterDateChange;
-        config.wedding.endIso = shiftDateTime(config.wedding.endIso, numeralsDayDelta);
-        syncGlobalField('wedding.iso', config.wedding.iso);
-        syncGlobalField('wedding.endIso', config.wedding.endIso);
-        updateDerivedDateFields();
-      } else if (field.path === 'wedding.endIso') {
-        setPath(field.path, storedDateTime(input.value, config.wedding.endIso));
-      } else {
-        setPath(field.path, input.value);
-      }
-      if (field.path === 'couple.partnerOne' || field.path === 'couple.partnerTwo') {
-        config.couple.namesLine = config.couple.partnerOne + ' & ' + config.couple.partnerTwo;
-        syncGlobalField('couple.namesLine', config.couple.namesLine);
-      }
-      if (field.path === 'venue.mapsQuery') {
-        config.venue.mapUrl = '';
-        syncGlobalField('venue.mapUrl', '');
-      }
-      notify();
-    });
-    if (field.path === 'venue.mapUrl') {
+        setPath('venue.mapUrl', input.value);
+        notify();
+      });
       input.addEventListener('change', function () {
         if (input.value && !isMapUrl(input.value)) input.reportValidity();
       });
-    }
-    wrapper.appendChild(label);
-    wrapper.appendChild(input);
-    if (field.path === 'wedding.iso' || field.path === 'wedding.endIso') {
-      var hintText = document.createElement('span');
-      hintText.className = 'field-hint';
-      hintText.textContent = 'Set when your ceremony begins, in the venue\u2019s own time \u2014 the countdown and calendar buttons follow automatically.';
-      wrapper.appendChild(hintText);
-    } else if (field.path === 'venue.mapUrl') {
-      var mapHint = document.createElement('span');
-      mapHint.className = 'field-hint';
-      mapHint.textContent = 'Have an exact spot in mind? Paste its Google Maps or Apple Maps link and guests will land right on it.';
-      wrapper.appendChild(mapHint);
-    }
-    parent.appendChild(wrapper);
-  }
-
-  function addSharedFields() {
-    ['couple', 'date', 'venue'].forEach(function (group) {
-      var section = document.createElement('section');
-      section.className = 'global-settings-group';
-      var heading = document.createElement('h3');
-      heading.textContent = group === 'couple' ? 'The two of you' :
-        group === 'date' ? 'The day' : 'The place';
-      section.appendChild(heading);
-      var grid = document.createElement('div');
-      grid.className = 'field-grid';
-      globalFields.filter(function (field) { return field.group === group; })
-        .forEach(function (field) { addTextField(grid, field); });
-      if (group === 'venue') {
-        var chooseField = document.createElement('div');
-        chooseField.className = 'field field--wide';
-        var chooseButton = document.createElement('button');
-        chooseButton.type = 'button';
-        chooseButton.className = 'maps-button';
-        chooseButton.textContent = 'Choose location on Google Maps';
-        chooseButton.addEventListener('click', function () {
-          var query = config.venue.mapsQuery ||
-            [config.venue.name, config.venue.address].filter(Boolean).join(', ');
-          var url = 'https://www.google.com/maps/search/?api=1&query=' +
-            encodeURIComponent(query);
-          var mapLink = document.createElement('a');
-          mapLink.href = url;
-          mapLink.target = '_blank';
-          mapLink.rel = 'noopener noreferrer';
-          document.body.appendChild(mapLink);
-          mapLink.click();
-          mapLink.remove();
-        });
-        chooseField.appendChild(chooseButton);
-        var chooseHint = document.createElement('span');
-        chooseHint.className = 'field-hint';
-        chooseHint.textContent = 'Type the venue\u2019s name or address above, then use this button to double-check the pin on Maps.';
-        chooseField.appendChild(chooseHint);
-        grid.appendChild(chooseField);
-      }
-      section.appendChild(grid);
-      editor.appendChild(section);
-    });
-
-    var calendarNote = document.createElement('p');
-    calendarNote.className = 'editor-note';
-    calendarNote.textContent = 'Everything updates itself \u2014 change when the day begins, and the numerals, the ending time and every calendar button follow along.';
-    editor.appendChild(calendarNote);
-  }
-
-  function addSimpleField(parent, path, label, opts) {
-    opts = opts || {};
-    var value = getPath(path);
-    if (typeof value !== 'string' && typeof value !== 'number') return;
-    var field = document.createElement('div');
-    field.className = 'field' + (opts.wide ? ' field--wide' : '');
-    var labelEl = document.createElement('label');
-    labelEl.textContent = label;
-    var input = document.createElement(opts.options ? 'select' : (opts.multiline ? 'textarea' : 'input'));
-    input.id = 'f-' + path.replace(/[^a-z0-9]/gi, '-');
-    labelEl.htmlFor = input.id;
-    if (!opts.options && !opts.multiline) input.type = opts.type || 'text';
-    if (opts.multiline) input.rows = opts.rows || 3;
-    if (opts.options) {
-      opts.options.forEach(function (option) {
-        var el = document.createElement('option');
-        el.value = option[0];
-        el.textContent = option[1];
-        input.appendChild(el);
+      registerSync('venue.mapUrl', function (next) {
+        if (document.activeElement !== input) input.value = String(next == null ? '' : next);
       });
-      input.value = String(value);
-    } else {
-      input.value = String(value == null ? '' : value);
-      if (opts.placeholder) input.placeholder = opts.placeholder;
-    }
-    input.addEventListener('input', function () {
-      var next = input.value;
-      if (opts.type === 'number') {
-        var parsed = parseInt(input.value, 10);
-        if (!isFinite(parsed)) return;
-        next = Math.min(opts.max || 20, Math.max(opts.min || 1, parsed));
-      }
-      setPath(path, next);
-      if (opts.after) opts.after(next);
-      notify();
+      wrap.appendChild(input);
+      wrap.appendChild(el('span', 'field-hint', 'Have an exact spot in mind? Paste its Google Maps or Apple Maps link and guests will land right on it.'));
+      inner.appendChild(wrap);
     });
-    field.appendChild(labelEl);
-    field.appendChild(input);
-    if (opts.hint) {
-      var hintEl = document.createElement('span');
-      hintEl.className = 'field-hint';
-      hintEl.textContent = opts.hint;
-      field.appendChild(hintEl);
-    }
-    parent.appendChild(field);
   }
 
-  function addWordingSettings() {
-    var section = document.createElement('section');
-    section.className = 'global-settings-group';
-    var heading = document.createElement('h3');
-    heading.textContent = 'Your words';
-    section.appendChild(heading);
-    var description = document.createElement('p');
-    description.className = 'field-hint';
-    description.textContent = 'Every sentence of your invitation lives here. Shortcut: click the words on the invitation itself and type over them.';
-    section.appendChild(description);
-    var grid = document.createElement('div');
-    grid.className = 'field-grid';
-    addSimpleField(grid, 'content.storyTitle', 'Story heading', { hint: 'The large editorial word, e.g. “Our”.' });
-    addSimpleField(grid, 'content.storyTitleScript', 'Story heading script', { hint: 'The script word beneath it, e.g. “Story”.' });
-    addSimpleField(grid, 'content.storyParagraphOne', 'Story · first paragraph', { wide: true, multiline: true, rows: 3 });
-    addSimpleField(grid, 'content.storyParagraphTwo', 'Story · second paragraph', { wide: true, multiline: true, rows: 3 });
-    addSimpleField(grid, 'content.storyQuote', 'Keepsake quote', { wide: true, multiline: true, rows: 2, hint: 'The quote pinned to the keepsake folio.' });
-    addSimpleField(grid, 'content.storyQuoteLabel', 'Keepsake quote credit', { wide: true });
-    addSimpleField(grid, 'content.detailsIntro', 'Details · introduction', { wide: true });
-    addSimpleField(grid, 'content.ceremonyLabel', 'Ceremony · heading', {});
-    addSimpleField(grid, 'content.ceremonyTime', 'Ceremony · time', {});
-    addSimpleField(grid, 'content.ceremonyNote', 'Ceremony · note', { wide: true });
-    addSimpleField(grid, 'content.receptionLabel', 'Reception · heading', {});
-    addSimpleField(grid, 'content.receptionTime', 'Reception · time', {});
-    addSimpleField(grid, 'content.receptionNote', 'Reception · note', { wide: true });
-    addSimpleField(grid, 'content.kindlyReplyLabel', 'Kindly reply · heading', {});
-    addSimpleField(grid, 'content.kindlyReplyNote', 'Kindly reply · note', { wide: true });
-    addSimpleField(grid, 'content.venueDescription', 'Venue description', { wide: true, multiline: true, rows: 3 });
-    addSimpleField(grid, 'content.closingMessage', 'Closing message', { wide: true, multiline: true, rows: 3 });
-    section.appendChild(grid);
-    editor.appendChild(section);
-  }
-
-  function addMomentsSettings() {
-    var section = document.createElement('section');
-    section.className = 'global-settings-group';
-    var heading = document.createElement('h3');
-    heading.textContent = 'The moments of the day';
-    section.appendChild(heading);
-    var description = document.createElement('p');
-    description.className = 'field-hint';
-    description.textContent = 'One line per moment — they appear in the framed programme on your invitation. Leave it empty and that part quietly disappears.';
-    section.appendChild(description);
-    var field = document.createElement('div');
-    field.className = 'field field--wide';
-    var label = document.createElement('label');
-    label.htmlFor = 'moments-lines';
-    label.textContent = 'Moments of the day';
-    var textarea = document.createElement('textarea');
-    textarea.id = label.htmlFor;
-    textarea.rows = 6;
-    textarea.value = (Array.isArray(config.moments) ? config.moments : []).join('\n');
-    textarea.addEventListener('input', function () {
-      config.moments = textarea.value.split('\n')
-        .map(function (line) { return line.trim(); })
-        .filter(function (line) { return line.length > 0; });
-      notify('Wedding-day words updated.');
+  function buildWordsStep(body) {
+    var grid = el('div', 'field-grid');
+    addTextField(grid, {
+      path: 'content.storyParagraphOne', label: 'How the story begins',
+      multiline: true, rows: 3, hint: 'Two or three sentences is plenty — the proof shows the fit.'
     });
-    field.appendChild(label);
-    field.appendChild(textarea);
-    section.appendChild(field);
-    editor.appendChild(section);
-  }
-
-  function addRsvpSettings() {
-    var section = document.createElement('section');
-    section.className = 'global-settings-group';
-    var heading = document.createElement('h3');
-    heading.textContent = 'Guest replies';
-    section.appendChild(heading);
-
-    var grid = document.createElement('div');
-    grid.className = 'field-grid';
-    addSimpleField(grid, 'rsvp.deadline', 'Reply-by date', { wide: true, hint: 'Written exactly as guests should read it, e.g. “the first of August, 2027”.' });
-    addSimpleField(grid, 'rsvp.maxGuests', 'Most seats one reply can claim', {
-      type: 'number', min: 1, max: 20, wide: true,
-      hint: 'For example, 2 lets a guest reply for themselves and their plus-one.'
+    addTextField(grid, {
+      path: 'content.storyParagraphTwo', label: 'How it continues',
+      multiline: true, rows: 3
     });
-
-    var note = document.createElement('span');
-    note.className = 'field-hint';
-    note.textContent = 'Every reply arrives in the Guest replies list below the moment guests respond — no email address or extra setup is needed.';
-    section.appendChild(grid);
-    section.appendChild(note);
-    editor.appendChild(section);
-  }
-
-  function addOpeningSettings() {
-    var section = document.createElement('section');
-    section.className = 'global-settings-group';
-    var heading = document.createElement('h3');
-    heading.textContent = 'The opening envelope';
-    section.appendChild(heading);
-    var description = document.createElement('p');
-    description.className = 'field-hint';
-    description.textContent = 'Personalize the words guests see before opening your invitation.';
-    section.appendChild(description);
-    var grid = document.createElement('div');
-    grid.className = 'field-grid';
-    [
-      ['content.openingEyebrow', 'Opening introduction'],
-      ['content.envelopeAddress', 'Envelope addressee'],
-      ['content.openingHint', 'Invitation hint'],
-      ['content.openButton', 'Open button'],
-      ['content.skipButton', 'Skip button']
-    ].forEach(function (entry) {
-      var field = document.createElement('div');
-      field.className = 'field field--wide';
-      var label = document.createElement('label');
-      label.textContent = entry[1];
-      label.htmlFor = 'opening-' + entry[0].replace(/[^a-z0-9]/gi, '-');
-      var input = document.createElement('input');
-      input.type = 'text';
-      input.id = label.htmlFor;
-      input.value = getPath(entry[0]) || '';
-      input.dataset.configPath = entry[0];
-      input.addEventListener('input', function () {
-        setPath(entry[0], input.value);
-        notify();
+    addTextField(grid, {
+      path: 'content.closingMessage', label: 'Your closing note',
+      multiline: true, rows: 3,
+      hint: 'The last words at the foot of the invitation.'
+    });
+    body.appendChild(grid);
+    addFineTune(body, 'words', 'Fine-tune · the smaller words', function (inner) {
+      groupLabel(inner, 'The opening envelope');
+      addTextField(inner, { path: 'content.openingEyebrow', label: 'Opening introduction' });
+      addTextField(inner, { path: 'content.envelopeAddress', label: 'Envelope addressee' });
+      addTextField(inner, { path: 'content.openingHint', label: 'Invitation hint' });
+      addTextField(inner, { path: 'content.openButton', label: 'Open button' });
+      addTextField(inner, { path: 'content.skipButton', label: 'Skip button' });
+      groupLabel(inner, 'The story frame');
+      addTextField(inner, { path: 'content.storyTitle', label: 'Story heading' });
+      addTextField(inner, { path: 'content.storyTitleScript', label: 'Story heading · script word' });
+      addTextField(inner, { path: 'content.storyQuote', label: 'Keepsake quote', multiline: true, rows: 2 });
+      addTextField(inner, { path: 'content.storyQuoteLabel', label: 'Quote credit' });
+      groupLabel(inner, 'The details columns');
+      addTextField(inner, { path: 'content.detailsIntro', label: 'Details introduction' });
+      addTextField(inner, { path: 'content.ceremonyLabel', label: 'Ceremony heading' });
+      addTextField(inner, { path: 'content.ceremonyTime', label: 'Ceremony time' });
+      addTextField(inner, { path: 'content.ceremonyNote', label: 'Ceremony note' });
+      addTextField(inner, { path: 'content.receptionLabel', label: 'Reception heading' });
+      addTextField(inner, { path: 'content.receptionTime', label: 'Reception time' });
+      addTextField(inner, { path: 'content.receptionNote', label: 'Reception note' });
+      addTextField(inner, { path: 'content.kindlyReplyLabel', label: 'Kindly reply heading' });
+      addTextField(inner, { path: 'content.kindlyReplyNote', label: 'Kindly reply note' });
+      addTextField(inner, { path: 'content.venueDescription', label: 'Venue description', multiline: true, rows: 2 });
+      groupLabel(inner, 'The programme frame');
+      var momentsWrap = el('div', 'field');
+      momentsWrap.appendChild(fieldLabel('Moments of the day', 'f-moments'));
+      var moments = el('textarea');
+      moments.id = 'f-moments';
+      moments.rows = 6;
+      moments.value = (Array.isArray(config.moments) ? config.moments : []).join('\n');
+      moments.addEventListener('input', function () {
+        config.moments = moments.value.split('\n')
+          .map(function (line) { return line.trim(); })
+          .filter(function (line) { return line.length > 0; });
+        notify('Wedding-day words updated.');
       });
-      field.appendChild(label);
-      field.appendChild(input);
-      grid.appendChild(field);
+      momentsWrap.appendChild(moments);
+      momentsWrap.appendChild(el('span', 'field-hint', 'One line per moment, in order. Leave empty and the frame quietly disappears.'));
+      inner.appendChild(momentsWrap);
     });
-    section.appendChild(grid);
-    editor.appendChild(section);
   }
 
-  function addTypographySettings() {
-    var section = document.createElement('section');
-    section.className = 'global-settings-group';
-    var heading = document.createElement('h3');
-    heading.textContent = 'Typefaces';
-    section.appendChild(heading);
-    var description = document.createElement('p');
-    description.className = 'field-hint';
-    description.textContent = 'Choose a considered typeface for each role. Your selections carry through the full invitation.';
-    section.appendChild(description);
-    var grid = document.createElement('div');
-    grid.className = 'field-grid typography-grid';
-    var roles = [
-      {
-        key: 'editorial', label: 'Editorial headings', defaultValue: 'bodoni',
-        choices: [
-          ['bodoni', 'Bodoni Moda'], ['playfair', 'Playfair Display'], ['dmSerif', 'DM Serif Display'],
-          ['cormorant', 'Cormorant Garamond'], ['prata', 'Prata'], ['marcellus', 'Marcellus'],
-          ['italiana', 'Italiana'], ['libreCaslon', 'Libre Caslon Text']
-        ]
-      },
-      {
-        key: 'display', label: 'Romantic serif', defaultValue: 'cormorant',
-        choices: [
-          ['cormorant', 'Cormorant Garamond'], ['ebGaramond', 'EB Garamond'], ['lora', 'Lora'],
-          ['playfair', 'Playfair Display'], ['cardo', 'Cardo'], ['spectral', 'Spectral'],
-          ['crimsonPro', 'Crimson Pro'], ['libreBaskerville', 'Libre Baskerville']
-        ]
-      },
-      {
-        key: 'script', label: 'Signature script', defaultValue: 'pinyon',
-        choices: [
-          ['pinyon', 'Pinyon Script'], ['greatVibes', 'Great Vibes'], ['allura', 'Allura'],
-          ['tangerine', 'Tangerine'], ['parisienne', 'Parisienne'], ['alexBrush', 'Alex Brush'],
-          ['mrsSaintDelafield', 'Mrs Saint Delafield'], ['herrVonMuellerhoff', 'Herr Von Muellerhoff']
-        ]
-      },
-      {
-        key: 'hand', label: 'Handwritten accents', defaultValue: 'laBelle',
-        choices: [
-          ['laBelle', 'La Belle Aurore'], ['caveat', 'Caveat'], ['cedarville', 'Cedarville Cursive'],
-          ['shadowsIntoLight', 'Shadows Into Light'], ['homemadeApple', 'Homemade Apple'],
-          ['nothingYouCouldDo', 'Nothing You Could Do']
-        ]
-      },
-      {
-        key: 'body', label: 'Interface & small text', defaultValue: 'jost',
-        choices: [
-          ['jost', 'Jost'], ['dmSans', 'DM Sans'], ['lato', 'Lato'], ['montserrat', 'Montserrat'],
-          ['karla', 'Karla'], ['workSans', 'Work Sans'], ['outfit', 'Outfit'], ['sourceSans', 'Source Sans 3']
-        ]
-      }
-    ];
-    roles.forEach(function (role) {
-      var field = document.createElement('div');
-      field.className = 'field field--wide';
-      var label = document.createElement('label');
-      label.textContent = role.label;
-      label.htmlFor = 'font-' + role.key;
-      var select = document.createElement('select');
-      select.id = label.htmlFor;
-      role.choices.forEach(function (choice) {
-        var option = document.createElement('option');
-        option.value = choice[0];
-        option.textContent = choice[1];
-        option.style.fontFamily = fontPreviewFamily(choice[0]);
-        select.appendChild(option);
-      });
-      select.value = config.fonts && config.fonts[role.key] || role.defaultValue;
-      select.style.fontFamily = fontPreviewFamily(select.value);
-      select.addEventListener('change', function () {
-        if (!config.fonts || typeof config.fonts !== 'object') config.fonts = {};
-        config.fonts[role.key] = select.value;
-        select.style.fontFamily = fontPreviewFamily(select.value);
-        notify('Typography updated in your invitation.');
-      });
-      field.appendChild(label);
-      field.appendChild(select);
-      grid.appendChild(field);
-    });
-    section.appendChild(grid);
-    editor.appendChild(section);
-  }
+  /* ── design step: curated moods & voices ───────────────────── */
+
+  var THEME_META = [
+    { key: 'burgundy', name: 'Burgundy heirloom', chips: ['#5D2029', '#F7F4EE', '#CDBB9A', '#24090D'] },
+    { key: 'rose', name: 'Soft rose', chips: ['#70404A', '#FAF4EF', '#D5B6A1', '#2A171C'] },
+    { key: 'olive', name: 'Garden olive', chips: ['#53513A', '#F8F5EC', '#CBB98E', '#22231B'] },
+    { key: 'midnight', name: 'Midnight blue', chips: ['#394253', '#F5F3EE', '#C8B99A', '#171C26'] }
+  ];
+
+  var TYPE_PAIRINGS = [
+    { name: 'Heirloom Classic', fonts: { editorial: 'bodoni', display: 'cormorant', script: 'pinyon', hand: 'laBelle', body: 'jost' } },
+    { name: 'Romantic Garden', fonts: { editorial: 'playfair', display: 'ebGaramond', script: 'greatVibes', hand: 'caveat', body: 'dmSans' } },
+    { name: 'Modern Editorial', fonts: { editorial: 'dmSerif', display: 'lora', script: 'allura', hand: 'shadowsIntoLight', body: 'montserrat' } },
+    { name: 'Gallery Minimal', fonts: { editorial: 'italiana', display: 'prata', script: 'parisienne', hand: 'nothingYouCouldDo', body: 'lato' } },
+    { name: 'Old Library', fonts: { editorial: 'libreBaskerville', display: 'cardo', script: 'tangerine', hand: 'cedarville', body: 'karla' } },
+    { name: 'Soft Storybook', fonts: { editorial: 'crimsonPro', display: 'cormorant', script: 'alexBrush', hand: 'homemadeApple', body: 'lato' } }
+  ];
 
   function fontPreviewFamily(font) {
     var families = {
@@ -917,12 +966,12 @@
       marcellus: '"Marcellus", serif',
       italiana: '"Italiana", serif',
       libreCaslon: '"Libre Caslon Text", serif',
+      libreBaskerville: '"Libre Baskerville", serif',
       ebGaramond: '"EB Garamond", serif',
       lora: '"Lora", serif',
       cardo: '"Cardo", serif',
       spectral: '"Spectral", serif',
       crimsonPro: '"Crimson Pro", serif',
-      libreBaskerville: '"Libre Baskerville", serif',
       pinyon: '"Pinyon Script", cursive',
       greatVibes: '"Great Vibes", cursive',
       allura: '"Allura", cursive',
@@ -949,251 +998,446 @@
     return families[font] || families.bodoni;
   }
 
-  function addAppearanceSettings() {
-    var section = document.createElement('section');
-    section.className = 'global-settings-group';
-    var heading = document.createElement('h3');
-    heading.textContent = 'Colours';
-    section.appendChild(heading);
-
-    var themeField = document.createElement('div');
-    themeField.className = 'field field--wide';
-    var label = document.createElement('label');
-    label.htmlFor = 'theme-select';
-    label.textContent = 'Website colour theme';
-    var select = document.createElement('select');
-    select.id = label.htmlFor;
-    [
-      ['burgundy', 'Burgundy heirloom'],
-      ['rose', 'Soft rose'],
-      ['olive', 'Garden olive'],
-      ['midnight', 'Midnight blue']
-    ].forEach(function (entry) {
-      var option = document.createElement('option');
-      option.value = entry[0];
-      option.textContent = entry[1];
-      select.appendChild(option);
-    });
-    select.value = config.theme || 'burgundy';
-    select.addEventListener('change', function () {
-      config.theme = select.value;
-      config.themeColors = {};
-      config.colorEdits = {};
-      config.hiddenElements = {};
-      renderSidebar();
-      notify();
-    });
-    themeField.appendChild(label);
-    themeField.appendChild(select);
-    section.appendChild(themeField);
-
-    var paletteHeading = document.createElement('h4');
-    paletteHeading.textContent = 'Website colour palette';
-    section.appendChild(paletteHeading);
-    var paletteHint = document.createElement('p');
-    paletteHint.className = 'field-hint';
-    paletteHint.textContent = 'Choose a theme above, then adjust these colours to update the invitation throughout.';
-    section.appendChild(paletteHint);
-    var palette = document.createElement('div');
-    palette.className = 'palette-editor';
-    var themeColorDefaults = {
-      burgundy: { primary: '#5D2029', darkBackground: '#24090D', paper: '#F7F4EE', accent: '#CDBB9A', botanical: '#777957', rose: '#C5A0A0' },
-      rose: { primary: '#70404A', darkBackground: '#2A171C', paper: '#FAF4EF', accent: '#D5B6A1', botanical: '#81706B', rose: '#D19DA4' },
-      olive: { primary: '#53513A', darkBackground: '#22231B', paper: '#F8F5EC', accent: '#CBB98E', botanical: '#777957', rose: '#C5A0A0' },
-      midnight: { primary: '#394253', darkBackground: '#171C26', paper: '#F5F3EE', accent: '#C8B99A', botanical: '#777D83', rose: '#B8A0A7' }
-    };
-    var activeThemeColors = themeColorDefaults[config.theme] || themeColorDefaults.burgundy;
-    [
-      ['primary', 'Primary'],
-      ['darkBackground', 'Dark background'],
-      ['paper', 'Light paper'],
-      ['accent', 'Champagne accent'],
-      ['botanical', 'Botanical'],
-      ['rose', 'Rose']
-    ].forEach(function (role) {
-      var item = document.createElement('div');
-      item.className = 'palette-editor__item';
-      var label = document.createElement('label');
-      label.textContent = role[1];
-      var color = document.createElement('input');
-      color.id = 'theme-color-' + role[0];
-      color.type = 'color';
-      label.htmlFor = color.id;
-      color.value = config.themeColors && /^#[0-9a-f]{6}$/i.test(config.themeColors[role[0]] || '')
-        ? config.themeColors[role[0]]
-        : activeThemeColors[role[0]];
-      color.setAttribute('aria-label', role[1] + ' website colour');
-      color.addEventListener('input', function () {
-        if (!config.themeColors || typeof config.themeColors !== 'object') config.themeColors = {};
-        config.themeColors[role[0]] = color.value.toUpperCase();
-        notify();
+  function currentPairingName() {
+    for (var i = 0; i < TYPE_PAIRINGS.length; i++) {
+      var pairing = TYPE_PAIRINGS[i];
+      var match = Object.keys(pairing.fonts).every(function (role) {
+        return (config.fonts && config.fonts[role]) === pairing.fonts[role];
       });
-      item.appendChild(label);
-      item.appendChild(color);
-      palette.appendChild(item);
-    });
-    section.appendChild(palette);
-
-    var swatchHeading = document.createElement('h4');
-    swatchHeading.textContent = 'Wedding-day palette swatches';
-    section.appendChild(swatchHeading);
-    var swatchHint = document.createElement('p');
-    swatchHint.className = 'field-hint';
-    swatchHint.textContent = 'Each colour is its own swatch — rename it, recolour it or remove it without touching the others. The same swatches are selectable one by one on the invitation itself.';
-    section.appendChild(swatchHint);
-    /* the swatch rows live in their own grid so they never mix with
-       the website theme colours above                             */
-    var swatchList = document.createElement('div');
-    swatchList.className = 'palette-editor palette-editor--swatches';
-    (config.palette || []).forEach(function (swatch, index) {
-      var item = document.createElement('div');
-      item.className = 'palette-editor__item palette-editor__item--swatch';
-      var name = document.createElement('input');
-      name.type = 'text';
-      name.value = swatch.name || '';
-      name.setAttribute('aria-label', 'Swatch ' + (index + 1) + ' name');
-      name.addEventListener('input', function () {
-        config.palette[index].name = name.value;
-        notify();
-      });
-      var color = document.createElement('input');
-      color.type = 'color';
-      color.value = /^#[0-9a-f]{6}$/i.test(swatch.color || '') ? swatch.color : '#cdbb9a';
-      color.setAttribute('aria-label', 'Swatch ' + (index + 1) + ' colour');
-      color.addEventListener('input', function () {
-        config.palette[index].color = color.value.toUpperCase();
-        notify();
-      });
-      var removeSwatch = document.createElement('button');
-      removeSwatch.type = 'button';
-      removeSwatch.className = 'swatch-remove';
-      removeSwatch.textContent = '×';
-      removeSwatch.setAttribute('aria-label',
-        'Remove swatch ' + (index + 1) + (swatch.name ? ' (' + swatch.name + ')' : '') + ' only');
-      removeSwatch.addEventListener('click', function () {
-        if (!Array.isArray(config.palette) || !config.palette[index]) return;
-        var removedName = config.palette[index].name || 'swatch ' + (index + 1);
-        config.palette.splice(index, 1);
-        /* stale swatch keys never hide anything — the array is the
-           single source of truth                                */
-        if (config.hiddenElements && typeof config.hiddenElements === 'object') {
-          Object.keys(config.hiddenElements).forEach(function (key) {
-            if (/^palette-swatch-\d+$/.test(key)) delete config.hiddenElements[key];
-          });
-        }
-        renderSidebar();
-        notify('"' + removedName + '" was taken out of the palette. The other colours keep their places.');
-      });
-      item.appendChild(name);
-      item.appendChild(color);
-      item.appendChild(removeSwatch);
-      swatchList.appendChild(item);
-    });
-    if (!config.palette || !config.palette.length) {
-      var emptySwatches = document.createElement('p');
-      emptySwatches.className = 'field-hint';
-      emptySwatches.textContent = 'No swatches yet — add one below.';
-      section.appendChild(emptySwatches);
+      if (match) return pairing.name;
     }
-    section.appendChild(swatchList);
-    var addSwatchField = document.createElement('div');
-    addSwatchField.className = 'field field--wide';
-    var addSwatchButton = document.createElement('button');
-    addSwatchButton.type = 'button';
-    addSwatchButton.className = 'maps-button';
-    addSwatchButton.textContent = 'Add a colour swatch';
-    addSwatchButton.addEventListener('click', function () {
-      if (!Array.isArray(config.palette)) config.palette = [];
-      config.palette.push({
-        name: 'Colour ' + (config.palette.length + 1),
-        color: '#CDBB9A'
+    return '';
+  }
+
+  function buildDesignStep(body) {
+    var themeLabel = el('p', 'field-label', 'A colour mood for the whole invitation');
+    themeLabel.style.cssText = 'margin:0 0 10px;color:var(--muted);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;';
+    body.appendChild(themeLabel);
+    var themeGrid = el('div', 'choice-grid');
+    THEME_META.forEach(function (theme) {
+      var card = el('button', 'choice-card theme-card');
+      card.type = 'button';
+      card.dataset.theme = theme.key;
+      var chips = el('span', 'theme-card__chips');
+      theme.chips.forEach(function (color) {
+        var chip = document.createElement('i');
+        chip.style.background = color;
+        chips.appendChild(chip);
       });
-      renderSidebar();
-      notify('A new swatch joined the palette — name it and pick its colour.');
+      card.appendChild(chips);
+      card.appendChild(el('span', 'choice-card__name', theme.name));
+      if ((config.theme || 'burgundy') === theme.key) card.classList.add('is-selected');
+      card.addEventListener('click', function () {
+        if (config.theme === theme.key) return;
+        config.theme = theme.key;
+        config.themeColors = {};
+        config.colorEdits = {};
+        config.hiddenElements = {};
+        renderFlow();
+        notify('A new colour mood settles over the invitation.');
+      });
+      themeGrid.appendChild(card);
     });
-    addSwatchField.appendChild(addSwatchButton);
-    section.appendChild(addSwatchField);
-    editor.appendChild(section);
-  }
+    body.appendChild(themeGrid);
 
-  /* Chapters read like a story: a number, a title, one plain line
-     about what lives inside. The setup list links straight here.   */
-  var CHAPTER_META = {
-    'the two of you': { number: '01', blurb: 'Your names and monogram — they appear on the envelope, the wax seal and throughout.' },
-    'the day': { number: '02', blurb: 'Date and ceremony time. The countdown, the dates and every calendar button update themselves.' },
-    'the place': { number: '03', blurb: 'Where to find you, with a map pin guests can tap.' },
-    'the opening envelope': { number: '04', blurb: 'The first words your guests read, before the envelope opens.' },
-    'your words': { number: '05', blurb: 'The story, the details and the closing line — all in your voice.' },
-    'the moments of the day': { number: '06', blurb: 'One line per moment for the framed programme. Leave it empty and this part quietly disappears.' },
-    'guest replies': { number: '07', blurb: 'Set the reply-by date and party size. Replies arrive in your Guest replies list automatically.' },
-    'colours': { number: '08', blurb: 'Pick a mood, then fine-tune every colour and swatch.' },
-    'typefaces': { number: '09', blurb: 'Five considered voices — every menu shows each font in its own style.' }
-  };
+    var typeLabel = el('p', 'field-label', 'A typographic voice');
+    typeLabel.style.cssText = 'margin:22px 0 10px;color:var(--muted);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;';
+    body.appendChild(typeLabel);
+    var typeGrid = el('div', 'choice-grid');
+    TYPE_PAIRINGS.forEach(function (pairing) {
+      var card = el('button', 'choice-card type-card');
+      card.type = 'button';
+      card.dataset.pairing = pairing.name;
+      var specimen = el('span', 'type-card__specimen');
+      var scriptLine = el('span', 'type-card__script', 'Amelia & Julien');
+      scriptLine.style.fontFamily = fontPreviewFamily(pairing.fonts.script);
+      var editorialLine = el('span', 'type-card__editorial', 'The Story');
+      editorialLine.style.fontFamily = fontPreviewFamily(pairing.fonts.editorial);
+      var bodyLine = el('span', 'type-card__body', 'Together with their families');
+      bodyLine.style.fontFamily = fontPreviewFamily(pairing.fonts.body);
+      specimen.appendChild(scriptLine);
+      specimen.appendChild(editorialLine);
+      specimen.appendChild(bodyLine);
+      card.appendChild(specimen);
+      card.appendChild(el('span', 'choice-card__name', pairing.name));
+      if (currentPairingName() === pairing.name) card.classList.add('is-selected');
+      card.addEventListener('click', function () {
+        if (!config.fonts || typeof config.fonts !== 'object') config.fonts = {};
+        Object.keys(pairing.fonts).forEach(function (role) {
+          config.fonts[role] = pairing.fonts[role];
+        });
+        renderFlow();
+        notify('“' + pairing.name + '” now speaks throughout the invitation.');
+      });
+      typeGrid.appendChild(card);
+    });
+    body.appendChild(typeGrid);
 
-  function renderSidebar() {
-    var openSections = {};
-    editor.querySelectorAll('details[data-editor-section]').forEach(function (details) {
-      openSections[details.dataset.editorSection] = details.open;
-    });
-    editor.textContent = '';
-    addSharedFields();
-    addOpeningSettings();
-    addWordingSettings();
-    addMomentsSettings();
-    addRsvpSettings();
-    addAppearanceSettings();
-    addTypographySettings();
-    var sections = editor.querySelectorAll('.global-settings-group');
-    sections.forEach(function (section, index) {
-      var heading = section.querySelector('h3');
-      if (!heading) return;
-      var title = heading.textContent.trim();
-      var key = title.toLowerCase();
-      var details = document.createElement('details');
-      details.className = 'global-settings-group editor-accordion';
-      details.dataset.editorSection = key;
-      details.open = Object.prototype.hasOwnProperty.call(openSections, key)
-        ? openSections[key]
-        : index === 0;
-      var summary = document.createElement('summary');
-      summary.appendChild(heading);
-      var chapterMeta = CHAPTER_META[key] || null;
-      if (chapterMeta) {
-        var chapterNumber = document.createElement('span');
-        chapterNumber.className = 'chapter-number';
-        chapterNumber.textContent = chapterMeta.number;
-        chapterNumber.setAttribute('aria-hidden', 'true');
-        summary.insertBefore(chapterNumber, heading);
-      }
-      var content = document.createElement('div');
-      content.className = 'editor-accordion__content';
-      while (section.firstChild) content.appendChild(section.firstChild);
-      if (chapterMeta && chapterMeta.blurb) {
-        var chapterBlurb = document.createElement('p');
-        chapterBlurb.className = 'chapter-blurb';
-        chapterBlurb.textContent = chapterMeta.blurb;
-        content.insertBefore(chapterBlurb, content.firstChild);
-      }
-      details.appendChild(summary);
-      details.appendChild(content);
-      section.replaceWith(details);
-    });
-    editor.querySelectorAll('.global-settings-group').forEach(function (section) {
-      var heading = section.querySelector('h3');
-      if (heading) {
-        var title = heading.textContent.trim().toLowerCase();
-        var details = section.closest('details[data-editor-section]');
-        if (details) {
-          details.addEventListener('toggle', function () {
-            if (!details.open) return;
-            editor.querySelectorAll('details[data-editor-section]').forEach(function (other) {
-              if (other !== details) other.open = false;
-            });
-          });
+    addFineTune(body, 'design', 'Fine-tune · typefaces & colours', function (inner) {
+      groupLabel(inner, 'Individual typefaces');
+      var roles = [
+        {
+          key: 'editorial', label: 'Editorial headings',
+          choices: ['bodoni', 'playfair', 'dmSerif', 'italiana', 'prata', 'libreBaskerville', 'crimsonPro', 'cormorant']
+        },
+        {
+          key: 'display', label: 'Romantic serif',
+          choices: ['cormorant', 'ebGaramond', 'lora', 'cardo', 'crimsonPro', 'libreBaskerville', 'playfair', 'prata']
+        },
+        {
+          key: 'script', label: 'Signature script',
+          choices: ['pinyon', 'greatVibes', 'allura', 'tangerine', 'parisienne', 'alexBrush']
+        },
+        {
+          key: 'hand', label: 'Handwritten accents',
+          choices: ['laBelle', 'caveat', 'cedarville', 'shadowsIntoLight', 'homemadeApple', 'nothingYouCouldDo']
+        },
+        {
+          key: 'body', label: 'Interface & small text',
+          choices: ['jost', 'dmSans', 'lato', 'montserrat', 'karla']
         }
+      ];
+      roles.forEach(function (role) {
+        var wrap = el('div', 'field');
+        var select = el('select');
+        select.id = 'font-' + role.key;
+        wrap.appendChild(fieldLabel(role.label, select.id));
+        role.choices.forEach(function (choice) {
+          var option = document.createElement('option');
+          option.value = choice;
+          option.textContent = choice.charAt(0).toUpperCase() +
+            choice.slice(1).replace(/([A-Z])/g, ' $1').replace('Dm ', 'DM ').replace('Eb ', 'EB ');
+          option.style.fontFamily = fontPreviewFamily(choice);
+          select.appendChild(option);
+        });
+        select.value = (config.fonts && config.fonts[role.key]) || role.choices[0];
+        select.style.fontFamily = fontPreviewFamily(select.value);
+        select.addEventListener('change', function () {
+          if (!config.fonts || typeof config.fonts !== 'object') config.fonts = {};
+          config.fonts[role.key] = select.value;
+          select.style.fontFamily = fontPreviewFamily(select.value);
+          notify('Typography updated in your invitation.');
+        });
+        wrap.appendChild(select);
+        inner.appendChild(wrap);
+      });
+
+      groupLabel(inner, 'The website colours');
+      var themeColorDefaults = {
+        burgundy: { primary: '#5D2029', darkBackground: '#24090D', paper: '#F7F4EE', accent: '#CDBB9A', botanical: '#777957', rose: '#C5A0A0' },
+        rose: { primary: '#70404A', darkBackground: '#2A171C', paper: '#FAF4EF', accent: '#D5B6A1', botanical: '#81706B', rose: '#D19DA4' },
+        olive: { primary: '#53513A', darkBackground: '#22231B', paper: '#F8F5EC', accent: '#CBB98E', botanical: '#777957', rose: '#C5A0A0' },
+        midnight: { primary: '#394253', darkBackground: '#171C26', paper: '#F5F3EE', accent: '#C8B99A', botanical: '#777D83', rose: '#B8A0A7' }
+      };
+      var activeThemeColors = themeColorDefaults[config.theme] || themeColorDefaults.burgundy;
+      var palette = el('div', 'palette-editor');
+      [
+        ['primary', 'Primary'],
+        ['darkBackground', 'Dark background'],
+        ['paper', 'Light paper'],
+        ['accent', 'Champagne accent'],
+        ['botanical', 'Botanical'],
+        ['rose', 'Rose']
+      ].forEach(function (role) {
+        var item = el('div', 'palette-editor__item');
+        var label = fieldLabel(role[1], 'theme-color-' + role[0]);
+        label.style.margin = '0';
+        var color = el('input');
+        color.type = 'color';
+        color.id = 'theme-color-' + role[0];
+        color.value = config.themeColors && /^#[0-9a-f]{6}$/i.test(config.themeColors[role[0]] || '')
+          ? config.themeColors[role[0]]
+          : activeThemeColors[role[0]];
+        color.setAttribute('aria-label', role[1] + ' website colour');
+        color.addEventListener('input', function () {
+          if (!config.themeColors || typeof config.themeColors !== 'object') config.themeColors = {};
+          config.themeColors[role[0]] = color.value.toUpperCase();
+          notify();
+        });
+        item.appendChild(label);
+        item.appendChild(color);
+        palette.appendChild(item);
+      });
+      inner.appendChild(palette);
+
+      groupLabel(inner, 'Your palette swatches');
+      inner.appendChild(el('p', 'field-note', 'Each colour is its own swatch on the invitation — rename it, recolour it or remove it without touching the others.'));
+      var swatchList = el('div', 'palette-editor palette-editor--swatches');
+      (config.palette || []).forEach(function (swatch, index) {
+        var item = el('div', 'palette-editor__item palette-editor__item--swatch');
+        var name = el('input');
+        name.type = 'text';
+        name.value = swatch.name || '';
+        name.setAttribute('aria-label', 'Swatch ' + (index + 1) + ' name');
+        name.addEventListener('input', function () {
+          config.palette[index].name = name.value;
+          notify();
+        });
+        var color = el('input');
+        color.type = 'color';
+        color.value = /^#[0-9a-f]{6}$/i.test(swatch.color || '') ? swatch.color : '#cdbb9a';
+        color.setAttribute('aria-label', 'Swatch ' + (index + 1) + ' colour');
+        color.addEventListener('input', function () {
+          config.palette[index].color = color.value.toUpperCase();
+          notify();
+        });
+        var removeSwatch = el('button', 'swatch-remove', '×');
+        removeSwatch.type = 'button';
+        removeSwatch.setAttribute('aria-label',
+          'Remove swatch ' + (index + 1) + (swatch.name ? ' (' + swatch.name + ')' : '') + ' only');
+        removeSwatch.addEventListener('click', function () {
+          if (!Array.isArray(config.palette) || !config.palette[index]) return;
+          var removedName = config.palette[index].name || 'swatch ' + (index + 1);
+          config.palette.splice(index, 1);
+          if (config.hiddenElements && typeof config.hiddenElements === 'object') {
+            Object.keys(config.hiddenElements).forEach(function (key) {
+              if (/^palette-swatch-\d+$/.test(key)) delete config.hiddenElements[key];
+            });
+          }
+          renderFlow();
+          notify('“' + removedName + '” was taken out of the palette. The other colours keep their places.');
+        });
+        item.appendChild(name);
+        item.appendChild(color);
+        item.appendChild(removeSwatch);
+        swatchList.appendChild(item);
+      });
+      if (!config.palette || !config.palette.length) {
+        swatchList.appendChild(el('p', 'field-note', 'No swatches yet — add one below.'));
       }
+      inner.appendChild(swatchList);
+      var addSwatch = el('button', 'maps-button', 'Add a colour swatch');
+      addSwatch.type = 'button';
+      addSwatch.addEventListener('click', function () {
+        if (!Array.isArray(config.palette)) config.palette = [];
+        config.palette.push({ name: 'Colour ' + (config.palette.length + 1), color: '#CDBB9A' });
+        renderFlow();
+        notify('A new swatch joined the palette — name it and pick its colour.');
+      });
+      inner.appendChild(addSwatch);
     });
   }
+
+  function buildRepliesStep(body) {
+    var grid = el('div', 'field-grid');
+    addTextField(grid, {
+      path: 'rsvp.deadline', label: 'Reply-by date',
+      hint: 'Written exactly as guests should read it — for example, the first of August, 2027.'
+    });
+    grid.appendChild((function () {
+      var holder = el('div');
+      addStepper(holder, {
+        path: 'rsvp.maxGuests', label: 'Seats one reply may claim',
+        min: 1, max: 20,
+        hint: 'For example, 2 lets a guest reply for themselves and their plus-one.'
+      });
+      return holder;
+    })());
+    body.appendChild(grid);
+    body.appendChild(el('p', 'field-note', 'Every reply arrives in your Guest replies list the moment a guest responds — no email address, nothing to set up.'));
+  }
+
+  /* ── step registry ─────────────────────────────────────────── */
+
+  var STEPS = [
+    { key: 'couple', number: '01', title: 'The two of you', check: 'names',
+      blurb: 'Your names carry the whole invitation — the envelope, the wax seal and every page.',
+      tip: 'On the proof, the names are clickable — type straight over them.',
+      build: buildCoupleStep },
+    { key: 'day', number: '02', title: 'The day', check: 'day',
+      blurb: 'One date, one hour. The countdown, the numerals and every calendar file look after themselves.',
+      tip: 'Click the date on the invitation itself to edit how it reads.',
+      build: buildDayStep },
+    { key: 'place', number: '03', title: 'The place', check: 'place',
+      blurb: 'Where to find you — with a map pin your guests can tap.',
+      tip: 'The venue name on the proof is editable too, exactly where it sits.',
+      build: buildPlaceStep },
+    { key: 'words', number: '04', title: 'Your words', check: 'words',
+      blurb: 'The story, the closing line — all in your voice. The sample words are lovely; make them yours.',
+      tip: 'Click any sentence on the proof to edit it exactly where it sits.',
+      build: buildWordsStep },
+    { key: 'design', number: '05', title: 'Colour & type',
+      blurb: 'One mood, one voice. Each option below is a complete, considered pairing.',
+      tip: 'Colours on the invitation itself are clickable as well — select one to change it.',
+      build: buildDesignStep },
+    { key: 'replies', number: '06', title: 'Guest replies', check: 'replies',
+      blurb: 'When to reply by, and how many seats one reply may bring.',
+      tip: 'Replies are kept for you automatically — the list waits on the sharing step.',
+      build: buildRepliesStep }
+  ];
+  var SHARE_STEP = 7;
+
+  /* ── flow rendering & navigation ───────────────────────────── */
+
+  var shareSection = stepsHost.querySelector('[data-step-key="share"]');
+
+  function buildStepSection(meta, index) {
+    var section = el('section', 'flow-step');
+    section.dataset.step = String(index + 1);
+    section.dataset.stepKey = meta.key;
+    section.dataset.generated = '1';
+    var head = el('header', 'flow-step__head');
+    head.appendChild(el('span', 'flow-step__number', meta.number));
+    var headCopy = el('div');
+    headCopy.appendChild(el('h2', null, meta.title));
+    headCopy.appendChild(el('p', 'flow-step__blurb', meta.blurb));
+    var stateline = el('div', 'flow-step__stateline');
+    var chip = el('span', 'chip');
+    chip.dataset.stepChip = meta.key;
+    stateline.appendChild(chip);
+    headCopy.appendChild(stateline);
+    head.appendChild(headCopy);
+    section.appendChild(head);
+    var body = el('div', 'flow-step__body');
+    meta.build(body);
+    section.appendChild(body);
+    if (meta.tip) section.appendChild(el('p', 'flow-step__tip', meta.tip));
+    return section;
+  }
+
+  function renderFlow() {
+    stepsHost.querySelectorAll('[data-generated]').forEach(function (node) { node.remove(); });
+    STEPS.forEach(function (meta, index) {
+      stepsHost.insertBefore(buildStepSection(meta, index), shareSection);
+    });
+    goStep(currentStep, true);
+    updateStepStates();
+    updateShareReadiness();
+  }
+
+  var flowCount = document.getElementById('flow-step-count');
+  var flowName = document.getElementById('flow-step-name');
+  var flowFill = document.getElementById('flow-progress-fill');
+  var flowBack = document.getElementById('flow-back');
+  var flowNext = document.getElementById('flow-next');
+
+  function goStep(step, quiet) {
+    currentStep = Math.max(1, Math.min(SHARE_STEP, step));
+    var sections = stepsHost.querySelectorAll('.flow-step');
+    sections.forEach(function (section) {
+      var mine = Number(section.dataset.step) === currentStep;
+      section.hidden = !mine;
+      section.classList.toggle('is-active', mine && !quiet);
+    });
+    var title = currentStep === SHARE_STEP ? 'Share your invitation' : STEPS[currentStep - 1].title;
+    if (flowCount) flowCount.textContent = 'Step ' + currentStep + ' of ' + SHARE_STEP;
+    if (flowName) flowName.textContent = title;
+    if (flowFill) flowFill.style.width = (currentStep / SHARE_STEP * 100).toFixed(1) + '%';
+    if (flowBack) flowBack.hidden = currentStep === 1;
+    if (flowNext) {
+      flowNext.hidden = currentStep === SHARE_STEP;
+      flowNext.textContent = currentStep === SHARE_STEP - 1 ? 'Go to sharing' : 'Continue';
+    }
+    if (currentStep === SHARE_STEP) {
+      updateShareReadiness();
+      if (finishPublishButton && !publishId) finishPublishButton.hidden = false;
+    }
+    try { window.sessionStorage.setItem('heirloom-atelier-step', String(currentStep)); }
+    catch (error) { /* private mode — the flow simply starts at one */ }
+  }
+
+  if (flowBack) flowBack.addEventListener('click', function () { goStep(currentStep - 1); });
+  if (flowNext) flowNext.addEventListener('click', function () { goStep(currentStep + 1); });
+
+  /* Enter advances the flow — the keyboard matches the promise of
+     the buttons. Textareas keep their newline.                     */
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter' || event.shiftKey) return;
+    var active = document.activeElement;
+    if (!active || active.tagName !== 'INPUT' || active.readOnly) return;
+    if (active.type === 'password' || active.closest('#header-published')) return;
+    if (currentStep >= SHARE_STEP) return;
+    event.preventDefault();
+    goStep(currentStep + 1);
+  });
+
+  /* ── readiness — honest, per-step, and on the share page ───── */
+
+  function sampleValue(value) {
+    return String(value == null ? '' : value).trim().toLowerCase();
+  }
+
+  var setupChecks = [
+    { key: 'names', step: 1, label: 'Your names',
+      isDone: function () {
+        return sampleValue(config.couple.partnerOne) !== sampleValue(defaults.couple.partnerOne) ||
+          sampleValue(config.couple.partnerTwo) !== sampleValue(defaults.couple.partnerTwo);
+      } },
+    { key: 'day', step: 2, label: 'Your date & time',
+      isDone: function () {
+        return sampleValue(config.wedding.iso) !== sampleValue(defaults.wedding.iso);
+      } },
+    { key: 'place', step: 3, label: 'Your venue',
+      isDone: function () {
+        return sampleValue(config.venue.name) !== sampleValue(defaults.venue.name) ||
+          sampleValue(config.venue.mapsQuery) !== sampleValue(defaults.venue.mapsQuery);
+      } },
+    { key: 'words', step: 4, label: 'Your story',
+      isDone: function () {
+        return sampleValue(config.content.storyParagraphOne) !== sampleValue(defaults.content.storyParagraphOne) ||
+          sampleValue(config.content.closingMessage) !== sampleValue(defaults.content.closingMessage);
+      } },
+    { key: 'replies', step: 6, label: 'Your reply-by date',
+      isDone: function () {
+        return sampleValue(config.rsvp && config.rsvp.deadline) !==
+          sampleValue(defaults.rsvp && defaults.rsvp.deadline);
+      } }
+  ];
+
+  function updateStepStates() {
+    STEPS.forEach(function (meta, index) {
+      var chip = stepsHost.querySelector('[data-step-chip="' + meta.key + '"]');
+      if (!chip) return;
+      if (!meta.check) { chip.hidden = true; return; }
+      var check = setupChecks.filter(function (entry) { return entry.step === index + 1; })[0];
+      var done = false;
+      try { done = check ? check.isDone() : false; } catch (error) { done = false; }
+      chip.className = 'chip ' + (done ? 'chip--done' : 'chip--sample');
+      chip.textContent = done ? 'Yours' : 'Still the sample';
+    });
+  }
+
+  var shareReadiness = document.getElementById('share-readiness');
+
+  function updateShareReadiness() {
+    if (!shareReadiness) return;
+    shareReadiness.textContent = '';
+    var pending = [];
+    setupChecks.forEach(function (check) {
+      var done = false;
+      try { done = check.isDone(); } catch (error) { done = false; }
+      var item = el('div', 'readiness-item' + (done ? ' readiness-item--done' : ''));
+      item.appendChild(el('span', 'readiness-item__mark', done ? '✓' : '·'));
+      var button = el('button', null, check.label);
+      button.type = 'button';
+      if (done) button.disabled = true;
+      else {
+        pending.push(check.label.toLowerCase());
+        button.addEventListener('click', function () { goStep(check.step); });
+      }
+      item.appendChild(button);
+      shareReadiness.appendChild(item);
+    });
+    if (!pending.length) {
+      shareReadiness.insertBefore(
+        el('p', 'field-note', 'Every essential is yours — this invitation is ready to share.'),
+        shareReadiness.firstChild);
+    }
+  }
+
+  function updateRestoreVisibility() {
+    if (!restoreRemovedButton) return;
+    var removed = 0;
+    if (config.hiddenElements && typeof config.hiddenElements === 'object') {
+      removed += Object.keys(config.hiddenElements).length;
+    }
+    if (config.hiddenSelectors && typeof config.hiddenSelectors === 'object') {
+      removed += Object.keys(config.hiddenSelectors).length;
+    }
+    restoreRemovedButton.hidden = removed === 0;
+  }
+
+  /* ── preview messages (canvas editing) ─────────────────────── */
 
   function handlePreviewMessage(event) {
     if (event.source !== frame.contentWindow || event.origin !== window.location.origin || !event.data) return;
@@ -1226,8 +1470,6 @@
         selectedColorSelector = message.selector;
         selectedColorKey = typeof message.key === 'string' ? message.key : '';
         selectedColorSwatchIndex = swatchIndex;
-        /* every element on the canvas can be removed — backgrounds are
-           the exception (the scene itself always stays)               */
         selectedColorRemovable = !isBackground && selectedColorKey !== 'skip-intro';
         var savedColors = config.colorEdits && config.colorEdits[selectedColorSelector];
         if (textColorInput) {
@@ -1307,144 +1549,9 @@
     notify('Text updated in your invitation.');
   }
 
-  function download(name, content, type) {
-    var url = URL.createObjectURL(new Blob([content], { type: type }));
-    var link = document.createElement('a');
-    link.href = url;
-    link.download = name;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-  }
-
-  function validConfig(value) {
-    return value && typeof value === 'object' && !Array.isArray(value) &&
-      value.couple && value.wedding && value.venue && value.content &&
-      (value.palette == null || Array.isArray(value.palette)) &&
-      (value.moments == null || Array.isArray(value.moments));
-  }
-
   window.addEventListener('message', handlePreviewMessage);
 
-  /* ── access code (optional seller gate) ─────────────────────── */
-  function getAccessCode() {
-    if (accessCodeInput && accessCodeInput.value.trim()) return accessCodeInput.value.trim();
-    try { return window.sessionStorage.getItem('heirloom-access-code') || ''; }
-    catch (error) { return ''; }
-  }
-  if (accessCodeInput) {
-    try {
-      var storedCode = window.sessionStorage.getItem('heirloom-access-code');
-      if (storedCode) accessCodeInput.value = storedCode;
-    } catch (error) { /* session storage unavailable — the field still works */ }
-    accessCodeInput.addEventListener('input', function () {
-      try {
-        if (accessCodeInput.value.trim()) {
-          window.sessionStorage.setItem('heirloom-access-code', accessCodeInput.value.trim());
-        } else {
-          window.sessionStorage.removeItem('heirloom-access-code');
-        }
-      } catch (error) { /* private mode — keep the code in memory only */ }
-      if (pendingPublishAfterCode && accessCodeInput.value.trim()) {
-        pendingPublishAfterCode = false;
-        publishInvitation();
-      }
-    });
-  }
-
-  /* ── setup list — what still shows the sample ─────────────── */
-  function sampleValue(value) {
-    return String(value == null ? '' : value).trim().toLowerCase();
-  }
-  var setupChecks = [
-    { key: 'names', label: 'Your names', section: 'the two of you',
-      isDone: function () {
-        return sampleValue(config.couple.partnerOne) !== sampleValue(defaults.couple.partnerOne) ||
-          sampleValue(config.couple.partnerTwo) !== sampleValue(defaults.couple.partnerTwo);
-      } },
-    { key: 'day', label: 'Your date & time', section: 'the day',
-      isDone: function () {
-        return sampleValue(config.wedding.iso) !== sampleValue(defaults.wedding.iso);
-      } },
-    { key: 'place', label: 'Your venue', section: 'the place',
-      isDone: function () {
-        return sampleValue(config.venue.name) !== sampleValue(defaults.venue.name) ||
-          sampleValue(config.venue.mapsQuery) !== sampleValue(defaults.venue.mapsQuery);
-      } },
-    { key: 'words', label: 'Your story', section: 'your words',
-      isDone: function () {
-        return sampleValue(config.content.storyParagraphOne) !== sampleValue(defaults.content.storyParagraphOne) ||
-          sampleValue(config.content.closingMessage) !== sampleValue(defaults.content.closingMessage);
-      } },
-    { key: 'replies', label: 'Your reply-by date', section: 'guest replies',
-      isDone: function () {
-        return sampleValue(config.rsvp && config.rsvp.deadline) !==
-          sampleValue(defaults.rsvp && defaults.rsvp.deadline);
-      } }
-  ];
-  var setupList = document.getElementById('setup-list');
-  var setupProgress = document.getElementById('setup-progress');
-  var finishReadiness = document.getElementById('finish-readiness');
-
-  function openChapter(sectionKey) {
-    if (!editor) return;
-    var target = null;
-    editor.querySelectorAll('details[data-editor-section]').forEach(function (details) {
-      if (details.dataset.editorSection === sectionKey) target = details;
-    });
-    if (!target) return;
-    target.open = true;
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function updateSetupChecklist() {
-    if (!setupList) return;
-    var doneCount = 0;
-    var pending = [];
-    setupChecks.forEach(function (check) {
-      var done = false;
-      try { done = check.isDone(); } catch (error) { done = false; }
-      if (done) doneCount += 1;
-      else pending.push(check.label.toLowerCase());
-      var item = setupList.querySelector('[data-setup-key="' + check.key + '"]');
-      if (!item) {
-        item = document.createElement('li');
-        item.dataset.setupKey = check.key;
-        var button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'setup-item';
-        button.addEventListener('click', function () { openChapter(check.section); });
-        var dot = document.createElement('span');
-        dot.className = 'setup-item__dot';
-        dot.setAttribute('aria-hidden', 'true');
-        var label = document.createElement('span');
-        label.className = 'setup-item__label';
-        label.textContent = check.label;
-        var action = document.createElement('span');
-        action.className = 'setup-item__action';
-        action.textContent = 'Open';
-        button.appendChild(dot);
-        button.appendChild(label);
-        button.appendChild(action);
-        item.appendChild(button);
-        setupList.appendChild(item);
-        item._dot = dot;
-      }
-      item.classList.toggle('setup-item--done', done);
-      item._dot.textContent = done ? '✓' : '';
-    });
-    if (setupProgress) {
-      setupProgress.textContent = doneCount === setupChecks.length
-        ? 'All set ✓'
-        : doneCount + ' of ' + setupChecks.length + ' done';
-    }
-    if (finishReadiness) {
-      finishReadiness.textContent = pending.length
-        ? 'Still showing the sample: ' + pending.join(', ') + '. Tap a step above to make it yours.'
-        : 'Every essential is yours — this invitation is ready to share.';
-    }
-  }
+  /* ── canvas colour tooltip ─────────────────────────────────── */
 
   function positionColorTooltip(anchor) {
     if (!colorAction || !frame) return;
@@ -1466,8 +1573,6 @@
   function updateSelectedColor(value) {
     if (!selectedColorSelector || !/^#[0-9a-f]{6}$/i.test(value)) return;
     if (selectedColorSwatchIndex != null) {
-      /* a palette swatch recolours only itself — the array entry is
-         the single source of truth for that swatch                */
       if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
       config.palette[selectedColorSwatchIndex].color = value.toUpperCase();
       notify('Swatch colour updated — only this swatch changed.');
@@ -1521,8 +1626,6 @@
       if (!selectedColorSelector || selectedColorKey === 'skip-intro') return;
       var removedLabel = colorActionLabel && colorActionLabel.textContent
         ? colorActionLabel.textContent : labelForKey(selectedColorKey);
-      /* a palette swatch comes out of the palette array itself —
-         the other colours keep their places                     */
       if (selectedColorSwatchIndex != null) {
         if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
         config.palette.splice(selectedColorSwatchIndex, 1);
@@ -1532,31 +1635,26 @@
           });
         }
         hideColorTooltip(true);
-        renderSidebar();
-        notify('"' + removedLabel + '" was taken out of the palette. The remaining colours keep their places.');
+        renderFlow();
+        notify('“' + removedLabel + '” was taken out of the palette. The remaining colours keep their places.');
         return;
       }
       if (!config.hiddenElements || typeof config.hiddenElements !== 'object') config.hiddenElements = {};
       if (!config.hiddenSelectors || typeof config.hiddenSelectors !== 'object') config.hiddenSelectors = {};
-      /* a key names the labelled catalogue piece — a click on text
-         inside it (a row label, a heading) removes the whole piece,
-         exactly what the tooltip promised. Pieces without a key come
-         away by their own structural selector, so every clickable
-         element can still be removed                             */
       if (selectedColorKey) {
         config.hiddenElements[selectedColorKey] = true;
       } else {
         config.hiddenSelectors[selectedColorSelector] = true;
       }
       hideColorTooltip(true);
-      notify('"' + removedLabel + '" was removed from the invitation. Use “Restore removed elements” under the preview to bring it back.');
+      notify('“' + removedLabel + '” was removed from the invitation. Use “Restore removed elements” under the preview to bring it back.');
     });
   }
-  var restoreRemovedButton = document.getElementById('restore-removed');
   if (restoreRemovedButton) {
     restoreRemovedButton.addEventListener('click', function () {
       config.hiddenElements = {};
       config.hiddenSelectors = {};
+      updateRestoreVisibility();
       notify('All removed elements are back in the invitation.');
     });
   }
@@ -1579,43 +1677,138 @@
     });
   }
 
-  document.getElementById('reset-config').addEventListener('click', function () {
+  /* ── start over · saved copies ─────────────────────────────── */
+
+  function resetToSample() {
     if (typeof window.confirm === 'function' &&
         !window.confirm('Restore the sample invitation? Your current edits will be replaced.')) return;
     config = clone(defaults);
     renderRsvpResponses([]);
-    if (document.getElementById('rsvp-responses')) document.getElementById('rsvp-responses').hidden = true;
-    renderSidebar();
+    var responsesPanel = document.getElementById('rsvp-responses');
+    if (responsesPanel) responsesPanel.hidden = true;
+    fineTuneOpen = {};
+    renderFlow();
+    goStep(1);
     notify('Sample invitation restored. Review the preview before publishing.');
-  });
+  }
 
-  document.getElementById('import-config').addEventListener('change', function (event) {
-    var file = event.target.files && event.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onerror = function () { notify('The selected JSON file could not be read.'); };
-    reader.onload = function () {
-      try {
-        var imported = JSON.parse(String(reader.result));
-        if (!validConfig(imported)) throw new Error('This file does not look like a wedding invitation configuration.');
-        config = imported;
-        renderSidebar();
-        notify('Saved copy loaded. Check the preview, then publish when it feels right.');
-      } catch (error) {
-        notify(error.message || 'This file is not valid configuration JSON.');
-      }
-      event.target.value = '';
-    };
-    reader.readAsText(file);
-  });
+  function download(name, content, type) {
+    var url = URL.createObjectURL(new Blob([content], { type: type }));
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
 
-  document.getElementById('download-json').addEventListener('click', function () {
+  function saveCopy() {
     download('heirloom-invitation-copy.json', JSON.stringify(config, null, 2) + '\n', 'application/json;charset=utf-8');
     notify('A copy of your invitation is saved to your device. Keep it safe — you can load it here any time.');
-  });
+  }
+
+  function validConfig(value) {
+    return value && typeof value === 'object' && !Array.isArray(value) &&
+      value.couple && value.wedding && value.venue && value.content &&
+      (value.palette == null || Array.isArray(value.palette)) &&
+      (value.moments == null || Array.isArray(value.moments));
+  }
+
+  var menuReset = document.getElementById('menu-reset');
+  var menuDownload = document.getElementById('menu-download');
+  if (menuReset) menuReset.addEventListener('click', resetToSample);
+  if (menuDownload) menuDownload.addEventListener('click', saveCopy);
+  var downloadButton = document.getElementById('download-json');
+  if (downloadButton) downloadButton.addEventListener('click', saveCopy);
+
+  var importInput = document.getElementById('import-config');
+  if (importInput) {
+    importInput.addEventListener('change', function (event) {
+      var file = event.target.files && event.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onerror = function () { notify('The selected file could not be read.'); };
+      reader.onload = function () {
+        try {
+          var imported = JSON.parse(String(reader.result));
+          if (!validConfig(imported)) throw new Error('This file does not look like a saved invitation copy.');
+          config = imported;
+          fineTuneOpen = {};
+          renderFlow();
+          goStep(1);
+          notify('Saved copy loaded. Check the preview, then publish when it feels right.');
+        } catch (error) {
+          notify(error.message || 'This file is not a saved invitation copy.');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  /* ── the ⋯ menu ────────────────────────────────────────────── */
+
+  var headerMenu = document.getElementById('header-menu');
+  var menuToggle = document.getElementById('header-menu-toggle');
+  var menuList = document.getElementById('header-menu-list');
+
+  function closeMenu() {
+    if (!menuList || !menuToggle) return;
+    menuList.hidden = true;
+    menuToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  if (menuToggle && menuList) {
+    menuToggle.addEventListener('click', function (event) {
+      event.stopPropagation();
+      var open = menuList.hidden;
+      menuList.hidden = !open;
+      menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (event) {
+      if (headerMenu && !headerMenu.contains(event.target)) closeMenu();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeMenu();
+    });
+    menuList.addEventListener('click', function (event) {
+      if (event.target.closest('[data-menu-item]')) closeMenu();
+    });
+  }
+
+  /* ── access code (optional seller gate) ────────────────────── */
+
+  function getAccessCode() {
+    if (accessCodeInput && accessCodeInput.value.trim()) return accessCodeInput.value.trim();
+    try { return window.sessionStorage.getItem('heirloom-access-code') || ''; }
+    catch (error) { return ''; }
+  }
+  if (accessCodeInput) {
+    try {
+      var storedCode = window.sessionStorage.getItem('heirloom-access-code');
+      if (storedCode) accessCodeInput.value = storedCode;
+    } catch (error) { /* session storage unavailable — the field still works */ }
+    accessCodeInput.addEventListener('input', function () {
+      try {
+        if (accessCodeInput.value.trim()) {
+          window.sessionStorage.setItem('heirloom-access-code', accessCodeInput.value.trim());
+        } else {
+          window.sessionStorage.removeItem('heirloom-access-code');
+        }
+      } catch (error) { /* private mode — keep the code in memory only */ }
+      if (pendingPublishAfterCode && accessCodeInput.value.trim()) {
+        pendingPublishAfterCode = false;
+        publishInvitation();
+      }
+    });
+  }
+
+  /* ── copy link ─────────────────────────────────────────────── */
 
   if (publishButton) publishButton.addEventListener('click', publishInvitation);
   if (finishPublishButton) finishPublishButton.addEventListener('click', publishInvitation);
+
   function copyInvitationLink(input) {
     if (!input || !input.value) return;
     if (navigator.clipboard && window.isSecureContext) {
@@ -1634,7 +1827,32 @@
   if (copyPublishedUrl) copyPublishedUrl.addEventListener('click', function () { copyInvitationLink(publishedUrl); });
   if (headerCopyPublishedUrl) headerCopyPublishedUrl.addEventListener('click', function () { copyInvitationLink(headerPublishedUrl); });
 
-  renderSidebar();
-  updateSetupChecklist();
+  /* ── mobile preview overlay ────────────────────────────────── */
+
+  var previewToggle = document.getElementById('preview-toggle');
+  var previewClose = document.getElementById('preview-close');
+
+  function setPreviewOpen(open) {
+    document.body.classList.toggle('preview-open', open);
+    if (previewClose) previewClose.hidden = !open;
+    if (open) {
+      var panel = document.querySelector('.preview-panel');
+      if (panel) panel.scrollTop = 0;
+    }
+  }
+  if (previewToggle) previewToggle.addEventListener('click', function () { setPreviewOpen(true); });
+  if (previewClose) previewClose.addEventListener('click', function () { setPreviewOpen(false); });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && document.body.classList.contains('preview-open')) setPreviewOpen(false);
+  });
+
+  /* ── first paint ───────────────────────────────────────────── */
+
+  try {
+    var savedStep = parseInt(window.sessionStorage.getItem('heirloom-atelier-step'), 10);
+    if (isFinite(savedStep) && savedStep >= 1 && savedStep <= SHARE_STEP) currentStep = savedStep;
+  } catch (error) { /* private mode — start at the first step */ }
+
+  renderFlow();
   loadManagedInvitation();
 })();

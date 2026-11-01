@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#35181D">
+  <meta name="theme-color" content="#1D0E11">
   <title>Invitation Atelier · The Heirloom Film</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cedarville+Cursive&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&family=Jost:wght@300;400;500&family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Pinyon+Script&family=La+Belle+Aurore&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Alex+Brush&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cedarville+Cursive&family=Crimson+Pro:ital,wght@0,400;1,400&family=Cardo&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&family=Homemade+Apple&family=Italiana&family=Jost:wght@300;400;500&family=Karla:wght@300;400;500&family=La+Belle+Aurore&family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&family=Nothing+You+Could+Do&family=Parisienne&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Prata&family=Shadows+Into+Light&family=Tangerine:wght@400&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/customizer.css">
   <script src="js/config.js" defer></script>
   <script src="js/customizer.js" defer></script>
@@ -24,6 +24,24 @@
       <div class="header-note" id="header-save-status" role="status" aria-live="polite">
         <span class="status-dot" id="header-save-dot"></span>
         <span id="header-save-label">Draft · only you can see this</span>
+      </div>
+      <div class="header-menu" id="header-menu">
+        <button type="button" class="header-menu__toggle" id="header-menu-toggle"
+          aria-haspopup="true" aria-expanded="false" aria-label="More options">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><g fill="currentColor"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></g></svg>
+        </button>
+        <div class="header-menu__list" id="header-menu-list" hidden>
+          <button type="button" class="header-menu__item" id="menu-reset" data-menu-item>
+            <span>Start over with the sample</span><small>Discards your edits</small>
+          </button>
+          <label class="header-menu__item" for="import-config" data-menu-item>
+            <span>Load a saved copy</span><small>From a file on this device</small>
+          </label>
+          <input id="import-config" type="file" accept=".json,application/json" hidden>
+          <button type="button" class="header-menu__item" id="menu-download" data-menu-item>
+            <span>Save a copy to your device</span><small>A keepsake file you can reopen</small>
+          </button>
+        </div>
       </div>
       <button type="button" class="download-button header-publish-button" id="publish-invitation">Publish invitation</button>
     </div>
@@ -43,58 +61,75 @@
 
   <main class="atelier">
     <section class="atelier-intro" aria-labelledby="atelier-title">
-      <p class="eyebrow">A little personalisation</p>
-      <h1 id="atelier-title">Make it <em>yours.</em></h1>
-      <p class="intro-copy">Welcome to your private studio. Work through the setup list below, watch the invitation update live, and share it when it feels just right.</p>
-      <div class="atelier-steps" aria-label="Personalise, preview, and share">
-        <span><i>01</i> Personalise</span><span class="atelier-steps__rule"></span>
-        <span><i>02</i> Preview</span><span class="atelier-steps__rule"></span>
-        <span><i>03</i> Share</span>
-      </div>
-      <div class="setup-card" id="setup-card">
-        <div class="setup-card__head">
-          <p class="setup-card__title">Your setup list</p>
-          <span class="setup-card__progress" id="setup-progress">0 of 5 done</span>
+      <div class="atelier-intro__inner">
+        <div>
+          <p class="eyebrow">Invitation atelier</p>
+          <h1 id="atelier-title">Make it <em>yours.</em></h1>
         </div>
-        <ul class="setup-card__list" id="setup-list"></ul>
-        <p class="setup-card__note">Work top to bottom — the live proof updates with every keystroke. Tap any step to jump straight to it.</p>
+        <p class="intro-copy">Seven short steps, watched over by a live proof that updates with every keystroke. Your work saves itself as you go — publish when it feels just right.</p>
       </div>
     </section>
 
     <section class="workspace" aria-label="Invitation customizer">
-      <div class="editor-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Your invitation</p>
-              <h2>Make it personal</h2>
+      <div class="flow-panel">
+        <div class="flow-progress" aria-hidden="false">
+          <div class="flow-progress__row">
+            <span class="flow-progress__count" id="flow-step-count">Step 1 of 7</span>
+            <span class="flow-progress__name" id="flow-step-name">The two of you</span>
           </div>
-            <span class="step-number">YOUR STUDIO</span>
+          <div class="flow-progress__bar"><i id="flow-progress-fill"></i></div>
         </div>
-        <p class="editor-intro">Chapters are one tap away — open one, change what you like, and watch the proof update instantly. Feeling hands-on? Click any text or colour on the invitation itself to edit it right there.</p>
 
-        <div class="access-code-row" id="access-code-row" hidden>
-          <label for="access-code">Access code</label>
-          <input id="access-code" type="password" autocomplete="off" spellcheck="false"
-            placeholder="Paste the code from your purchase">
-          <span class="field-hint">This editor is protected by an access code. Paste it once — it stays in this browser for the session.</span>
+        <div class="flow-steps" id="flow-steps">
+          <!-- Chapters 1–6 are rendered by the studio script.
+               Chapter 7 · Share stays in the page so its
+               published-link and replies panels never rebuild. -->
+          <section class="flow-step" data-step="7" data-step-key="share" hidden>
+            <header class="flow-step__head">
+              <span class="flow-step__number">07</span>
+              <div>
+                <h2>Share your invitation</h2>
+                <p class="flow-step__blurb">A last look at the readiness, then your own private link.</p>
+              </div>
+            </header>
+            <div class="share-readiness" id="share-readiness"></div>
+            <div class="share-actions">
+              <button type="button" class="backup-button finish-publish" id="publish-invitation-finish">Publish &amp; get my link</button>
+              <div class="published-link" id="published-link" hidden>
+                <label for="published-url">Live invitation link</label>
+                <div class="published-link__row">
+                  <input id="published-url" type="url" readonly>
+                  <button type="button" id="copy-published-url">Copy link</button>
+                  <a id="submissions-button" class="submissions-button" href="replies.html" hidden>View submissions</a>
+                </div>
+                <a id="manage-invitation" href="customize.html">Edit this invitation</a>
+                <a id="view-replies-panel" href="replies.html" hidden>View submissions</a>
+              </div>
+              <button type="button" class="backup-button backup-quiet" id="download-json">Save a copy to your device</button>
+            </div>
+            <div class="access-code-row" id="access-code-row" hidden>
+              <label for="access-code">Access code</label>
+              <input id="access-code" type="password" autocomplete="off" spellcheck="false"
+                placeholder="Paste the code from your purchase">
+              <span class="field-hint">This editor is protected by an access code. Paste it once — it stays in this browser for the session.</span>
+            </div>
+            <section class="rsvp-responses-panel" id="rsvp-responses" aria-labelledby="rsvp-responses-title" hidden>
+              <div class="rsvp-responses-panel__heading">
+                <h3 id="rsvp-responses-title">Guest replies</h3>
+                <span id="rsvp-responses-count">0</span>
+              </div>
+              <ol id="rsvp-responses-list" class="rsvp-responses-list"></ol>
+              <p class="field-hint">The latest 100 replies are shown here. Reopen this edit link to refresh the list.</p>
+              <a class="text-button" id="open-replies-page" href="replies.html" hidden>Open the full submissions page ↗</a>
+            </section>
+          </section>
         </div>
-        <div class="editor-actions">
-          <span class="editor-actions__label">HELPFUL EXTRAS</span>
-          <button type="button" class="text-button" id="reset-config">Start over with the sample</button>
-          <label class="text-button import-button" for="import-config">Load a saved copy</label>
-          <input id="import-config" type="file" accept=".json,application/json" hidden>
-        </div>
-        <div class="editor-sections" id="editor-sections"></div>
-        <section class="rsvp-responses-panel" id="rsvp-responses" aria-labelledby="rsvp-responses-title" hidden>
-          <div class="rsvp-responses-panel__heading">
-            <h3 id="rsvp-responses-title">Guest replies</h3>
-            <span id="rsvp-responses-count">0</span>
-          </div>
-          <ol id="rsvp-responses-list" class="rsvp-responses-list"></ol>
-          <p class="field-hint">The latest 100 replies are shown here. Reopen this edit link to refresh the list.</p>
-          <a class="text-button" id="open-replies-page" href="replies.html" hidden>Open the full submissions page ↗</a>
-        </section>
-        <p class="save-hint" id="save-hint" role="status" aria-live="polite">Your invitation is ready to make yours. The setup list above shows exactly what to do next.</p>
+
+        <nav class="flow-nav" aria-label="Step navigation">
+          <button type="button" class="flow-nav__back" id="flow-back">Back</button>
+          <button type="button" class="flow-nav__next" id="flow-next">Continue</button>
+        </nav>
+        <p class="save-hint" id="save-hint" role="status" aria-live="polite">Your invitation is ready to make yours. The steps above show exactly what to do next.</p>
       </div>
 
       <div class="preview-panel">
@@ -106,6 +141,7 @@
           <span class="preview-heading__links">
             <a class="open-preview" id="view-replies" href="replies.html" hidden>View submissions ↗</a>
             <a class="open-preview" id="open-preview" href="index.html?preview=1" target="_blank" rel="noopener">See it as a guest ↗</a>
+            <button type="button" class="preview-close" id="preview-close" aria-label="Close preview" hidden>✕</button>
           </span>
         </div>
         <div class="preview-frame">
@@ -134,39 +170,17 @@
         </div>
         <div class="preview-footer">
           <span><i></i> Preview updates as you edit</span>
-          <button type="button" class="text-button" id="restore-removed">Restore removed elements</button>
-          <span>Select text to edit · click elements to recolour or remove · click the background to recolour it</span>
+          <button type="button" class="text-button" id="restore-removed" hidden>Restore removed elements</button>
         </div>
       </div>
     </section>
 
-    <section class="finish-panel" aria-labelledby="finish-title">
-      <div class="finish-copy">
-        <p class="eyebrow">The final touch</p>
-        <h2 id="finish-title">Share your invitation</h2>
-        <p class="finish-readiness" id="finish-readiness">The setup list above shows exactly what is still on the sample — the live proof on this page is what your guests will see.</p>
-        <p>Happy with it? Publish and receive your own private link to send to guests. From then on, every edit saves by itself and your link always shows the latest version.</p>
-      </div>
-      <div class="download-actions">
-        <button type="button" class="backup-button finish-publish" id="publish-invitation-finish">Publish &amp; get my link</button>
-        <div class="published-link" id="published-link" hidden>
-          <label for="published-url">Live invitation link</label>
-          <div class="published-link__row">
-            <input id="published-url" type="url" readonly>
-            <button type="button" id="copy-published-url">Copy link</button>
-            <a id="submissions-button" class="submissions-button" href="replies.html" hidden>View submissions</a>
-          </div>
-          <a id="manage-invitation" href="customize.html">Edit this invitation</a>
-          <a id="view-replies-panel" href="replies.html" hidden>View submissions</a>
-        </div>
-        <button type="button" class="backup-button" id="download-json">Save a copy to your device</button>
-      </div>
-    </section>
-
-    <footer class="atelier-footer">
-      <span>THE HEIRLOOM FILM</span>
-      <span>Made for your once-in-a-lifetime</span>
-    </footer>
+    <button type="button" class="preview-toggle" id="preview-toggle">Preview</button>
   </main>
+
+  <footer class="atelier-footer">
+    <span>THE HEIRLOOM FILM</span>
+    <span>Made for your once-in-a-lifetime</span>
+  </footer>
 </body>
 </html>
