@@ -263,7 +263,6 @@
     sendPreview();
     scheduleRemoteSave();
     storePreviewConfig();
-    updateStepStates();
     updateShareReadiness();
     updateRestoreVisibility();
   }
@@ -1242,11 +1241,6 @@
     var head = el('header', 'flow-step__head');
     var headCopy = el('div');
     headCopy.appendChild(el('h2', null, meta.title));
-    var stateline = el('div', 'flow-step__stateline');
-    var chip = el('span', 'chip');
-    chip.dataset.stepChip = meta.key;
-    stateline.appendChild(chip);
-    headCopy.appendChild(stateline);
     head.appendChild(headCopy);
     section.appendChild(head);
     var body = el('div', 'flow-step__body');
@@ -1261,7 +1255,6 @@
       stepsHost.insertBefore(buildStepSection(meta, index), shareSection);
     });
     goStep(currentStep, true);
-    updateStepStates();
     updateShareReadiness();
   }
 
@@ -1343,19 +1336,6 @@
           sampleValue(defaults.rsvp && defaults.rsvp.deadline);
       } }
   ];
-
-  function updateStepStates() {
-    STEPS.forEach(function (meta, index) {
-      var chip = stepsHost.querySelector('[data-step-chip="' + meta.key + '"]');
-      if (!chip) return;
-      if (!meta.check) { chip.hidden = true; return; }
-      var check = setupChecks.filter(function (entry) { return entry.step === index + 1; })[0];
-      var done = false;
-      try { done = check ? check.isDone() : false; } catch (error) { done = false; }
-      chip.className = 'chip ' + (done ? 'chip--done' : 'chip--sample');
-      chip.textContent = done ? 'Yours' : 'Still the sample';
-    });
-  }
 
   var shareReadiness = document.getElementById('share-readiness');
 

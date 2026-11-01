@@ -429,22 +429,6 @@ h1 {
 
 .flow-step h2 { font-size: 19px; letter-spacing: 0; line-height: 1.25; }
 
-.flow-step__stateline { margin-top: 9px; display: flex; align-items: center; gap: 8px; min-height: 20px; }
-
-/* a quiet sentence, not a pill */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  letter-spacing: .06em;
-  color: var(--faint);
-}
-
-.chip--done { color: var(--sage); }
-.chip--done::before { content: "✓"; font-size: 11px; }
-.chip--sample::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--faint); }
-
 /* fields */
 
 .field-grid { display: grid; gap: 16px; }
