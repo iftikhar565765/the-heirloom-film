@@ -198,9 +198,7 @@
         submitBtn.disabled = false;
         submitBtn.textContent = submitBtn.dataset.label || 'Send Response';
         renderPreview(reply, false);
-        announce(result && result.emailSent === false
-          ? 'Your reply has been saved, but an email notification was not sent.'
-          : 'Thank you — your reply has been received.');
+        announce('Thank you — your reply has been received.');
       })
       .catch(function () {
         submitBtn.disabled = false;

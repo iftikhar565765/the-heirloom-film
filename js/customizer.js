@@ -120,7 +120,6 @@
            .replace(/\b\w/, function (ch) { return ch.toUpperCase(); })
       : 'Selected element');
   }
-  var adminEmail = '';
   var publishId = '';
   var ownerToken = '';
   var publishRevision = 0;
@@ -134,7 +133,10 @@
   var publishedUrl = document.getElementById('published-url');
   var copyPublishedUrl = document.getElementById('copy-published-url');
   var manageInvitation = document.getElementById('manage-invitation');
-  var openPreview = document.querySelector('.open-preview');
+  var openPreview = document.getElementById('open-preview');
+  var viewReplies = document.getElementById('view-replies');
+  var viewRepliesPanel = document.getElementById('view-replies-panel');
+  var openRepliesPage = document.getElementById('open-replies-page');
   var globalFields = [
     { path: 'couple.partnerOne', label: 'First partner', group: 'couple' },
     { path: 'couple.partnerTwo', label: 'Second partner', group: 'couple' },
@@ -268,7 +270,7 @@
   }
 
   function snapshot() {
-    return JSON.stringify({ config: config, adminEmail: adminEmail.trim() });
+    return JSON.stringify({ config: config });
   }
 
   function requestPublish(data, token) {
@@ -278,7 +280,7 @@
     var timeoutId;
     var timeout = new Promise(function (resolve, reject) {
       timeoutId = window.setTimeout(function () {
-        reject(new Error('Publishing timed out. Check that the Cloudflare Pages Functions are deployed, then try again.'));
+        reject(new Error('Publishing timed out. Please check your connection and try again.'));
         if (controller) controller.abort();
       }, 30000);
     });
@@ -293,16 +295,10 @@
         try {
           result = JSON.parse(body);
         } catch (error) {
-          var detail = body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 180);
-          var endpoint = new URL(response.url || '/api/publish', window.location.href).pathname;
           if (response.status === 405) {
-            throw new Error('The server rejected POST to ' + endpoint + ' (HTTP 405).' +
-              (detail ? ' Server response: ' + detail : '') +
-              ' Check that the Pages Function at /api/publish is deployed.');
+            throw new Error('The invitation could not be saved. The publishing service is not responding as expected — please try again in a moment.');
           }
-          throw new Error('The publishing endpoint ' + endpoint + ' returned a non-JSON response (HTTP ' +
-            response.status + ').' + (detail ? ' Server response: ' + detail : '') +
-            ' Check that the Pages Function at /api/publish is deployed.');
+          throw new Error('The invitation could not be saved. The publishing service replied unexpectedly — please try again in a moment.');
         }
         if (!response.ok) {
           var publishError = new Error(result.error || 'The invitation could not be saved.');
@@ -327,6 +323,10 @@
     if (publishedLink) publishedLink.hidden = false;
     if (publishedUrl) publishedUrl.value = url;
     if (manageInvitation) manageInvitation.href = 'customize.html?edit=' + encodeURIComponent(publishId);
+    var repliesHref = 'replies.html?edit=' + encodeURIComponent(publishId);
+    if (viewReplies) { viewReplies.href = repliesHref; viewReplies.hidden = false; }
+    if (viewRepliesPanel) { viewRepliesPanel.href = repliesHref; viewRepliesPanel.hidden = false; }
+    if (openRepliesPage) { openRepliesPage.href = repliesHref; openRepliesPage.hidden = false; }
     if (openPreview) {
       openPreview.href = url;
       openPreview.textContent = 'View published invitation ↗';
@@ -352,8 +352,7 @@
       return requestPublish({
       action: 'save',
       id: publishId,
-      config: preparedConfig,
-      adminEmail: adminEmail.trim()
+      config: preparedConfig
       }, ownerToken);
     }).then(function (result) {
       publishRevision = result.revision;
@@ -378,29 +377,19 @@
 
   function publishInvitation() {
     if (managedLoading || saveInFlight) return;
-    var emailInput = document.getElementById('rsvp-admin-email');
-    if (adminEmail.trim() && emailInput && !emailInput.checkValidity()) {
-      emailInput.setCustomValidity('Enter a valid email address, or leave it empty.');
-      emailInput.reportValidity();
-      emailInput.focus();
-      notify('The RSVP email looks incomplete — correct it or leave it empty.');
-      return;
-    }
 
     if (publishButton) {
       publishButton.disabled = true;
       publishButton.textContent = publishId ? 'Updating invitation…' : 'Publishing…';
     }
     setSaveStatus('publishing', publishId ? 'Updating your invitation…' : 'Publishing your invitation…');
-    var publishingEmail = adminEmail.trim();
     var publishingSnapshot = '';
     prepareConfigForPublish().then(function (publishingConfig) {
       publishingSnapshot = snapshot();
       var payload = {
         action: 'publish',
         id: publishId,
-        config: publishingConfig,
-        adminEmail: publishingEmail
+        config: publishingConfig
       };
       if (getAccessCode()) payload.accessCode = getAccessCode();
       return requestPublish(payload, ownerToken);
@@ -478,7 +467,6 @@
       publishId = result.id;
       publishRevision = result.revision;
       config = result.config;
-      adminEmail = typeof result.adminEmail === 'string' ? result.adminEmail : '';
       lastSavedSnapshot = snapshot();
       blockedSnapshot = '';
       renderSidebar();
@@ -762,34 +750,14 @@
     addSimpleField(grid, 'rsvp.deadline', 'Reply-by date shown to guests', { wide: true, hint: 'Written as you would like guests to read it, e.g. “the first of August, 2027”.' });
     addSimpleField(grid, 'rsvp.maxGuests', 'Largest party size per reply', {
       type: 'number', min: 1, max: 20, wide: true,
-      hint: 'Guests can reserve 1 up to this many seats. The limit is enforced again on the server.'
+      hint: 'Guests can reserve 1 up to this many seats.'
     });
-
-    var field = document.createElement('div');
-    field.className = 'field field--wide';
-    var label = document.createElement('label');
-    label.htmlFor = 'rsvp-admin-email';
-    label.textContent = 'Email for reply notifications (optional)';
-    var input = document.createElement('input');
-    input.id = label.htmlFor;
-    input.type = 'email';
-    input.autocomplete = 'email';
-    input.placeholder = 'you@example.com';
-    input.value = adminEmail;
-    input.addEventListener('input', function () {
-      adminEmail = input.value.trim();
-      input.setCustomValidity('');
-      notify('Saving your RSVP settings with the published invitation…');
-    });
-    field.appendChild(label);
-    field.appendChild(input);
 
     var note = document.createElement('span');
     note.className = 'field-hint';
-    note.textContent = 'Every reply is always listed under “Guest replies” when you reopen your edit link. Add your email and each reply is also emailed to you the moment it arrives — set the RESEND_API_KEY and RSVP_FROM environment variables on your Cloudflare Pages project to switch the email delivery on.';
-    field.appendChild(note);
+    note.textContent = 'Every reply arrives in the Guest replies list below the moment guests respond — no email address or extra setup is needed.';
     section.appendChild(grid);
-    section.appendChild(field);
+    section.appendChild(note);
     editor.appendChild(section);
   }
 

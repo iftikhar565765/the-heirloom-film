@@ -71,6 +71,7 @@
           </div>
           <ol id="rsvp-responses-list" class="rsvp-responses-list"></ol>
           <p class="field-hint">The latest 100 replies are shown here. Reopen this edit link to refresh the list.</p>
+          <a class="text-button" id="open-replies-page" href="replies.html" hidden>Open the full submissions page ↗</a>
         </section>
         <p class="save-hint" id="save-hint" role="status" aria-live="polite">Your invitation preview is ready. Changes appear here as you edit.</p>
       </div>
@@ -81,7 +82,10 @@
             <p class="eyebrow">Live proof</p>
             <h2>Your invitation</h2>
           </div>
-          <a class="open-preview" href="index.html" target="_blank" rel="noopener">Open full preview ↗</a>
+          <span class="preview-heading__links">
+            <a class="open-preview" id="view-replies" href="replies.html" hidden>View submissions ↗</a>
+            <a class="open-preview" id="open-preview" href="index.html" target="_blank" rel="noopener">Open full preview ↗</a>
+          </span>
         </div>
         <div class="preview-frame">
           <iframe id="invitation-preview" title="Live preview of your wedding invitation" src="index.html"></iframe>
@@ -129,6 +133,7 @@
             <button type="button" id="copy-published-url">Copy link</button>
           </div>
           <a id="manage-invitation" href="customize.html">Edit this invitation</a>
+          <a id="view-replies-panel" href="replies.html" hidden>View submissions</a>
         </div>
         <button type="button" class="backup-button" id="download-json">Download a backup</button>
       </div>

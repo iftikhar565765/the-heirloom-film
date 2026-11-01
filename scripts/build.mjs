@@ -7,6 +7,7 @@ const output = join(root, "dist");
 const publicFiles = [
   "index.html",
   "customize.html",
+  "replies.html",
   "assets",
   "css",
   "js",

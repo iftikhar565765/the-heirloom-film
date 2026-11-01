@@ -19,10 +19,13 @@ async function loadManaged(context, record, id) {
     return json({ error: "You do not have permission to edit this invitation." }, 403);
   }
 
+  const url = new URL(context.request.url);
+  const requested = Number(url.searchParams.get("limit"));
+  const limit = Number.isInteger(requested) && requested > 0 ? Math.min(1000, requested) : 100;
   const replies = await context.env.DB.prepare(
     "SELECT id, name, email, attendance, guests, dietary, message, created_at " +
-    "FROM rsvps WHERE invitation_id = ?1 ORDER BY created_at DESC LIMIT 100"
-  ).bind(id).all();
+    "FROM rsvps WHERE invitation_id = ?1 ORDER BY created_at DESC LIMIT ?2"
+  ).bind(id, limit).all();
 
   return json({
     id,

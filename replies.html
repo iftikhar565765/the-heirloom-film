@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#35181D">
+  <title>Guest Submissions · The Heirloom Film</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/customizer.css">
+  <link rel="stylesheet" href="css/replies.css">
+  <script src="js/replies.js" defer></script>
+</head>
+<body>
+  <header class="atelier-header">
+    <a class="wordmark" href="customize.html" aria-label="Return to the editor">
+      <span class="wordmark__seal">H</span>
+      <span>THE HEIRLOOM FILM<small>GUEST SUBMISSIONS</small></span>
+    </a>
+    <div class="header-actions">
+      <button type="button" class="ghost-button" id="refresh-replies">Refresh</button>
+      <button type="button" class="download-button" id="download-csv" hidden>Download CSV</button>
+    </div>
+  </header>
+
+  <main class="submissions-main">
+    <section class="submissions-intro">
+      <p class="eyebrow">Your guest replies</p>
+      <h1 id="submissions-title">Guest <em>submissions</em></h1>
+      <p class="submissions-lede" id="submissions-lede">Every reply your invitation has received, gathered in one place.</p>
+    </section>
+
+    <div class="submissions-state" id="submissions-state" role="status" aria-live="polite">Fetching your replies…</div>
+
+    <section class="submissions-summary" id="submissions-summary" hidden>
+      <div class="summary-card"><strong id="sum-replies">0</strong><span>Replies</span></div>
+      <div class="summary-card"><strong id="sum-attending">0</strong><span>Attending</span></div>
+      <div class="summary-card"><strong id="sum-declined">0</strong><span>Declined</span></div>
+      <div class="summary-card"><strong id="sum-seats">0</strong><span>Seats reserved</span></div>
+    </section>
+
+    <ol class="submissions-list" id="submissions-list"></ol>
+  </main>
+
+  <footer class="atelier-footer atelier-footer--page">
+    <span>THE HEIRLOOM FILM</span>
+    <span>Made for your once-in-a-lifetime</span>
+  </footer>
+</body>
+</html>

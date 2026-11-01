@@ -865,3 +865,8 @@ button, a, input, textarea, select, summary { outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Submissions page links (customize page) */
+.preview-heading__links { display: inline-flex; align-items: center; gap: 16px; }
+.open-preview[hidden], .published-link a[hidden], .rsvp-responses-panel a[hidden] { display: none; }
+.published-link a + a { margin-left: 14px; }
