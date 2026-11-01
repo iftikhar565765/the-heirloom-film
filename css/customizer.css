@@ -646,15 +646,18 @@ body {
     var(--atelier-bg);
 }
 
-.atelier-header {
+.atelier-topbar {
   position: sticky;
   z-index: 20;
   top: 0;
+  background: rgba(27,12,15,.94);
+  backdrop-filter: blur(18px);
+}
+
+.atelier-header {
   min-height: 72px;
   padding-inline: clamp(18px, 4vw, 58px);
-  background: rgba(27,12,15,.94);
   border-bottom-color: var(--atelier-line);
-  backdrop-filter: blur(18px);
 }
 
 .header-actions { display: flex; align-items: center; gap: clamp(12px, 2vw, 26px); }
