@@ -8,7 +8,7 @@
   <title>Invitation Atelier · The Heirloom Film</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Alex+Brush&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cedarville+Cursive&family=Crimson+Pro:ital,wght@0,400;1,400&family=Cardo&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&family=Homemade+Apple&family=Italiana&family=Jost:wght@300;400;500&family=Karla:wght@300;400;500&family=La+Belle+Aurore&family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&family=Nothing+You+Could+Do&family=Parisienne&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Prata&family=Shadows+Into+Light&family=Tangerine:wght@400&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Alex+Brush&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cedarville+Cursive&family=Crimson+Pro:ital,wght@0,400;1,400&family=Cardo&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&family=Homemade+Apple&family=Italiana&family=Jost:wght@300;400;500&family=Karla:wght@300;400;500&family=La+Belle+Aurore&family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&family=Nothing+You+Could+Do&family=Parisienne&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Prata&family=Shadows+Into+Light&family=Syne:wght@500;600;700&family=Tangerine:wght@400&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/customizer.css">
   <script src="js/config.js" defer></script>
   <script src="js/customizer.js" defer></script>
@@ -23,7 +23,7 @@
     <div class="header-actions">
       <div class="header-note" id="header-save-status" role="status" aria-live="polite">
         <span class="status-dot" id="header-save-dot"></span>
-        <span id="header-save-label">Draft — only you can see this</span>
+        <span id="header-save-label">Draft · visible only to you</span>
       </div>
       <div class="header-menu" id="header-menu">
         <button type="button" class="header-menu__toggle" id="header-menu-toggle"
@@ -39,7 +39,7 @@
           </label>
           <input id="import-config" type="file" accept=".json,application/json" hidden>
           <button type="button" class="header-menu__item" id="menu-download" data-menu-item>
-            <span>Save a copy to your device</span><small>A keepsake file you can reopen</small>
+            <span>Save a copy to your device</span>
           </button>
         </div>
       </div>
@@ -62,10 +62,7 @@
   <main class="atelier">
     <section class="atelier-intro" aria-labelledby="atelier-title">
       <div class="atelier-intro__inner">
-        <div>
-          <h1 id="atelier-title">Make it yours.</h1>
-        </div>
-        <p class="intro-copy">The proof follows every keystroke, and your work saves itself as you go.</p>
+        <h1 id="atelier-title">Make it yours.</h1>
       </div>
     </section>
 
@@ -80,16 +77,12 @@
         </div>
 
         <div class="flow-steps" id="flow-steps">
-          <!-- Chapters 1–6 are rendered by the studio script.
-               Chapter 7 · Share stays in the page so its
-               published-link and replies panels never rebuild. -->
+          <!-- Chapters 1 to 6 are rendered by the studio script.
+               Chapter 7 stays in the page so its replies panel
+               never rebuilds. -->
           <section class="flow-step" data-step="7" data-step-key="share" hidden>
             <header class="flow-step__head">
-              <span class="flow-step__number">07</span>
-              <div>
-                <h2>Share your invitation</h2>
-                <p class="flow-step__blurb">A last check, then your private link.</p>
-              </div>
+              <h2>Share your invitation</h2>
             </header>
             <div class="share-readiness" id="share-readiness"></div>
             <div class="share-actions">
@@ -100,7 +93,6 @@
               <label for="access-code">Access code</label>
               <input id="access-code" type="password" autocomplete="off" spellcheck="false"
                 placeholder="Paste the code from your purchase">
-              <span class="field-hint">This editor is protected by an access code. Paste it once — it stays in this browser for the session.</span>
             </div>
             <section class="rsvp-responses-panel" id="rsvp-responses" aria-labelledby="rsvp-responses-title" hidden>
               <div class="rsvp-responses-panel__heading">
@@ -108,7 +100,6 @@
                 <span id="rsvp-responses-count">0</span>
               </div>
               <ol id="rsvp-responses-list" class="rsvp-responses-list"></ol>
-              <p class="field-hint">New replies appear here the next time you open this page.</p>
               <a class="text-button" id="open-replies-page" href="replies.html" hidden>Open the full submissions page ↗</a>
             </section>
           </section>
@@ -118,15 +109,12 @@
           <button type="button" class="flow-nav__back" id="flow-back">Back</button>
           <button type="button" class="flow-nav__next" id="flow-next">Continue</button>
         </nav>
-        <p class="save-hint" id="save-hint" role="status" aria-live="polite">Your edits save automatically as you go.</p>
+        <p class="save-hint" id="save-hint" role="status" aria-live="polite"></p>
       </div>
 
       <div class="preview-panel">
         <div class="preview-heading">
-          <div>
-            <p class="eyebrow">Live proof</p>
-            <h2>Your invitation</h2>
-          </div>
+          <h2>Your invitation</h2>
           <span class="preview-heading__links">
             <a class="open-preview" id="view-replies" href="replies.html" hidden>View submissions ↗</a>
             <a class="open-preview" id="open-preview" href="index.html?preview=1" target="_blank" rel="noopener">See it as a guest ↗</a>
@@ -158,7 +146,6 @@
           </div>
         </div>
         <div class="preview-footer">
-          <span><i></i> Preview updates as you edit</span>
           <button type="button" class="text-button" id="restore-removed" hidden>Restore removed elements</button>
         </div>
       </div>

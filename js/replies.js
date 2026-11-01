@@ -8,7 +8,6 @@
   var summary = document.getElementById('submissions-summary');
   var list = document.getElementById('submissions-list');
   var title = document.getElementById('submissions-title');
-  var lede = document.getElementById('submissions-lede');
   var refreshButton = document.getElementById('refresh-replies');
   var csvButton = document.getElementById('download-csv');
   var currentReplies = [];
@@ -48,11 +47,7 @@
       ? config.couple.namesLine.trim() : '';
     if (!couple) return;
     clearNode(title);
-    title.appendChild(document.createTextNode('Replies for '));
-    var accent = document.createElement('em');
-    accent.textContent = couple;
-    title.appendChild(accent);
-    lede.textContent = 'Every reply received for ' + couple + ' — newest first.';
+    title.textContent = 'Replies for ' + couple;
   }
 
   function renderReply(reply) {
@@ -88,7 +83,7 @@
     if (reply.dietary) {
       var dietary = document.createElement('p');
       dietary.className = 'reply-card__note';
-      dietary.textContent = 'Dietary — ' + reply.dietary;
+      dietary.textContent = 'Dietary: ' + reply.dietary;
       item.appendChild(dietary);
     }
     if (reply.message) {
@@ -116,7 +111,7 @@
     renderHeading(config);
     clearNode(list);
     if (!replies.length) {
-      showState('No replies yet — share your live invitation link and every response will gather here automatically.');
+      showState('No replies yet. Share your live invitation link and every response will gather here automatically.');
       return;
     }
     var fragment = document.createDocumentFragment();
@@ -128,7 +123,7 @@
     var id = (new URLSearchParams(window.location.search).get('edit') ||
       new URLSearchParams(window.location.search).get('invite') || '').trim();
     if (!/^[a-f0-9]{24}$/.test(id)) {
-      showState('Open this page through your editor — publish your invitation, then choose “View submissions”.');
+      showState('Open this page through your editor: publish your invitation, then choose “View submissions”.');
       refreshButton.disabled = true;
       return;
     }

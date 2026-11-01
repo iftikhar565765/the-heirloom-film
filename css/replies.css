@@ -9,53 +9,28 @@
 }
 
 .submissions-intro { margin: clamp(28px, 5vh, 48px) 0 4px; }
-.submissions-intro .eyebrow {
-  margin: 0;
-  color: var(--atelier-gold);
-  font-size: 9px;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-}
+
 .submissions-intro h1 {
-  margin: 12px 0 0;
-  color: var(--atelier-copy);
-  font: 300 clamp(34px, 5vw, 47px) "Cormorant Garamond", serif;
-  letter-spacing: .01em;
-}
-.submissions-intro h1 em {
-  color: var(--atelier-gold);
-  font: italic 400 .96em "Bodoni Moda", serif;
-}
-.submissions-lede {
-  margin: 10px 0 0;
-  max-width: 520px;
-  color: var(--atelier-muted);
-  font-size: 12px;
-  line-height: 1.7;
+  margin: 0;
+  color: var(--copy);
+  font-family: var(--font-editorial);
+  font-weight: 600;
+  font-size: clamp(26px, 3.6vw, 34px);
+  letter-spacing: -.01em;
+  line-height: 1.1;
 }
 
 .header-actions { display: inline-flex; align-items: center; gap: 10px; }
 
-.ghost-button {
-  min-height: 46px;
-  padding: 0 17px;
-  border: 1px solid var(--atelier-line);
-  background: transparent;
-  color: var(--atelier-gold);
-  cursor: pointer;
-  font-size: 9px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-.ghost-button:hover:not(:disabled) { border-color: var(--atelier-gold); }
-.ghost-button:disabled { cursor: progress; opacity: .55; }
+.header-actions .ghost-button { min-height: 44px; padding: 12px 17px; }
 
 .submissions-state {
   margin: 24px 0;
   padding: 16px 18px;
-  border: 1px dashed var(--atelier-line);
-  color: var(--atelier-muted);
-  font-size: 12px;
+  border-radius: var(--radius);
+  background: var(--well);
+  color: var(--muted);
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -65,79 +40,86 @@
   gap: 12px;
   margin: 26px 0 22px;
 }
+
 .summary-card {
   padding: 18px 14px;
-  border: 1px solid var(--atelier-line);
-  background: var(--atelier-panel-soft);
+  border-radius: var(--radius);
+  background: var(--panel-soft);
   text-align: center;
 }
+
 .summary-card strong {
   display: block;
-  color: var(--atelier-gold);
-  font: 400 30px "Bodoni Moda", serif;
+  color: var(--accent);
+  font-family: var(--font-editorial);
+  font-weight: 600;
+  font-size: 24px;
 }
+
 .summary-card span {
   display: block;
   margin-top: 7px;
-  color: var(--atelier-muted);
-  font-size: 8px;
+  color: var(--muted);
+  font-size: 10px;
   letter-spacing: .16em;
   text-transform: uppercase;
 }
 
 .submissions-list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
+
 .reply-card {
   padding: 16px 18px;
-  border: 1px solid var(--atelier-line);
-  background: var(--atelier-panel);
+  border-radius: var(--radius);
+  background: var(--panel);
 }
-.reply-card--declined { opacity: .8; }
+
+.reply-card--declined { opacity: .75; }
+
 .reply-card__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
+
 .reply-card__head strong {
-  color: var(--atelier-copy);
-  font: 500 17px "Cormorant Garamond", serif;
+  color: var(--copy);
+  font-weight: 400;
+  font-size: 15px;
   letter-spacing: .02em;
   overflow-wrap: anywhere;
 }
+
 .reply-badge {
   flex: 0 0 auto;
-  padding: 3px 10px;
-  border: 1px solid var(--atelier-line);
-  border-radius: 99px;
-  color: var(--atelier-muted);
-  font-size: 8px;
+  color: var(--faint);
+  font-size: 10px;
   letter-spacing: .14em;
   text-transform: uppercase;
 }
-.reply-badge--attending {
-  border-color: rgba(211, 189, 150, .55);
-  color: var(--atelier-gold);
-}
+
+.reply-badge--attending { color: var(--accent); }
+
 .reply-card__meta {
   margin: 6px 0 0;
-  color: var(--atelier-muted);
-  font-size: 10px;
+  color: var(--faint);
+  font-size: 11px;
   letter-spacing: .05em;
 }
+
 .reply-card__note {
   margin: 9px 0 0;
-  color: #cabdae;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: 13px;
   line-height: 1.65;
   overflow-wrap: anywhere;
 }
-.reply-card__message { font-style: italic; }
 
 .atelier-footer--page {
   width: min(860px, 92vw);
@@ -148,6 +130,6 @@
   .submissions-summary { grid-template-columns: repeat(2, 1fr); }
   .atelier-header { gap: 10px; }
   .header-actions { gap: 7px; }
-  .ghost-button { min-height: 40px; padding: 0 12px; }
-  .download-button { min-height: 40px; padding: 0 14px; }
+  .header-actions .ghost-button { min-height: 40px; padding: 11px 12px; font-size: 12px; }
+  .download-button { min-height: 40px; padding: 11px 14px; }
 }

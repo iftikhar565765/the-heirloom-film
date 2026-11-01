@@ -252,12 +252,12 @@
   /* ── status & notification ─────────────────────────────────── */
 
   function notify(message) {
-    if (hint) hint.textContent = message || 'Tip — click any text on the invitation to edit it right there.';
-    setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live — saving your changes as you edit' : 'Draft — only you can see this');
+    if (hint) hint.textContent = message || '';
+    setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live · saving as you edit' : 'Draft · visible only to you');
     if (hintTimer) window.clearTimeout(hintTimer);
     if (message) {
       hintTimer = window.setTimeout(function () {
-        if (hint) hint.textContent = 'Tip — click any text on the invitation to edit it right there.';
+        if (hint) hint.textContent = '';
       }, 5000);
     }
     sendPreview();
@@ -313,9 +313,9 @@
           result = JSON.parse(body);
         } catch (error) {
           if (response.status === 405) {
-            throw new Error('The studio is having a brief moment — please try again in a minute.');
+            throw new Error('The studio is having a brief moment. Please try again in a minute.');
           }
-          throw new Error('We could not reach the studio just then — please try again in a moment.');
+          throw new Error('We could not reach the studio just then. Please try again in a moment.');
         }
         if (!response.ok) {
           var publishError = new Error(result.error || 'The invitation could not be saved.');
@@ -382,8 +382,8 @@
       updatePublishedLink(result.url);
       if (snapshot() !== lastSavedSnapshot) scheduleRemoteSave();
       else {
-        if (hint) hint.textContent = 'All changes saved — your invitation is up to date.';
-        setSaveStatus('saved', 'All changes saved — your link is up to date');
+        if (hint) hint.textContent = 'All changes saved.';
+        setSaveStatus('saved', 'All changes saved');
       }
     }).catch(function (error) {
       blockedSnapshot = savedSnapshot || snapshot();
@@ -421,7 +421,7 @@
       if (result.token) {
         ownerToken = result.token;
         try { window.localStorage.setItem('heirloom-owner:' + publishId, ownerToken); }
-        catch (error) { notify('Your invitation is live. This device is in private mode, so it cannot remember your edit link — please keep this tab open.'); }
+        catch (error) { notify('Your invitation is live. This device is in private mode, so it cannot remember your edit link, please keep this tab open.'); }
       }
       publishRevision = result.revision;
       lastSavedSnapshot = publishingSnapshot;
@@ -433,8 +433,8 @@
       var url = new URL(window.location.href);
       url.searchParams.set('edit', publishId);
       window.history.replaceState({}, '', url.toString());
-      notify('Your invitation is live! Send the link below to your guests — every change you make from now on saves by itself.');
-      setSaveStatus('saved', 'Live — every change saves by itself');
+      notify('Your invitation is live. Every change you make from now on saves by itself.');
+      setSaveStatus('saved', 'Live · changes save by themselves');
       renderRsvpResponses(result.responses || []);
       goStep(7);
       scheduleRemoteSave();
@@ -469,7 +469,7 @@
     catch (error) {
       managedLoading = false;
       if (publishButton) publishButton.disabled = false;
-      notify('This device is in private mode, so your saved edit link could not be opened. You can still make changes — please keep this tab open.');
+      notify('This device is in private mode, so your saved edit link could not be opened. You can still make changes, please keep this tab open.');
       return;
     }
     if (!ownerToken) {
@@ -499,8 +499,8 @@
       if (publishButton) publishButton.textContent = 'Publish latest changes';
       if (finishPublishButton) finishPublishButton.hidden = true;
       sendPreview();
-      notify('Your invitation is open. Edit anything — every change saves by itself.');
-      setSaveStatus('saved', 'Live — every change saves by itself');
+      notify('Your invitation is open. Edit anything; every change saves by itself.');
+      setSaveStatus('saved', 'Live · changes save by themselves');
     }).catch(function (error) {
       notify('We could not open your invitation: ' + error.message);
     }).finally(function () {
@@ -612,7 +612,6 @@
     dateWrap.appendChild(dateInput);
     timeWrap.appendChild(fieldLabel('The ceremony begins', timeInput.id));
     timeWrap.appendChild(timeInput);
-    timeWrap.appendChild(el('span', 'field-hint', 'At the venue, in the venue\u2019s own time zone.'));
     row.appendChild(dateWrap);
     row.appendChild(timeWrap);
     parent.appendChild(row);
@@ -761,29 +760,13 @@
     addTextField(grid, { path: 'couple.partnerOne', label: 'Partner one', after: recombine });
     addTextField(grid, { path: 'couple.partnerTwo', label: 'Partner two', after: recombine });
     body.appendChild(grid);
-    var derived = el('p', 'derived-line', 'Together they read as');
-    var combined = el('b');
-    combined.id = 'derived-names-line';
-    derived.appendChild(combined);
-    body.appendChild(derived);
-    function syncDerived() {
-      combined.textContent = config.couple.namesLine || '';
-    }
-    registerSync('couple.namesLine', syncDerived);
-    ['couple.partnerOne', 'couple.partnerTwo'].forEach(function (path) {
-      registerSync(path, function () {
-        combined.textContent = config.couple.namesLine || '';
-      });
-    });
-    syncDerived();
     addFineTune(body, 'names', 'Fine-tune · how the names read', function (inner) {
       addTextField(inner, {
-        path: 'couple.namesLine', label: 'Combined names line',
-        hint: 'Shown across the invitation. It follows the two names above whenever they change.'
+        path: 'couple.namesLine', label: 'Combined names line'
       });
       addTextField(inner, {
         path: 'couple.initials', label: 'Monogram initials',
-        hint: 'Two or three letters for the wax seal — for example A·J.'
+        hint: 'Two or three letters, for example A·J.'
       });
     });
   }
@@ -807,11 +790,9 @@
         if (document.activeElement !== endInput) endInput.value = localDateTime(next);
       });
       endWrap.appendChild(endInput);
-      endWrap.appendChild(el('span', 'field-hint', 'When the last dance winds down — the calendar file ends here.'));
       inner.appendChild(endWrap);
       addTextField(inner, {
-        path: 'wedding.zoneLabel', label: 'Time-zone note for guests',
-        hint: 'Only if guests abroad need it — for example “CET”.'
+        path: 'wedding.zoneLabel', label: 'Time-zone note (optional)'
       });
       addTextField(inner, {
         path: 'wedding.eventTitle', label: 'Calendar event title',
@@ -824,8 +805,7 @@
     var grid = el('div', 'field-grid');
     addTextField(grid, { path: 'venue.name', label: 'The venue' });
     addTextField(grid, {
-      path: 'venue.mapsQuery', label: 'Address or area',
-      hint: 'Enough for a map search — the street, the district, the town.'
+      path: 'venue.mapsQuery', label: 'Address or area'
     });
     body.appendChild(grid);
     var check = el('div', 'field');
@@ -846,7 +826,6 @@
       mapLink.remove();
     });
     check.appendChild(checkButton);
-    check.appendChild(el('span', 'field-hint', 'A quiet reassurance — this is exactly what your guests will find.'));
     body.appendChild(check);
     addFineTune(body, 'place', 'Fine-tune · an exact map link', function (inner) {
       var url = getPath('venue.mapUrl');
@@ -874,7 +853,7 @@
         if (document.activeElement !== input) input.value = String(next == null ? '' : next);
       });
       wrap.appendChild(input);
-      wrap.appendChild(el('span', 'field-hint', 'Have an exact spot in mind? Paste its Google Maps or Apple Maps link and guests will land right on it.'));
+      wrap.appendChild(el('span', 'field-hint', 'Paste a Google Maps or Apple Maps link.'));
       inner.appendChild(wrap);
     });
   }
@@ -883,7 +862,7 @@
     var grid = el('div', 'field-grid');
     addTextField(grid, {
       path: 'content.storyParagraphOne', label: 'How the story begins',
-      multiline: true, rows: 3, hint: 'Two or three sentences is plenty — the proof shows the fit.'
+      multiline: true, rows: 3, hint: 'Two or three sentences is plenty.'
     });
     addTextField(grid, {
       path: 'content.storyParagraphTwo', label: 'How it continues',
@@ -932,7 +911,7 @@
         notify('Wedding-day words updated.');
       });
       momentsWrap.appendChild(moments);
-      momentsWrap.appendChild(el('span', 'field-hint', 'One line per moment, in order. Leave empty and the frame quietly disappears.'));
+      momentsWrap.appendChild(el('span', 'field-hint', 'One line per moment, in order.'));
       inner.appendChild(momentsWrap);
     });
   }
@@ -1009,7 +988,7 @@
   }
 
   function buildDesignStep(body) {
-    var themeLabel = el('p', 'field-label', 'A colour mood for the whole invitation');
+    var themeLabel = el('p', 'field-label', 'Colour');
     themeLabel.style.cssText = 'margin:0 0 10px;color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;';
     body.appendChild(themeLabel);
     var themeGrid = el('div', 'choice-grid');
@@ -1039,7 +1018,7 @@
     });
     body.appendChild(themeGrid);
 
-    var typeLabel = el('p', 'field-label', 'A typographic voice');
+    var typeLabel = el('p', 'field-label', 'Type');
     typeLabel.style.cssText = 'margin:22px 0 10px;color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;';
     body.appendChild(typeLabel);
     var typeGrid = el('div', 'choice-grid');
@@ -1160,7 +1139,6 @@
       inner.appendChild(palette);
 
       groupLabel(inner, 'Your palette swatches');
-      inner.appendChild(el('p', 'field-note', 'Each colour is its own swatch on the invitation — rename it, recolour it or remove it without touching the others.'));
       var swatchList = el('div', 'palette-editor palette-editor--swatches');
       (config.palette || []).forEach(function (swatch, index) {
         var item = el('div', 'palette-editor__item palette-editor__item--swatch');
@@ -1202,7 +1180,7 @@
         swatchList.appendChild(item);
       });
       if (!config.palette || !config.palette.length) {
-        swatchList.appendChild(el('p', 'field-note', 'No swatches yet — add one below.'));
+        swatchList.appendChild(el('p', 'field-note', 'No swatches yet.'));
       }
       inner.appendChild(swatchList);
       var addSwatch = el('button', 'maps-button', 'Add a colour swatch');
@@ -1211,7 +1189,7 @@
         if (!Array.isArray(config.palette)) config.palette = [];
         config.palette.push({ name: 'Colour ' + (config.palette.length + 1), color: '#CDBB9A' });
         renderFlow();
-        notify('A new swatch joined the palette — name it and pick its colour.');
+        notify('Name the new swatch and pick its colour.');
       });
       inner.appendChild(addSwatch);
     });
@@ -1221,47 +1199,33 @@
     var grid = el('div', 'field-grid');
     addTextField(grid, {
       path: 'rsvp.deadline', label: 'Reply-by date',
-      hint: 'Written exactly as guests should read it — for example, the first of August, 2027.'
+      hint: 'For example: the first of August, 2027.'
     });
     grid.appendChild((function () {
       var holder = el('div');
       addStepper(holder, {
         path: 'rsvp.maxGuests', label: 'Seats one reply may claim',
-        min: 1, max: 20,
-        hint: 'For example, 2 lets a guest reply for themselves and their plus-one.'
+        min: 1, max: 20
       });
       return holder;
     })());
     body.appendChild(grid);
-    body.appendChild(el('p', 'field-note', 'Every reply arrives in your Guest replies list the moment a guest responds — no email address, nothing to set up.'));
   }
 
   /* ── step registry ─────────────────────────────────────────── */
 
   var STEPS = [
-    { key: 'couple', number: '01', title: 'The two of you', check: 'names',
-      blurb: 'The names on the envelope, the seal and every page.',
-      tip: 'On the proof, the names are clickable — type over them directly.',
+    { key: 'couple', title: 'The two of you', check: 'names',
       build: buildCoupleStep },
-    { key: 'day', number: '02', title: 'The day', check: 'day',
-      blurb: 'One date and one hour; everything on the page follows.',
-      tip: 'Click the date on the proof itself to edit how it reads.',
+    { key: 'day', title: 'The day', check: 'day',
       build: buildDayStep },
-    { key: 'place', number: '03', title: 'The place', check: 'place',
-      blurb: 'Where to find you, with a map pin for guests.',
-      tip: 'The venue name on the proof is editable too, exactly where it sits.',
+    { key: 'place', title: 'The place', check: 'place',
       build: buildPlaceStep },
-    { key: 'words', number: '04', title: 'Your words', check: 'words',
-      blurb: 'Your story and closing line, in your own words.',
-      tip: 'Click any sentence on the proof to edit it exactly where it sits.',
+    { key: 'words', title: 'Your words', check: 'words',
       build: buildWordsStep },
-    { key: 'design', number: '05', title: 'Colour & type',
-      blurb: 'A complete pairing — typography and colour chosen together.',
-      tip: 'Colours on the invitation are clickable too — select one to change it.',
+    { key: 'design', title: 'Colour & type',
       build: buildDesignStep },
-    { key: 'replies', number: '06', title: 'Guest replies', check: 'replies',
-      blurb: 'When to reply by, and how many seats a reply may bring.',
-      tip: 'Replies are kept for you — they appear in the sharing step.',
+    { key: 'replies', title: 'Guest replies', check: 'replies',
       build: buildRepliesStep }
   ];
   var SHARE_STEP = 7;
@@ -1276,10 +1240,8 @@
     section.dataset.stepKey = meta.key;
     section.dataset.generated = '1';
     var head = el('header', 'flow-step__head');
-    head.appendChild(el('span', 'flow-step__number', meta.number));
     var headCopy = el('div');
     headCopy.appendChild(el('h2', null, meta.title));
-    headCopy.appendChild(el('p', 'flow-step__blurb', meta.blurb));
     var stateline = el('div', 'flow-step__stateline');
     var chip = el('span', 'chip');
     chip.dataset.stepChip = meta.key;
@@ -1290,7 +1252,6 @@
     var body = el('div', 'flow-step__body');
     meta.build(body);
     section.appendChild(body);
-    if (meta.tip) section.appendChild(el('p', 'flow-step__tip', meta.tip));
     return section;
   }
 
@@ -1419,7 +1380,7 @@
     });
     if (!pending.length) {
       shareReadiness.insertBefore(
-        el('p', 'field-note', 'Every essential is yours — this invitation is ready to share.'),
+        el('p', 'field-note', 'Every essential is yours. This invitation is ready to share.'),
         shareReadiness.firstChild);
     }
   }
@@ -1449,7 +1410,7 @@
     }
     if (message.type === 'heirloom:load-error') {
       if (loading) loading.hidden = true;
-      if (hint) hint.textContent = 'The preview could not load — ' + message.message;
+      if (hint) hint.textContent = 'The preview could not load. ' + message.message;
       return;
     }
     if (message.type === 'heirloom:element-selected') {
@@ -1500,12 +1461,12 @@
         if (hint) hint.textContent = isBackground
           ? 'Background selected. Choose a colour to update it, then press Done.'
           : swatchIndex != null
-            ? 'Palette swatch selected. Change this one colour or remove just this swatch — the rest stay untouched.'
+            ? 'Palette swatch selected. Change this one colour or remove just this swatch; the rest stay untouched.'
             : 'Element selected. Recolour it, remove it, or press Done to keep editing.';
       } else {
         hideColorTooltip(false);
         if (hint && message.element === 'text') {
-          hint.textContent = 'Edit the selected text in the preview — click elsewhere when you are done.';
+          hint.textContent = 'Click elsewhere on the proof when you are done.';
         }
       }
       return;
@@ -1533,7 +1494,7 @@
         config.palette[swatchNamed].name = message.value.trim();
         notify('Palette swatch renamed.');
       } else {
-        notify('The swatch keeps its name — give it at least one character.');
+        notify('The swatch keeps its name; give it at least one character.');
       }
       return;
     } else {
@@ -1574,7 +1535,7 @@
     if (selectedColorSwatchIndex != null) {
       if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
       config.palette[selectedColorSwatchIndex].color = value.toUpperCase();
-      notify('Swatch colour updated — only this swatch changed.');
+      notify('Swatch colour updated. Only this swatch changed.');
       return;
     }
     if (!config.colorEdits || typeof config.colorEdits !== 'object') config.colorEdits = {};
@@ -1704,7 +1665,7 @@
 
   function saveCopy() {
     download('heirloom-invitation-copy.json', JSON.stringify(config, null, 2) + '\n', 'application/json;charset=utf-8');
-    notify('A copy of your invitation is saved to your device. Keep it safe — you can load it here any time.');
+    notify('A copy of your invitation is saved to your device. You can load it here any time.');
   }
 
   function validConfig(value) {
