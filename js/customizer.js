@@ -479,8 +479,7 @@
       lastSavedSnapshot = snapshot();
       blockedSnapshot = '';
       renderSidebar();
-      updatePublishedLink(window.location.origin + window.location.pathname.replace(/customize\.html$/, '') +
-        'index.html?invite=' + encodeURIComponent(publishId));
+      updatePublishedLink(window.location.origin + '/?invite=' + encodeURIComponent(publishId));
       renderRsvpResponses(result.responses || []);
       if (publishButton) publishButton.textContent = 'Publish latest changes';
       sendPreview();
