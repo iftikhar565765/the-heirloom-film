@@ -137,6 +137,7 @@
   var viewReplies = document.getElementById('view-replies');
   var viewRepliesPanel = document.getElementById('view-replies-panel');
   var openRepliesPage = document.getElementById('open-replies-page');
+  var submissionsButton = document.getElementById('submissions-button');
   var globalFields = [
     { path: 'couple.partnerOne', label: 'First partner', group: 'couple' },
     { path: 'couple.partnerTwo', label: 'Second partner', group: 'couple' },
@@ -327,6 +328,7 @@
     if (viewReplies) { viewReplies.href = repliesHref; viewReplies.hidden = false; }
     if (viewRepliesPanel) { viewRepliesPanel.href = repliesHref; viewRepliesPanel.hidden = false; }
     if (openRepliesPage) { openRepliesPage.href = repliesHref; openRepliesPage.hidden = false; }
+    if (submissionsButton) { submissionsButton.href = repliesHref; submissionsButton.hidden = false; }
     if (openPreview) {
       openPreview.href = url;
       openPreview.textContent = 'View published invitation ↗';

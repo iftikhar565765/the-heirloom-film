@@ -528,7 +528,7 @@ code { color: var(--atelier-gold); font-size: .92em; }
   letter-spacing: .12em;
   text-transform: uppercase;
 }
-.published-link__row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+.published-link__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 7px; }
 .published-link input {
   min-width: 0;
   min-height: 39px;
@@ -548,6 +548,25 @@ code { color: var(--atelier-gold); font-size: .92em; }
   letter-spacing: .08em;
   text-transform: uppercase;
 }
+.published-link .submissions-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  min-height: 39px;
+  padding: 0 12px;
+  border: 1px solid var(--atelier-gold);
+  border-radius: 2px;
+  background: var(--atelier-gold);
+  color: #211316;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.published-link .submissions-button:hover { background: #dccfb2; border-color: #dccfb2; }
 .published-link a {
   display: inline-block;
   margin-top: 8px;
