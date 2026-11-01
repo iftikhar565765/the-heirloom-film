@@ -138,6 +138,10 @@
   var viewRepliesPanel = document.getElementById('view-replies-panel');
   var openRepliesPage = document.getElementById('open-replies-page');
   var submissionsButton = document.getElementById('submissions-button');
+  var headerPublished = document.getElementById('header-published');
+  var headerPublishedUrl = document.getElementById('header-published-url');
+  var headerCopyPublishedUrl = document.getElementById('header-copy-published-url');
+  var headerSubmissionsButton = document.getElementById('header-submissions-button');
   var globalFields = [
     { path: 'couple.partnerOne', label: 'First partner', group: 'couple' },
     { path: 'couple.partnerTwo', label: 'Second partner', group: 'couple' },
@@ -323,12 +327,15 @@
   function updatePublishedLink(url) {
     if (publishedLink) publishedLink.hidden = false;
     if (publishedUrl) publishedUrl.value = url;
+    if (headerPublished) headerPublished.hidden = false;
+    if (headerPublishedUrl) headerPublishedUrl.value = url;
     if (manageInvitation) manageInvitation.href = 'customize.html?edit=' + encodeURIComponent(publishId);
     var repliesHref = 'replies.html?edit=' + encodeURIComponent(publishId);
     if (viewReplies) { viewReplies.href = repliesHref; viewReplies.hidden = false; }
     if (viewRepliesPanel) { viewRepliesPanel.href = repliesHref; viewRepliesPanel.hidden = false; }
     if (openRepliesPage) { openRepliesPage.href = repliesHref; openRepliesPage.hidden = false; }
     if (submissionsButton) { submissionsButton.href = repliesHref; submissionsButton.hidden = false; }
+    if (headerSubmissionsButton) { headerSubmissionsButton.href = repliesHref; headerSubmissionsButton.hidden = false; }
     if (openPreview) {
       openPreview.href = url;
       openPreview.textContent = 'View published invitation ↗';
@@ -1474,21 +1481,23 @@
   });
 
   if (publishButton) publishButton.addEventListener('click', publishInvitation);
-  if (copyPublishedUrl) copyPublishedUrl.addEventListener('click', function () {
-    if (!publishedUrl || !publishedUrl.value) return;
+  function copyInvitationLink(input) {
+    if (!input || !input.value) return;
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(publishedUrl.value).then(function () {
+      navigator.clipboard.writeText(input.value).then(function () {
         notify('Live invitation link copied.');
       }).catch(function () {
-        publishedUrl.select();
+        input.select();
         notify('Select and copy the live invitation link.');
       });
     } else {
-      publishedUrl.select();
+      input.select();
       document.execCommand('copy');
       notify('Live invitation link copied.');
     }
-  });
+  }
+  if (copyPublishedUrl) copyPublishedUrl.addEventListener('click', function () { copyInvitationLink(publishedUrl); });
+  if (headerCopyPublishedUrl) headerCopyPublishedUrl.addEventListener('click', function () { copyInvitationLink(headerPublishedUrl); });
 
   renderSidebar();
   loadManagedInvitation();

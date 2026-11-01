@@ -529,7 +529,24 @@ code { color: var(--atelier-gold); font-size: .92em; }
   text-transform: uppercase;
 }
 .published-link__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 7px; }
-.published-link input {
+.header-published {
+  display: none; /* mobile only — the finish panel holds the full block elsewhere */
+  padding: 10px clamp(18px, 4vw, 58px);
+  border-bottom: 1px solid var(--atelier-line);
+  background: rgba(27, 12, 15, .94);
+}
+.header-published__label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--atelier-muted);
+  font-size: 8px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.header-published__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 7px; }
+.header-published[hidden] { display: none; }
+.published-link input,
+.header-published input {
   min-width: 0;
   min-height: 39px;
   padding: 8px;
@@ -538,7 +555,8 @@ code { color: var(--atelier-gold); font-size: .92em; }
   color: var(--atelier-copy);
   font-size: 11px;
 }
-.published-link button {
+.published-link button,
+.header-published button {
   padding: 0 12px;
   border: 1px solid var(--atelier-gold);
   background: transparent;
@@ -548,7 +566,8 @@ code { color: var(--atelier-gold); font-size: .92em; }
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.published-link .submissions-button {
+.published-link .submissions-button,
+.header-published .submissions-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -566,7 +585,8 @@ code { color: var(--atelier-gold); font-size: .92em; }
   text-decoration: none;
   white-space: nowrap;
 }
-.published-link .submissions-button:hover { background: #dccfb2; border-color: #dccfb2; }
+.published-link .submissions-button:hover,
+.header-published .submissions-button:hover { background: #dccfb2; border-color: #dccfb2; }
 .published-link a {
   display: inline-block;
   margin-top: 8px;
@@ -590,11 +610,14 @@ code { color: var(--atelier-gold); font-size: .92em; }
   .preview-panel { grid-row: 2; }
   .preview-frame { height: min(75vh, 720px); }
   .editor-actions { position: static; }
+  .header-published:not([hidden]) { display: block; }
 }
 
 @media (max-width: 560px) {
   .atelier-header { min-height: 64px; }
   .header-note { max-width: 130px; text-align: right; font-size: 9px; }
+  .header-published { padding: 9px 12px; }
+  .header-published input { font-size: 10px; }
   .atelier { padding-top: 30px; }
   .atelier-intro { margin-bottom: 25px; }
   .preview-frame { height: 62vh; min-height: 360px; }
@@ -834,7 +857,7 @@ body {
 .finish-copy p:last-child { max-width: 60ch; font-family: "Cormorant Garamond", Georgia, serif; font-size: 16px; }
 .download-actions { min-width: min(390px, 100%); }
 .published-link input { border-radius: 2px; }
-.published-link button { min-height: 39px; border-radius: 2px; }
+.published-link button, .header-published button { min-height: 39px; border-radius: 2px; }
 .backup-button { justify-content: end; }
 
 button, a, input, textarea, select, summary { outline-offset: 3px; }
