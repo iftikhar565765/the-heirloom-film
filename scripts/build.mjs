@@ -2,9 +2,24 @@ import { createHash } from "node:crypto";
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const output = join(root, "dist");
+
+/* A short build stamp (git sha + UTC time) injected into every page so a
+   live deployment can be fingerprinted with one `curl`. When git is not
+   available (e.g. a shallow CI export) the stamp falls back to the time. */
+let buildStamp;
+try {
+  const sha = execSync("git rev-parse --short HEAD", { cwd: root, encoding: "utf8" }).trim();
+  buildStamp = `${sha} ${new Date().toISOString().replace(/\.\d+Z$/, "Z")}`;
+} catch {
+  buildStamp = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+}
+const stampTag = `<meta name="build" content="${buildStamp}" aria-hidden="true">`;
+console.log(`Build stamp: ${buildStamp}`);
+
 const publicFiles = [
   "index.html",
   "customize.html",
@@ -37,6 +52,7 @@ async function walk(dir) {
 const htmlFiles = (await walk(output)).filter((file) => file.endsWith(".html"));
 const hashCache = new Map();
 let busted = 0;
+let stamped = 0;
 
 const assetRef = /(?:src|href)="((?:css|js|assets)\/[^"?]+)"/g;
 for (const file of htmlFiles) {
@@ -57,9 +73,12 @@ for (const file of htmlFiles) {
       if (!hash) return match;
       versioned += 1;
       return `${attr}="${path}?v=${hash}"`;
-    });
+    })
+    /* one build stamp per page, right after the charset declaration */
+    .replace(/(<meta charset="[^"]*">)/i, `$1\n  ${stampTag}`);
+  stamped += 1;
   busted += versioned;
   await writeFile(file, out);
 }
 
-console.log(`Built Workers static assets in ${output} (${busted} asset URLs versioned)`);
+console.log(`Built Workers static assets in ${output} (${busted} asset URLs versioned, ${stamped} pages stamped)`);

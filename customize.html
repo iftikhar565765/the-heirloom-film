@@ -147,6 +147,7 @@
         </div>
         <div class="preview-footer">
           <button type="button" class="text-button" id="restore-removed" hidden>Restore removed elements</button>
+          <button type="button" class="backup-button preview-continue" id="preview-continue" hidden>Continue to publish</button>
         </div>
       </div>
     </section>
@@ -158,5 +159,19 @@
     <span>The Heirloom Film</span>
     <span>Invitation Atelier</span>
   </footer>
+
+  <section class="publish-celebration" id="publish-celebration" role="dialog" aria-modal="true"
+    aria-labelledby="celebration-title" hidden>
+    <div class="publish-celebration__inner">
+      <p class="publish-celebration__eyebrow">Published</p>
+      <h2 id="celebration-title">Your invitation is live</h2>
+      <p class="publish-celebration__note">This link is what your guests open. Copy it into messages, cards or the group chat.</p>
+      <div class="publish-celebration__row">
+        <input id="celebration-url" type="url" readonly aria-label="Live invitation link">
+        <button type="button" class="backup-button" id="celebration-copy">Copy link</button>
+        <a id="celebration-submissions" class="submissions-button" href="replies.html" hidden>View submissions</a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>

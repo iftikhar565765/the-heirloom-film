@@ -135,6 +135,11 @@
   var headerCopyPublishedUrl = document.getElementById('header-copy-published-url');
   var headerSubmissionsButton = document.getElementById('header-submissions-button');
   var restoreRemovedButton = document.getElementById('restore-removed');
+  var previewContinue = document.getElementById('preview-continue');
+  var celebration = document.getElementById('publish-celebration');
+  var celebrationUrl = document.getElementById('celebration-url');
+  var celebrationCopy = document.getElementById('celebration-copy');
+  var celebrationSubmissions = document.getElementById('celebration-submissions');
 
   /* ── small helpers ─────────────────────────────────────────── */
 
@@ -536,6 +541,28 @@
     }
   }
 
+  /* The publish confirmation is the whole page: the live link and
+     the submissions button, centred, with nothing else around it. */
+  function showPublishCelebration() {
+    if (!celebration || !headerPublishedUrl || !headerPublishedUrl.value) return;
+    if (celebrationUrl) celebrationUrl.value = headerPublishedUrl.value;
+    if (celebrationSubmissions) {
+      celebrationSubmissions.href = 'replies.html?edit=' + encodeURIComponent(publishId);
+      celebrationSubmissions.hidden = false;
+    }
+    celebration.hidden = false;
+    document.body.classList.add('celebration-open');
+    if (celebrationUrl) {
+      celebrationUrl.focus();
+      celebrationUrl.select();
+    }
+  }
+
+  function hidePublishCelebration() {
+    if (celebration) celebration.hidden = true;
+    document.body.classList.remove('celebration-open');
+  }
+
   function scheduleRemoteSave() {
     if (!publishId || !ownerToken || snapshot() === lastSavedSnapshot ||
         snapshot() === blockedSnapshot) return;
@@ -632,6 +659,7 @@
       setSaveStatus('saved', 'Live · changes save by themselves');
       renderRsvpResponses(result.responses || []);
       goStep(7);
+      showPublishCelebration();
       scheduleRemoteSave();
     }).catch(function (error) {
       if (error && error.codeRequired) {
@@ -1881,6 +1909,7 @@
   }
   if (copyPublishedUrl) copyPublishedUrl.addEventListener('click', function () { copyInvitationLink(publishedUrl); });
   if (headerCopyPublishedUrl) headerCopyPublishedUrl.addEventListener('click', function () { copyInvitationLink(headerPublishedUrl); });
+  if (celebrationCopy) celebrationCopy.addEventListener('click', function () { copyInvitationLink(celebrationUrl); });
 
   /* ── mobile preview overlay ────────────────────────────────── */
 
@@ -1890,6 +1919,7 @@
   function setPreviewOpen(open) {
     document.body.classList.toggle('preview-open', open);
     if (previewClose) previewClose.hidden = !open;
+    if (previewContinue) previewContinue.hidden = !open;
     if (open) {
       var panel = document.querySelector('.preview-panel');
       if (panel) panel.scrollTop = 0;
@@ -1897,8 +1927,30 @@
   }
   if (previewToggle) previewToggle.addEventListener('click', function () { setPreviewOpen(true); });
   if (previewClose) previewClose.addEventListener('click', function () { setPreviewOpen(false); });
+  /* confirm the design inside the proof — lands on the publish
+     button instead of leaving the couple to hunt for the ✕       */
+  if (previewContinue) previewContinue.addEventListener('click', function () {
+    setPreviewOpen(false);
+    /* the header publish control is the one that is always on
+       screen — prefer it, fall back to the share-step button   */
+    var target = (publishButton && publishButton.offsetParent) ? publishButton
+      : (finishPublishButton && finishPublishButton.offsetParent) ? finishPublishButton
+      : publishButton;
+    if (target) {
+      try { target.focus({ preventScroll: true }); } catch (error) { target.focus(); }
+      if (target.scrollIntoView) {
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        catch (error) { target.scrollIntoView(); }
+      }
+      /* one quiet pulse so the eye lands on Publish at once */
+      target.classList.add('is-invited');
+      window.setTimeout(function () { target.classList.remove('is-invited'); }, 2800);
+    }
+  });
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && document.body.classList.contains('preview-open')) setPreviewOpen(false);
+    if (event.key !== 'Escape') return;
+    if (celebration && !celebration.hidden) { hidePublishCelebration(); return; }
+    if (document.body.classList.contains('preview-open')) setPreviewOpen(false);
   });
 
   /* ── first paint ───────────────────────────────────────────── */

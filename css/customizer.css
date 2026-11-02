@@ -977,6 +977,24 @@ body.preview-open { overflow: hidden; }
   min-height: 18px;
 }
 
+/* inside the fullscreen proof the footer centres its one action:
+   the button that hands the couple to the publish step          */
+body.preview-open .preview-footer { justify-content: center; }
+
+.preview-continue { min-width: 220px; text-align: center; }
+
+/* the publish control, gently called out the moment the proof
+   is confirmed — one gold ring, twice, then quiet              */
+.download-button.is-invited {
+  animation: publish-invite 1.25s var(--ease) 2;
+}
+
+@keyframes publish-invite {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 13px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
 /* canvas colour tooltip */
 
 .canvas-color-action {
@@ -1134,3 +1152,99 @@ body.preview-open .preview-toggle { display: none; }
   /* keep the floating Preview clear of the sticky step navigation */
   .preview-toggle { bottom: 84px; }
 }
+
+/* ── publish celebration — the whole page once the invitation
+   is live: the guest link and the submissions button, centred ── */
+
+.publish-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 4vw, 48px);
+  background: var(--desk);
+  overflow: auto;
+  animation: overlayIn var(--t-med) var(--ease);
+}
+
+.publish-celebration__inner {
+  width: min(620px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.publish-celebration__eyebrow {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+.publish-celebration__inner h2 {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-weight: 500;
+  font-size: clamp(26px, 4.6vw, 38px);
+  letter-spacing: .01em;
+}
+
+.publish-celebration__note {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.publish-celebration__row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.publish-celebration__row input {
+  flex: 1 1 230px;
+  min-width: 0;
+  background: var(--well);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--copy);
+  font-size: 13px;
+  letter-spacing: .02em;
+}
+
+.submissions-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--well);
+  color: var(--copy);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: .05em;
+  padding: 12px 22px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.submissions-button:hover { background: rgba(234, 230, 224, .1); color: var(--copy); }
+
+body.celebration-open { overflow: hidden; }
