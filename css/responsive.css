@@ -249,7 +249,7 @@
   .palette-layout { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
   .venue-grid { gap: 2rem; }
   .venue-actions > * { min-height: 44px; }
-  .rsvp-card { padding: 2rem clamp(1.1rem, 5vw, 2rem); }
+  .rsvp-card { padding: 2rem clamp(1rem, 3.5vw, 1.5rem); }
   .rsvp-form { gap: 1.35rem; }
 
   /* venue: the lace tableau frames the night scene */
@@ -322,7 +322,10 @@
   .kicker { letter-spacing: .26em; gap: .7rem; }
   .std-kicker-line .std-kicker-num { display: none; }
   .btn { min-height: 44px; padding: .9em 1.25em; letter-spacing: .18em; }
-  .rsvp-card { padding-inline: 1.1rem; }
+  /* the reply card sits close to the edge so the form reads wide,
+     not thin: slim scene gutter + slim card padding */
+  .scene--rsvp .container { width: calc(100% - 1.25rem); }
+  .rsvp-card { padding-inline: .95rem; }
   .rsvp-title { font-size: clamp(1.85rem, 8vw, 2.6rem); }
   .rsvp-summary > div { grid-template-columns: minmax(5rem, auto) minmax(0, 1fr); gap: .65rem; }
   .rsvp-summary dt { letter-spacing: .14em; }

@@ -364,7 +364,7 @@ h1 {
    a permanent neighbour — it arrives as an overlay on demand.   */
 .workspace {
   display: grid;
-  grid-template-columns: minmax(430px, 560px);
+  grid-template-columns: minmax(min(430px, 100%), 560px);
   justify-content: center;
   gap: clamp(16px, 2vw, 28px);
   align-items: start;
