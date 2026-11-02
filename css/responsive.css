@@ -247,7 +247,6 @@
   .details-copy > .display br,
   .palette-heading > .display br { display: none; }
   .palette-layout { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
-  .palette-swatches { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .venue-grid { gap: 2rem; }
   .venue-actions > * { min-height: 44px; }
   .rsvp-card { padding: 2rem clamp(1.1rem, 5vw, 2rem); }
@@ -305,8 +304,6 @@
   .std-venue { margin-top: 1rem; }
   .detail-item { grid-template-columns: 1.8rem minmax(0, 1fr); column-gap: .7rem; }
   .details-art { width: min(100%, 23rem); }
-  .palette-swatches { gap: .6rem; }
-  .palette-value { font-size: .5rem; letter-spacing: .06em; }
   .venue-name { overflow-wrap: anywhere; }
   .venue-address { gap: .65rem; }
   .venue-sublines .sub { flex-wrap: wrap; row-gap: .15rem; }
@@ -325,8 +322,6 @@
   .kicker { letter-spacing: .26em; gap: .7rem; }
   .std-kicker-line .std-kicker-num { display: none; }
   .btn { min-height: 44px; padding: .9em 1.25em; letter-spacing: .18em; }
-  .palette-swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 1.35rem; }
-  .palette-color { aspect-ratio: .9 / 1; }
   .rsvp-card { padding-inline: 1.1rem; }
   .rsvp-title { font-size: clamp(1.85rem, 8vw, 2.6rem); }
   .rsvp-summary > div { grid-template-columns: minmax(5rem, auto) minmax(0, 1fr); gap: .65rem; }
@@ -364,7 +359,6 @@
   .invite-card .flourish { width: 2rem; }
   .std-date { font-size: clamp(2rem, 9.5vw, 2.65rem); }
   .std-actions > * { width: 100%; }
-  .palette-swatches { column-gap: .45rem; }
   .count-row { gap: .45rem; }
   .count-num { font-size: 1.8rem; }
   .count-label { letter-spacing: .1em; }

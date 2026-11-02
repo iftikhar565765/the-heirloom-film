@@ -48,10 +48,16 @@
   var fineTuneOpen = {};
   var fieldSyncs = [];
 
+  /* undo — every settled change can be taken back with one press */
+  var undoStack = [];
+  var lastCommittedSnapshot = '';
+  var undoTimer = null;
+  var undoing = false;
+  var undoButton = null;
+
   var selectedColorSelector = '';
   var selectedColorDefaults = null;
   var selectedColorKey = '';
-  var selectedColorSwatchIndex = null;
   var selectedColorRemovable = false;
   var elementLabels = {
     'opening-watermark': 'Opening watermark',
@@ -89,7 +95,6 @@
     'details-art-date': 'Crest · date ribbon',
     'details-art-sparkles': 'Crest · sparkles',
     'palette-dresscode': 'Dress code card',
-    'palette-swatches': 'Palette swatches',
     'day-words': 'Wedding-day words',
     'rsvp-watermark': 'RSVP watermark',
     'rsvp-ornament': 'RSVP ornament',
@@ -252,6 +257,8 @@
   /* ── status & notification ─────────────────────────────────── */
 
   function notify(message) {
+    pushUndo();
+    runAutomations();
     if (hint) hint.textContent = message || '';
     setSaveStatus(publishId ? 'editing' : 'preview', publishId ? 'Live · saving as you edit' : 'Draft · visible only to you');
     if (hintTimer) window.clearTimeout(hintTimer);
@@ -265,6 +272,7 @@
     storePreviewConfig();
     updateShareReadiness();
     updateRestoreVisibility();
+    clearInvalidMarks();
   }
 
   function setSaveStatus(state, message) {
@@ -277,6 +285,181 @@
 
   function snapshot() {
     return JSON.stringify({ config: config });
+  }
+
+  /* ── undo stack ─────────────────────────────────────────────── */
+
+  /* Rapid edits (typing) collapse into one undo step; a burst is
+     only committed once the edits pause for a moment.            */
+  function pushUndo() {
+    if (undoing) return;
+    if (undoTimer) {
+      window.clearTimeout(undoTimer);
+      undoTimer = window.setTimeout(settleUndo, 700);
+      return;
+    }
+    var current = snapshot();
+    if (lastCommittedSnapshot === '') {
+      lastCommittedSnapshot = current;
+      return;
+    }
+    if (current === lastCommittedSnapshot) return;
+    undoStack.push(lastCommittedSnapshot);
+    if (undoStack.length > 60) undoStack.shift();
+    undoTimer = window.setTimeout(settleUndo, 700);
+    updateUndoButton();
+  }
+
+  function settleUndo() {
+    undoTimer = null;
+    lastCommittedSnapshot = snapshot();
+  }
+
+  function resetUndoHistory() {
+    if (undoTimer) { window.clearTimeout(undoTimer); undoTimer = null; }
+    undoStack = [];
+    lastCommittedSnapshot = snapshot();
+    updateUndoButton();
+  }
+
+  function undoLastChange() {
+    if (!undoStack.length) return;
+    var previous;
+    try {
+      previous = JSON.parse(undoStack.pop());
+    } catch (error) { previous = null; }
+    if (!previous || !validConfig(previous.config)) { updateUndoButton(); return; }
+    config = previous.config;
+    undoing = true;
+    lastCommittedSnapshot = snapshot();
+    renderFlow();
+    sendPreview();
+    storePreviewConfig();
+    updateShareReadiness();
+    updateRestoreVisibility();
+    setSaveStatus(publishId ? 'editing' : 'preview',
+      publishId ? 'Live · saving as you edit' : 'Draft · visible only to you');
+    if (hint) hint.textContent = 'Your last change was undone.';
+    scheduleRemoteSave();
+    undoing = false;
+    updateUndoButton();
+  }
+
+  function updateUndoButton() {
+    if (undoButton) undoButton.hidden = !undoStack.length;
+  }
+
+  /* ── automatic details ──────────────────────────────────────── */
+
+  /* Small kindnesses: initials follow the two names, the calendar
+     title follows the couple, and the page & social descriptions
+     follow the day and the place. Anything the couple types by
+     hand is never overwritten.                                    */
+  var manualInitials = false;
+  var manualEventTitle = false;
+
+  function firstInitial(name) {
+    var value = String(name == null ? '' : name).trim();
+    return value ? value.charAt(0).toUpperCase() : '';
+  }
+
+  function deriveInitials() {
+    return [firstInitial(config.couple.partnerOne), firstInitial(config.couple.partnerTwo)]
+      .filter(Boolean).join(' · ');
+  }
+
+  function compactNumerals() {
+    var numerals = String(config.wedding.numerals || '');
+    return numerals.split('·').map(function (part) { return part.trim(); }).filter(Boolean).join('.');
+  }
+
+  function runAutomations() {
+    if (config.couple && config.wedding && config.content) {
+      var derived = deriveInitials();
+      if (derived && !manualInitials && config.couple.initials !== derived) {
+        config.couple.initials = derived;
+        syncGlobalField('couple.initials', derived);
+      }
+      var eventTitle = (config.couple.namesLine || '') + ' · Wedding';
+      if (!manualEventTitle && config.wedding.eventTitle !== eventTitle) {
+        config.wedding.eventTitle = eventTitle;
+        syncGlobalField('wedding.eventTitle', eventTitle);
+      }
+      var names = config.couple.namesLine || '';
+      var day = compactNumerals();
+      var venueName = String(config.venue.name || '').trim();
+      config.content.pageTitle = names + (day ? ' · ' + day : '');
+      config.content.socialTitle = names + ' · An Invitation' + (day ? ' · ' + day : '');
+      config.content.pageDescription = names + ' request the pleasure of your company' +
+        (venueName ? ' at ' + venueName : '') +
+        (config.wedding.display ? ' on ' + config.wedding.display : '') + '. Open your invitation.';
+      config.content.socialDescription =
+        'An heirloom envelope, a wax seal, and a love story. You are cordially invited.';
+    }
+  }
+
+  /* ── required details ───────────────────────────────────────── */
+
+  var REQUIRED_FIELDS = [
+    { step: 1, path: 'couple.partnerOne', label: 'the first name' },
+    { step: 1, path: 'couple.partnerTwo', label: 'the second name' },
+    { step: 2, path: 'wedding.iso', label: 'the date and time' },
+    { step: 3, path: 'venue.name', label: 'the venue name' },
+    { step: 3, path: 'venue.mapsQuery', label: 'the address or area' },
+    { step: 4, path: 'content.storyParagraphOne', label: 'the story opening' },
+    { step: 4, path: 'content.storyParagraphTwo', label: 'the story continuation' },
+    { step: 4, path: 'content.closingMessage', label: 'the closing note' },
+    { step: 6, path: 'rsvp.deadline', label: 'the reply-by date' }
+  ];
+
+  function isFilled(path) {
+    var value = getPath(path);
+    if (path === 'wedding.iso') return Boolean(localDateTime(value));
+    /* the place reads as complete once a name and any address or
+       area are present — the sample keeps the query empty        */
+    if (path === 'venue.mapsQuery') {
+      var query = getPath('venue.mapsQuery');
+      var address = getPath('venue.address');
+      return Boolean((typeof query === 'string' && query.trim()) ||
+        (typeof address === 'string' && address.trim()));
+    }
+    return typeof value === 'string' && value.trim().length > 0;
+  }
+
+  function stepIssues(step) {
+    return REQUIRED_FIELDS.filter(function (field) {
+      return field.step === step && !isFilled(field.path);
+    });
+  }
+
+  function fieldWrapperFor(path) {
+    var input = document.getElementById(path === 'wedding.iso' ? 'f-wedding-date' : fieldId(path));
+    return input ? input.closest('.field') : null;
+  }
+
+  function clearInvalidMarks() {
+    document.querySelectorAll('.field--invalid').forEach(function (wrapper) {
+      var input = wrapper.querySelector('input, textarea');
+      if (input && input.value && input.value.trim().length > 0) {
+        wrapper.classList.remove('field--invalid');
+      }
+    });
+  }
+
+  function showStepIssues(issues, message) {
+    issues.forEach(function (field) {
+      var wrapper = fieldWrapperFor(field.path);
+      if (wrapper) wrapper.classList.add('field--invalid');
+    });
+    if (hint) {
+      hint.textContent = message ||
+        'Please fill ' + issues.map(function (field) { return field.label; }).join(', ') + '.';
+    }
+    var first = fieldWrapperFor(issues[0].path);
+    if (first && first.scrollIntoView) {
+      try { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      catch (error) { first.scrollIntoView(); }
+    }
   }
 
   /* The full-page guest preview (?preview=1) reads the latest edits
@@ -398,6 +581,19 @@
   function publishInvitation() {
     if (managedLoading || saveInFlight) return;
 
+    /* nothing goes live with an empty essential — walk the couple
+       back to whatever is still missing before publishing        */
+    var missing = [];
+    REQUIRED_FIELDS.forEach(function (field) {
+      if (!isFilled(field.path)) missing.push(field);
+    });
+    if (missing.length) {
+      goStep(missing[0].step);
+      showStepIssues(missing, 'A few details are still missing. Fill the highlighted fields, then publish.');
+      setSaveStatus('error', 'Needs your attention');
+      return;
+    }
+
     if (publishButton) {
       publishButton.disabled = true;
       publishButton.textContent = publishId ? 'Updating invitation…' : 'Publishing…';
@@ -490,8 +686,12 @@
       publishId = result.id;
       publishRevision = result.revision;
       config = result.config;
+      manualInitials = deriveInitials() !== String(config.couple.initials || '');
+      manualEventTitle = ((config.couple.namesLine || '') + ' · Wedding') !==
+        String(config.wedding.eventTitle || '');
       lastSavedSnapshot = snapshot();
       blockedSnapshot = '';
+      resetUndoHistory();
       renderFlow();
       updatePublishedLink(window.location.origin + '/?invite=' + encodeURIComponent(publishId));
       renderRsvpResponses(result.responses || []);
@@ -765,7 +965,8 @@
       });
       addTextField(inner, {
         path: 'couple.initials', label: 'Monogram initials',
-        hint: 'Two or three letters, for example A·J.'
+        hint: 'Two or three letters, for example A·J.',
+        after: function () { manualInitials = true; }
       });
     });
   }
@@ -795,7 +996,8 @@
       });
       addTextField(inner, {
         path: 'wedding.eventTitle', label: 'Calendar event title',
-        hint: 'The name of the event when a guest saves the date.'
+        hint: 'The name of the event when a guest saves the date.',
+        after: function () { manualEventTitle = true; }
       });
     });
   }
@@ -873,12 +1075,27 @@
       hint: 'The last words at the foot of the invitation.'
     });
     body.appendChild(grid);
+
+    /* the words a guest meets before anything else deserve their
+       own place in the open, not tucked inside a fine-tune       */
+    body.appendChild(el('p', 'finetune__group-label', 'The opening screen'));
+    var openingGrid = el('div', 'field-grid');
+    addTextField(openingGrid, {
+      path: 'content.openingEyebrow', label: 'Opening introduction'
+    });
+    addTextField(openingGrid, {
+      path: 'content.envelopeAddress', label: 'Envelope addressee'
+    });
+    addTextField(openingGrid, {
+      path: 'content.openingHint', label: 'Invitation hint'
+    });
+    addTextField(openingGrid, {
+      path: 'content.openButton', label: 'Open button'
+    });
+    body.appendChild(openingGrid);
+
     addFineTune(body, 'words', 'Fine-tune · the smaller words', function (inner) {
       groupLabel(inner, 'The opening envelope');
-      addTextField(inner, { path: 'content.openingEyebrow', label: 'Opening introduction' });
-      addTextField(inner, { path: 'content.envelopeAddress', label: 'Envelope addressee' });
-      addTextField(inner, { path: 'content.openingHint', label: 'Invitation hint' });
-      addTextField(inner, { path: 'content.openButton', label: 'Open button' });
       addTextField(inner, { path: 'content.skipButton', label: 'Skip button' });
       groupLabel(inner, 'The story frame');
       addTextField(inner, { path: 'content.storyTitle', label: 'Story heading' });
@@ -1136,61 +1353,6 @@
         palette.appendChild(item);
       });
       inner.appendChild(palette);
-
-      groupLabel(inner, 'Your palette swatches');
-      var swatchList = el('div', 'palette-editor palette-editor--swatches');
-      (config.palette || []).forEach(function (swatch, index) {
-        var item = el('div', 'palette-editor__item palette-editor__item--swatch');
-        var name = el('input');
-        name.type = 'text';
-        name.value = swatch.name || '';
-        name.setAttribute('aria-label', 'Swatch ' + (index + 1) + ' name');
-        name.addEventListener('input', function () {
-          config.palette[index].name = name.value;
-          notify();
-        });
-        var color = el('input');
-        color.type = 'color';
-        color.value = /^#[0-9a-f]{6}$/i.test(swatch.color || '') ? swatch.color : '#cdbb9a';
-        color.setAttribute('aria-label', 'Swatch ' + (index + 1) + ' colour');
-        color.addEventListener('input', function () {
-          config.palette[index].color = color.value.toUpperCase();
-          notify();
-        });
-        var removeSwatch = el('button', 'swatch-remove', '×');
-        removeSwatch.type = 'button';
-        removeSwatch.setAttribute('aria-label',
-          'Remove swatch ' + (index + 1) + (swatch.name ? ' (' + swatch.name + ')' : '') + ' only');
-        removeSwatch.addEventListener('click', function () {
-          if (!Array.isArray(config.palette) || !config.palette[index]) return;
-          var removedName = config.palette[index].name || 'swatch ' + (index + 1);
-          config.palette.splice(index, 1);
-          if (config.hiddenElements && typeof config.hiddenElements === 'object') {
-            Object.keys(config.hiddenElements).forEach(function (key) {
-              if (/^palette-swatch-\d+$/.test(key)) delete config.hiddenElements[key];
-            });
-          }
-          renderFlow();
-          notify('“' + removedName + '” was taken out of the palette. The other colours keep their places.');
-        });
-        item.appendChild(name);
-        item.appendChild(color);
-        item.appendChild(removeSwatch);
-        swatchList.appendChild(item);
-      });
-      if (!config.palette || !config.palette.length) {
-        swatchList.appendChild(el('p', 'field-note', 'No swatches yet.'));
-      }
-      inner.appendChild(swatchList);
-      var addSwatch = el('button', 'maps-button', 'Add a colour swatch');
-      addSwatch.type = 'button';
-      addSwatch.addEventListener('click', function () {
-        if (!Array.isArray(config.palette)) config.palette = [];
-        config.palette.push({ name: 'Colour ' + (config.palette.length + 1), color: '#CDBB9A' });
-        renderFlow();
-        notify('Name the new swatch and pick its colour.');
-      });
-      inner.appendChild(addSwatch);
     });
   }
 
@@ -1290,7 +1452,24 @@
   }
 
   if (flowBack) flowBack.addEventListener('click', function () { goStep(currentStep - 1); });
-  if (flowNext) flowNext.addEventListener('click', function () { goStep(currentStep + 1); });
+
+  /* Moving forward is earned: the current step must be complete.
+     Arriving at the share step opens the live editing view, so the
+     couple sees every filled detail on the invitation itself.     */
+  function goToNextStep() {
+    if (currentStep >= SHARE_STEP) return;
+    var issues = stepIssues(currentStep);
+    if (issues.length) {
+      showStepIssues(issues, 'Please fill ' +
+        issues.map(function (field) { return field.label; }).join(', ') +
+        ' before continuing.');
+      return;
+    }
+    var next = currentStep + 1;
+    goStep(next);
+    if (next === SHARE_STEP) setPreviewOpen(true);
+  }
+  if (flowNext) flowNext.addEventListener('click', goToNextStep);
 
   /* Enter advances the flow — the keyboard matches the promise of
      the buttons. Textareas keep their newline.                     */
@@ -1301,7 +1480,7 @@
     if (active.type === 'password' || active.closest('#header-published')) return;
     if (currentStep >= SHARE_STEP) return;
     event.preventDefault();
-    goStep(currentStep + 1);
+    goToNextStep();
   });
 
   /* ── readiness — honest, per-step, and on the share page ───── */
@@ -1401,22 +1580,15 @@
         Number.isFinite(message.anchor.height);
       var isBackground = message.element === 'background';
       var elementKind = message.element;
-      var swatchIndex = message.swatchIndex != null && Array.isArray(config.palette) &&
-        Number.isInteger(message.swatchIndex) && message.swatchIndex >= 0 &&
-        message.swatchIndex < config.palette.length ? message.swatchIndex : null;
       var hasColor = isBackground || /^#[0-9a-f]{6}$/i.test(message.color || '');
       if ((elementKind === 'color' || elementKind === 'text' || isBackground) &&
           validSelector && hasColor && validAnchor) {
         selectedColorSelector = message.selector;
         selectedColorKey = typeof message.key === 'string' ? message.key : '';
-        selectedColorSwatchIndex = swatchIndex;
         selectedColorRemovable = !isBackground && selectedColorKey !== 'skip-intro';
         var savedColors = config.colorEdits && config.colorEdits[selectedColorSelector];
         if (textColorInput) {
-          textColorInput.value = swatchIndex != null
-            ? (/^#[0-9a-f]{6}$/i.test(config.palette[swatchIndex].color || '')
-              ? config.palette[swatchIndex].color : '#cdbb9a')
-            : (savedColors && savedColors.color) || message.color || '#f7f4ee';
+          textColorInput.value = (savedColors && savedColors.color) || message.color || '#f7f4ee';
         }
         if (bgColorInput) {
           bgColorInput.value = (savedColors && savedColors.backgroundColor) ||
@@ -1427,22 +1599,14 @@
           backgroundColor: bgColorInput ? bgColorInput.value : ''
         };
         if (colorActionLabel) colorActionLabel.textContent = message.label || 'Selected element';
-        if (textGroup) {
-          textGroup.hidden = isBackground;
-          var textGroupLabel = textGroup.querySelector('span');
-          if (textGroupLabel) {
-            textGroupLabel.textContent = swatchIndex != null ? 'Colour' : 'Text';
-          }
-        }
-        if (bgGroup) bgGroup.hidden = swatchIndex != null;
+        if (textGroup) textGroup.hidden = isBackground;
+        if (bgGroup) bgGroup.hidden = false;
         if (removeElementButton) removeElementButton.hidden = !selectedColorRemovable;
         if (colorAction) colorAction.hidden = false;
         positionColorTooltip(message.anchor);
         if (hint) hint.textContent = isBackground
           ? 'Background selected. Choose a colour to update it, then press Done.'
-          : swatchIndex != null
-            ? 'Palette swatch selected. Change this one colour or remove just this swatch; the rest stay untouched.'
-            : 'Element selected. Recolour it, remove it, or press Done to keep editing.';
+          : 'Element selected. Recolour it, remove it, or press Done to keep editing.';
       } else {
         hideColorTooltip(false);
         if (hint && message.element === 'text') {
@@ -1457,8 +1621,7 @@
        ['couple.namesLine', 'couple.initials', 'couple.partnerOne', 'couple.partnerTwo',
         'wedding.display', 'wedding.words', 'wedding.numerals', 'wedding.zoneLabel',
         'venue.name', 'venue.address', 'rsvp.deadline'].indexOf(message.path) !== -1 ||
-       /^moments\.\d+$/.test(message.path) ||
-       /^palette\.\d+\.name$/.test(message.path));
+       /^moments\.\d+$/.test(message.path));
     if (message.type !== 'heirloom:element-edited' || !allowedTextPath ||
         typeof message.value !== 'string') return;
 
@@ -1467,16 +1630,6 @@
       if (!Array.isArray(config.moments) || momentIndex >= config.moments.length) return;
       if (message.value.trim()) config.moments[momentIndex] = message.value.trim();
       else config.moments.splice(momentIndex, 1);
-    } else if (/^palette\.\d+\.name$/.test(message.path)) {
-      var swatchNamed = Number(message.path.split('.')[1]);
-      if (!Array.isArray(config.palette) || !config.palette[swatchNamed]) return;
-      if (message.value.trim()) {
-        config.palette[swatchNamed].name = message.value.trim();
-        notify('Palette swatch renamed.');
-      } else {
-        notify('The swatch keeps its name; give it at least one character.');
-      }
-      return;
     } else {
       if (typeof getPath(message.path) !== 'string') return;
       setPath(message.path, message.value);
@@ -1512,12 +1665,6 @@
 
   function updateSelectedColor(value) {
     if (!selectedColorSelector || !/^#[0-9a-f]{6}$/i.test(value)) return;
-    if (selectedColorSwatchIndex != null) {
-      if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
-      config.palette[selectedColorSwatchIndex].color = value.toUpperCase();
-      notify('Swatch colour updated. Only this swatch changed.');
-      return;
-    }
     if (!config.colorEdits || typeof config.colorEdits !== 'object') config.colorEdits = {};
     if (!config.colorEdits[selectedColorSelector]) config.colorEdits[selectedColorSelector] = {};
     config.colorEdits[selectedColorSelector].color = value.toUpperCase();
@@ -1526,7 +1673,6 @@
 
   function updateSelectedBackground(value) {
     if (!selectedColorSelector || !/^#[0-9a-f]{6}$/i.test(value)) return;
-    if (selectedColorSwatchIndex != null) return;
     if (!config.colorEdits || typeof config.colorEdits !== 'object') config.colorEdits = {};
     if (!config.colorEdits[selectedColorSelector]) config.colorEdits[selectedColorSelector] = {};
     config.colorEdits[selectedColorSelector].backgroundColor = value.toUpperCase();
@@ -1536,7 +1682,6 @@
   function hideColorTooltip(clearInPreview) {
     selectedColorSelector = '';
     selectedColorKey = '';
-    selectedColorSwatchIndex = null;
     selectedColorRemovable = false;
     if (colorAction) colorAction.hidden = true;
     if (clearInPreview !== false && frame && frame.contentWindow) {
@@ -1566,19 +1711,6 @@
       if (!selectedColorSelector || selectedColorKey === 'skip-intro') return;
       var removedLabel = colorActionLabel && colorActionLabel.textContent
         ? colorActionLabel.textContent : labelForKey(selectedColorKey);
-      if (selectedColorSwatchIndex != null) {
-        if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
-        config.palette.splice(selectedColorSwatchIndex, 1);
-        if (config.hiddenElements && typeof config.hiddenElements === 'object') {
-          Object.keys(config.hiddenElements).forEach(function (key) {
-            if (/^palette-swatch-\d+$/.test(key)) delete config.hiddenElements[key];
-          });
-        }
-        hideColorTooltip(true);
-        renderFlow();
-        notify('“' + removedLabel + '” was taken out of the palette. The remaining colours keep their places.');
-        return;
-      }
       if (!config.hiddenElements || typeof config.hiddenElements !== 'object') config.hiddenElements = {};
       if (!config.hiddenSelectors || typeof config.hiddenSelectors !== 'object') config.hiddenSelectors = {};
       if (selectedColorKey) {
@@ -1600,15 +1732,6 @@
   }
   if (resetElementColorsButton) {
     resetElementColorsButton.addEventListener('click', function () {
-      if (selectedColorSwatchIndex != null) {
-        if (!Array.isArray(config.palette) || !config.palette[selectedColorSwatchIndex]) return;
-        if (selectedColorDefaults && /^#[0-9a-f]{6}$/i.test(selectedColorDefaults.color || '')) {
-          config.palette[selectedColorSwatchIndex].color = selectedColorDefaults.color.toUpperCase();
-        }
-        if (textColorInput && selectedColorDefaults) textColorInput.value = selectedColorDefaults.color;
-        notify('Swatch colour restored.');
-        return;
-      }
       if (!selectedColorSelector || !config.colorEdits) return;
       delete config.colorEdits[selectedColorSelector];
       if (textColorInput && selectedColorDefaults) textColorInput.value = selectedColorDefaults.color;
@@ -1623,6 +1746,8 @@
     if (typeof window.confirm === 'function' &&
         !window.confirm('Restore the sample invitation? Your current edits will be replaced.')) return;
     config = clone(defaults);
+    manualInitials = false;
+    manualEventTitle = false;
     renderRsvpResponses([]);
     var responsesPanel = document.getElementById('rsvp-responses');
     if (responsesPanel) responsesPanel.hidden = true;
@@ -1674,6 +1799,10 @@
           var imported = JSON.parse(String(reader.result));
           if (!validConfig(imported)) throw new Error('This file does not look like a saved invitation copy.');
           config = imported;
+          manualInitials = deriveInitials() !== String(config.couple.initials || '');
+          manualEventTitle = ((config.couple.namesLine || '') + ' · Wedding') !==
+            String(config.wedding.eventTitle || '');
+          resetUndoHistory();
           fineTuneOpen = {};
           renderFlow();
           goStep(1);
@@ -1788,11 +1917,18 @@
 
   /* ── first paint ───────────────────────────────────────────── */
 
+  undoButton = document.getElementById('undo-change');
+  if (undoButton) undoButton.addEventListener('click', undoLastChange);
+
   try {
     var savedStep = parseInt(window.sessionStorage.getItem('heirloom-atelier-step'), 10);
     if (isFinite(savedStep) && savedStep >= 1 && savedStep <= SHARE_STEP) currentStep = savedStep;
   } catch (error) { /* private mode — start at the first step */ }
 
   renderFlow();
+  /* write the current invitation to storage at once, so “See it
+     as a guest” never shows a template left over from earlier   */
+  storePreviewConfig();
+  resetUndoHistory();
   loadManagedInvitation();
 })();

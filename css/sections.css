@@ -730,7 +730,8 @@
 }
 .palette-layout {
   display: grid;
-  grid-template-columns: minmax(16rem, .78fr) minmax(0, 1.55fr);
+  grid-template-columns: minmax(0, 34rem);
+  justify-content: center;
   align-items: center;
   gap: clamp(2.5rem, 7vw, 6rem);
 }
@@ -814,58 +815,6 @@
   color: rgba(238, 232, 221, .68);
   font-size: var(--fs-small);
   line-height: 1.65;
-}
-.palette-swatches {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(.7rem, 1.7vw, 1.25rem);
-}
-.palette-swatch {
-  display: grid;
-  grid-template-rows: auto auto auto auto;
-  align-content: start;
-  min-width: 0;
-}
-/* the plate numeral above each chip — I · II · III … */
-.palette-swatch__num {
-  display: block;
-  margin-bottom: .6rem;
-  font-family: var(--font-editorial);
-  font-style: italic;
-  font-size: .6rem;
-  letter-spacing: .32em;
-  color: rgba(205, 187, 154, .58);
-}
-.palette-color {
-  display: block;
-  width: 100%;
-  aspect-ratio: .74 / 1;
-  background: var(--swatch-color);
-  border: 1px solid rgba(205, 187, 154, .42);
-  box-shadow:
-    inset 0 0 0 4px rgba(255, 255, 255, .055),
-    0 8px 18px rgba(8, 2, 4, .16);
-  transition: transform var(--t-med) var(--ease-paper), box-shadow var(--t-med) var(--ease-paper);
-}
-.palette-swatch:hover .palette-color {
-  transform: translateY(-.3rem);
-  box-shadow:
-    inset 0 0 0 4px rgba(255, 255, 255, .08),
-    0 13px 22px rgba(8, 2, 4, .23);
-}
-.palette-name {
-  margin-top: .8rem;
-  color: var(--parchment);
-  font-family: var(--font-display);
-  font-size: clamp(1rem, 1.8vw, 1.22rem);
-  line-height: 1.1;
-}
-.palette-value {
-  margin-top: .35rem;
-  color: rgba(205, 187, 154, .66);
-  font-family: var(--font-body);
-  font-size: .55rem;
-  letter-spacing: .14em;
 }
 
 /* ═══════════════════════════════════════════════════════════════

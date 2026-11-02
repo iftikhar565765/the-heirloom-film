@@ -74,7 +74,6 @@
     if (descriptionEl && typeof description === 'string' && description) descriptionEl.content = description;
     applyTheme();
     applyFonts();
-    applyPalette();
   }
 
   function applyPreviewConfig(nextConfig) {
@@ -263,7 +262,6 @@
     'details-art-date': 'Crest · date ribbon',
     'details-art-sparkles': 'Crest · sparkles',
     'palette-dresscode': 'Dress code card',
-    'palette-swatches': 'Palette swatches',
     'day-words': 'Wedding-day words',
     'rsvp-watermark': 'RSVP watermark',
     'rsvp-ornament': 'RSVP ornament',
@@ -287,14 +285,10 @@
       element.style.removeProperty('display');
     });
     appliedHiddenElements = [];
-    /* palette swatches are managed by the palette array itself
-       (adding & removing swatches re-renders them) — ignore any
-       stale swatch keys left in older saved configs            */
-    var isSwatchKey = /^palette-swatch-\d+$/;
     var hidden = cfg.hiddenElements;
     if (hidden && typeof hidden === 'object' && !Array.isArray(hidden)) {
       Object.keys(hidden).forEach(function (key) {
-        if (!hidden[key] || isSwatchKey.test(key)) return;
+        if (!hidden[key]) return;
         var element;
         try {
           element = document.querySelector('[data-element-key="' + key + '"]');
@@ -353,27 +347,14 @@
     var rect = element.getBoundingClientRect();
     var ownKey = (element.getAttribute && element.getAttribute('data-element-key')) || '';
     var key = removeKey || ownKey || keyFor(element);
-    var swatch = element.closest ? element.closest('.palette-swatch') : null;
-    var swatchIndex = -1;
-    var paletteLabel = '';
-    if (swatch) {
-      var listed = document.querySelectorAll('.palette-swatch');
-      for (var i = 0; i < listed.length; i++) {
-        if (listed[i] === swatch) swatchIndex = i;
-      }
-      if (Array.isArray(cfg.palette) && cfg.palette[swatchIndex]) {
-        paletteLabel = 'Palette · ' + (cfg.palette[swatchIndex].name || 'swatch ' + (swatchIndex + 1));
-      }
-    }
     previewMessage({
       type: 'heirloom:element-selected',
       element: 'color',
       selector: selector,
       key: key,
       keySelf: !!(removeKey || ownKey),
-      swatchIndex: swatchIndex >= 0 ? swatchIndex : null,
       removable: true,
-      label: paletteLabel || labelFor(element),
+      label: labelFor(element),
       color: colorToHex(styles.color) || '#f7f4ee',
       backgroundColor: backgroundToHex(styles),
       anchor: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
@@ -534,16 +515,6 @@
           }
         }
         var keyedOwner = keyFor(textElement);
-        /* a palette swatch name reports its swatch so the editor's
-           Remove can take the whole swatch out of the palette      */
-        var swatchOwner = textElement.closest ? textElement.closest('.palette-swatch') : null;
-        var swatchOwnerIndex = -1;
-        if (swatchOwner) {
-          var swatchList = document.querySelectorAll('.palette-swatch');
-          for (var s = 0; s < swatchList.length; s++) {
-            if (swatchList[s] === swatchOwner) swatchOwnerIndex = s;
-          }
-        }
         previewMessage({
           type: 'heirloom:element-selected',
           element: 'text',
@@ -551,7 +522,6 @@
           selector: colorSelectorFor(textElement),
           key: keyedOwner,
           keySelf: textElement.hasAttribute('data-element-key'),
-          swatchIndex: swatchOwnerIndex >= 0 ? swatchOwnerIndex : null,
           removable: !!keyedOwner,
           label: labelFor(textElement),
           color: colorToHex(window.getComputedStyle(textElement).color) || '#f7f4ee',
@@ -703,31 +673,6 @@
     if (themeColorMeta) themeColorMeta.content = colors.night;
   }
 
-  function applyPalette() {
-    var list = document.getElementById('palette-swatches') ||
-      document.querySelector('.palette-swatches');
-    if (!list || !Array.isArray(cfg.palette)) return;
-    /* the swatch list is re-rendered from the palette array so
-       recolouring, renaming, adding and removing a swatch all
-       stay perfectly in sync — one source of truth              */
-    list.innerHTML = cfg.palette.map(function (swatch, index) {
-      var color = /^#[0-9a-f]{6}$/i.test(swatch && swatch.color || '') ? swatch.color : '#CDBB9A';
-      var name = typeof (swatch && swatch.name) === 'string' ? swatch.name : 'Colour ' + (index + 1);
-      return '<li class="palette-swatch reveal in-view" data-element-key="palette-swatch-' + (index + 1) + '" ' +
-        'data-swatch-index="' + index + '">' +
-        '<span class="palette-swatch__num" aria-hidden="true">' + romanNumeral(index) + '</span>' +
-        '<span class="palette-color" style="--swatch-color:' + color + '" aria-hidden="true"></span>' +
-        '<span class="palette-name" data-editor-path="palette.' + index + '.name">' + escapeHTML(name) + '</span>' +
-        '<span class="palette-value">' + escapeHTML(color.toUpperCase()) + '</span>' +
-        '</li>';
-    }).join('');
-  }
-
-  /* plate numerals for the colour study — I, II, III … */
-  function romanNumeral(index) {
-    var numerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-    return index < numerals.length ? numerals[index] : String(index + 1);
-  }
   injectContent();
   applyColorEdits();
   applyHiddenElements();
