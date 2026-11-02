@@ -1076,26 +1076,12 @@
     });
     body.appendChild(grid);
 
-    /* the words a guest meets before anything else deserve their
-       own place in the open, not tucked inside a fine-tune       */
-    body.appendChild(el('p', 'finetune__group-label', 'The opening screen'));
-    var openingGrid = el('div', 'field-grid');
-    addTextField(openingGrid, {
-      path: 'content.openingEyebrow', label: 'Opening introduction'
-    });
-    addTextField(openingGrid, {
-      path: 'content.envelopeAddress', label: 'Envelope addressee'
-    });
-    addTextField(openingGrid, {
-      path: 'content.openingHint', label: 'Invitation hint'
-    });
-    addTextField(openingGrid, {
-      path: 'content.openButton', label: 'Open button'
-    });
-    body.appendChild(openingGrid);
-
     addFineTune(body, 'words', 'Fine-tune · the smaller words', function (inner) {
-      groupLabel(inner, 'The opening envelope');
+      groupLabel(inner, 'The opening screen');
+      addTextField(inner, { path: 'content.openingEyebrow', label: 'Opening introduction' });
+      addTextField(inner, { path: 'content.envelopeAddress', label: 'Envelope addressee' });
+      addTextField(inner, { path: 'content.openingHint', label: 'Invitation hint' });
+      addTextField(inner, { path: 'content.openButton', label: 'Open button' });
       addTextField(inner, { path: 'content.skipButton', label: 'Skip button' });
       groupLabel(inner, 'The story frame');
       addTextField(inner, { path: 'content.storyTitle', label: 'Story heading' });
